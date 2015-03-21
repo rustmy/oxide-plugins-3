@@ -23,6 +23,8 @@ A descriptor with information about the plugin:
   The plugin's type (e.g. cs, lua, js, py, zip).
 * **version**  
   The plugin's most recent version (no semantic versioning yet).
+* **author**  
+  Oxide user name of the plugin's author.
 * **rating**  
   The average plugin rating.
 * **downloads**  
