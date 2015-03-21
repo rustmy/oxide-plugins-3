@@ -9,7 +9,7 @@
   "rating": 5,
   "downloads": 284,
   "updated": "2015-03-09T13:47:00.000Z",
-  "description": "Modify the length of which a player&#039;s corpse remains active in the world.",
+  "description": "Modify the length of which a player's corpse remains active in the world.",
   "downloadUrl": "resources/player-corpse-duration-modifier.778/download?version=3978",
   "filename": "m-DisappearingCorpses.lua"
 }

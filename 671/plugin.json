@@ -2,7 +2,7 @@
   "id": 671,
   "compat": "2.0",
   "game": "rust",
-  "name": "Day &amp; Night System",
+  "name": "Day & Night System",
   "category": "Admin-Tools",
   "type": "lua",
   "version": "1.0.3",

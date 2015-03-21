@@ -2,7 +2,7 @@
   "id": 711,
   "compat": "2.0",
   "game": "rust",
-  "name": "Clean Up &amp; Count Informations",
+  "name": "Clean Up & Count Informations",
   "category": "Admin-Tools",
   "type": "lua",
   "version": "1.3.2",
