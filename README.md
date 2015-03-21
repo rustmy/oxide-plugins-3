@@ -34,6 +34,9 @@ A descriptor with information about the plugin:
 * **filename**  
   The plugin's source file name.
 
+#### plugin.png
+The plugin's resource icon, if any. This might potentially also be a JPEG with a PNG extension.
+
 #### [filename.cs/.lua/.js/.py/.zip]
 A file containing the plugin's latest sources.
 
