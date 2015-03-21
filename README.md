@@ -6,7 +6,7 @@ Structure
 ---------
 Each plugin has its own directory named after the plugin's resource id. Directories contain:
 
-### plugin.json
+#### plugin.json
 A descriptor with information about the plugin:
 
 * **id**  
@@ -34,13 +34,12 @@ A descriptor with information about the plugin:
 * **filename**  
   The plugin's source file name.
 
-### [filename.cs/.lua/.js/.py/.zip]
+#### [filename.cs/.lua/.js/.py/.zip]
 A file containing the plugin's latest sources.
 
 Updating
 --------
 In its current state, the repository is not updated in a specific interval. We are working on providing this in the future, though.
-A service by [Rust:IO](http://playrust.io).
 
 All plugins belong to their respective authors.
 Rust:IO is not affiliated with, nor endorsed by Facepunch Studios LTD or OxideMod.

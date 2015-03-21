@@ -5,7 +5,7 @@
   "type": "lua",
   "version": "1.0.0",
   "rating": "4.75",
-  "downloads": "233",
+  "downloads": 233,
   "lastUpdate": "2015-01-22T19:00:00.000Z",
   "description": "Adds an in-game command for admins to remove leftover parachutes",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
