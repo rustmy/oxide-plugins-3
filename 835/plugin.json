@@ -1,13 +1,15 @@
 {
   "id": 835,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "LimitedSuicide",
+  "category": "Mechanics",
   "type": "cs",
   "version": "1.0.0",
   "rating": 0,
   "downloads": 72,
-  "lastUpdate": "2015-03-10T13:54:00.000Z",
-  "description": "Adds a limit to F1 + \"kill\".",
+  "updated": "2015-03-10T13:54:00.000Z",
+  "description": "Adds a limit to F1 + &quot;kill&quot;.",
   "downloadUrl": "resources/limitedsuicide.835/download?version=3982",
   "filename": "LimitedSuicide.cs"
 }

@@ -1,13 +1,15 @@
 {
   "id": 730,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "R-AntiCheat",
+  "category": "Anti-Grief",
   "type": "cs",
   "version": "1.6.0",
   "rating": 4.8,
   "downloads": 1,
-  "lastUpdate": "2015-02-12T13:12:00.000Z",
-  "description": "AntiCheat system with temporary checks for speed&jump hacks",
+  "updated": "2015-02-12T13:12:00.000Z",
+  "description": "AntiCheat system with temporary checks for speed&amp;jump hacks",
   "iconUrl": "data/resource_icons/0/730.jpg?1418149288",
   "downloadUrl": "resources/r-anticheat.730/download?version=3752",
   "filename": "AntiCheat.cs"

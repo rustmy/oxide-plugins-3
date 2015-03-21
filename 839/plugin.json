@@ -1,12 +1,14 @@
 {
   "id": 839,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Family Share Blocker",
+  "category": "Admin-Tools",
   "type": "cs",
   "version": "1.0.0",
   "rating": 5,
   "downloads": 20,
-  "lastUpdate": "2015-03-15T19:17:53.000Z",
+  "updated": "2015-03-15T19:17:53.000Z",
   "description": "Block family shared accounts from joining your server.",
   "downloadUrl": "resources/family-share-blocker.839/download?version=4023",
   "filename": "FamilyShareBlocker.cs"

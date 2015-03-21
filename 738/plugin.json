@@ -1,13 +1,15 @@
 {
   "id": 738,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "R-Lanterns",
+  "category": "Fun",
   "type": "lua",
   "version": "1.0.3",
   "rating": 5,
   "downloads": 393,
-  "lastUpdate": "2015-03-11T18:53:00.000Z",
-  "description": "Auto switch on & off lanterns when players enter a tool cupboard radius",
+  "updated": "2015-03-11T18:53:00.000Z",
+  "description": "Auto switch on &amp; off lanterns when players enter a tool cupboard radius",
   "downloadUrl": "resources/r-lanterns.738/download?version=3992",
   "filename": "r-Lanterns.lua"
 }

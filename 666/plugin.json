@@ -1,12 +1,14 @@
 {
   "id": 666,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Give",
+  "category": "Admin-Tools",
   "type": "cs",
   "version": "2.1.2",
   "rating": 5,
   "downloads": 2,
-  "lastUpdate": "2015-03-11T18:57:00.000Z",
+  "updated": "2015-03-11T18:57:00.000Z",
   "description": "Give a player or yourself",
   "downloadUrl": "resources/give.666/download?version=3993",
   "filename": "Give.cs"

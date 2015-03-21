@@ -1,12 +1,14 @@
 {
   "id": 696,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "DeadPlayersList",
+  "category": "Developer-Tools",
   "type": "cs",
   "version": "2.0.4",
   "rating": 5,
-  "downloads": 282,
-  "lastUpdate": "2015-03-20T18:52:45.000Z",
+  "downloads": 284,
+  "updated": "2015-03-20T18:52:45.000Z",
   "description": "Additional player list that tracks dead players names, used by other plugins.",
   "downloadUrl": "resources/deadplayerslist.696/download?version=4093",
   "filename": "DeadPlayersList.cs"

@@ -11,24 +11,28 @@ A descriptor with information about the plugin:
 
 * **id**  
   The plugin's resource id.
-* **compatibility**  
-  Oxide 2 version compatiblity.
+* **compat**  
+  Oxide version compatiblity.
+* **game**  
+  The game this plugin is for (e.g. rust).
 * **name**  
   The plugin's name.
+* **category**  
+  The plugin's category.
 * **type**  
-  The plugin's source type (e.g. cs, lua, js, py, zip).
+  The plugin's type (e.g. cs, lua, js, py, zip).
 * **version**  
-  The plugin's current version (no semantic versioning yet).
+  The plugin's most recent version (no semantic versioning yet).
 * **rating**  
   The average plugin rating.
 * **downloads**  
   The number of times this plugin has been downloaded.
-* **lastUpdate**  
+* **updated**  
   The plugin's last update time as an ISO 8601 string.
 * **description**  
   The plugin's short description.
 * **iconUrl**  
-  The URL of the plugin's resource icon.
+  The URL to the plugin's resource icon, if any.
 * **downloadUrl**  
   The URL of the plugin download.
 * **filename**  

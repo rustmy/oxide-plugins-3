@@ -1,12 +1,14 @@
 {
   "id": 718,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "SpectateMgr",
+  "category": "Admin-Tools",
   "type": "lua",
   "version": "0.0.1",
   "rating": 5,
   "downloads": 121,
-  "lastUpdate": "2014-11-10T21:20:00.000Z",
+  "updated": "2014-11-10T21:20:00.000Z",
   "description": "Manage and log spectate requests.",
   "downloadUrl": "resources/spectatemgr.718/download?version=2960",
   "filename": "spectateMgr.lua"

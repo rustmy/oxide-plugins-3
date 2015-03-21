@@ -1,12 +1,14 @@
 {
   "id": 786,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Remove Parachutes",
+  "category": "Fixes",
   "type": "lua",
   "version": "1.0.0",
   "rating": 4.75,
   "downloads": 234,
-  "lastUpdate": "2015-01-22T19:00:00.000Z",
+  "updated": "2015-01-22T19:00:00.000Z",
   "description": "Adds an in-game command for admins to remove leftover parachutes",
   "downloadUrl": "resources/remove-parachutes.786/download?version=3402",
   "filename": "m-AntiParachutes.lua"

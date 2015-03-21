@@ -1,13 +1,15 @@
 {
   "id": 778,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Player Corpse Duration Modifier",
+  "category": "Mechanics",
   "type": "lua",
   "version": "1.0.3",
   "rating": 5,
   "downloads": 284,
-  "lastUpdate": "2015-03-09T13:47:00.000Z",
-  "description": "Modify the length of which a player's corpse remains active in the world.",
+  "updated": "2015-03-09T13:47:00.000Z",
+  "description": "Modify the length of which a player&#039;s corpse remains active in the world.",
   "downloadUrl": "resources/player-corpse-duration-modifier.778/download?version=3978",
   "filename": "m-DisappearingCorpses.lua"
 }

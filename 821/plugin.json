@@ -1,12 +1,14 @@
 {
   "id": 821,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Player Titles",
+  "category": "Informational",
   "type": "js",
   "version": "0.1.1",
   "rating": 5,
   "downloads": 222,
-  "lastUpdate": "2015-02-16T06:16:00.000Z",
+  "updated": "2015-02-16T06:16:00.000Z",
   "description": "Provides Titles for Players, Mods, Admins in chat",
   "downloadUrl": "resources/player-titles.821/download?version=3806",
   "filename": "titles.js"

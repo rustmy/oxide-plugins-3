@@ -1,12 +1,14 @@
 {
   "id": 804,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Airdrop Controller",
+  "category": "Mechanics",
   "type": "cs",
   "version": "1.1.1",
-  "rating": 4.67,
-  "downloads": 710,
-  "lastUpdate": "2015-02-10T23:42:00.000Z",
+  "rating": 4.66667,
+  "downloads": 711,
+  "updated": "2015-02-10T23:42:00.000Z",
   "description": "Airdrop controller (locations, number of crates, speed, etc)",
   "downloadUrl": "resources/airdrop-controller.804/download?version=3732",
   "filename": "AirdropControl.cs"

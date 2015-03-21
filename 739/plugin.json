@@ -1,12 +1,14 @@
 {
   "id": 739,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Zones Manager",
+  "category": "Fun",
   "type": "lua",
   "version": "1.2.5",
-  "rating": 4.57,
-  "downloads": 488,
-  "lastUpdate": "2015-02-13T17:14:00.000Z",
+  "rating": 4.57143,
+  "downloads": 489,
+  "updated": "2015-02-13T17:14:00.000Z",
   "description": "Zones Manager",
   "downloadUrl": "resources/zones-manager.739/download?version=3766",
   "filename": "r-Zones.lua"

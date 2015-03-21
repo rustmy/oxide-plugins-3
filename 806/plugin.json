@@ -1,12 +1,14 @@
 {
   "id": 806,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "ItemConfig",
+  "category": "Mechanics",
   "type": "cs",
   "version": "1.0.8",
   "rating": 5,
-  "downloads": 568,
-  "lastUpdate": "2015-03-13T17:53:00.000Z",
+  "downloads": 569,
+  "updated": "2015-03-13T17:53:00.000Z",
   "description": "Settings for items, blueprints, constructions...",
   "downloadUrl": "resources/itemconfig.806/download?version=4006",
   "filename": "ItemConfig.cs"

@@ -1,12 +1,14 @@
 {
   "id": 695,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Crafting Controller",
+  "category": "Mechanics",
   "type": "cs",
   "version": "2.1.0",
   "rating": 5,
   "downloads": 2,
-  "lastUpdate": "2015-03-18T13:13:13.000Z",
+  "updated": "2015-03-18T13:13:13.000Z",
   "description": "Allows you to modify the time spend crafting and which items can be crafted.",
   "downloadUrl": "resources/crafting-controller.695/download?version=4061",
   "filename": "CraftingController.cs"

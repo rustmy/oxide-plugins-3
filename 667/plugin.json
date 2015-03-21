@@ -1,12 +1,14 @@
 {
   "id": 667,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Item Manager Core",
+  "category": "Developer-Tools",
   "type": "lua",
   "version": "0.1.1",
   "rating": 5,
   "downloads": 161,
-  "lastUpdate": "2014-10-21T21:32:00.000Z",
+  "updated": "2014-10-21T21:32:00.000Z",
   "description": "Core Plugin to manage Item Remove / Find / Give for other plugins.",
   "downloadUrl": "resources/item-manager-core.667/download?version=2724",
   "filename": "item_manager.lua"

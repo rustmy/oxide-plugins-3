@@ -1,12 +1,14 @@
 {
   "id": 791,
-  "compatibility": "2.0",
+  "compat": "2.0",
+  "game": "rust",
   "name": "Anti Wallhack",
+  "category": "Anti-Grief",
   "type": "cs",
   "version": "1.6.2",
   "rating": 5,
   "downloads": 707,
-  "lastUpdate": "2015-02-14T16:20:00.000Z",
+  "updated": "2015-02-14T16:20:00.000Z",
   "description": "Anti wallhack, detects players that walk inside walls",
   "downloadUrl": "resources/anti-wallhack.791/download?version=3780",
   "filename": "AntiWallhack.cs"
