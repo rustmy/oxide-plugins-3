@@ -2,7 +2,7 @@
   "id": 718,
   "compatibility": "2.0",
   "name": "SpectateMgr",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.0.1",
   "rating": "5",
   "downloads": "121",

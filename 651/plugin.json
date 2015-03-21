@@ -2,7 +2,7 @@
   "id": 651,
   "compatibility": "2.0",
   "name": "R-Remover Tool",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "2.2.12",
   "rating": "4.90909",
   "downloads": "2",

@@ -2,7 +2,7 @@
   "id": 777,
   "compatibility": "2.0",
   "name": "Running Man",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.0",
   "rating": "5",
   "downloads": "373",

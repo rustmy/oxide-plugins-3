@@ -2,7 +2,7 @@
   "id": 783,
   "compatibility": "2.0",
   "name": "Spectate Handler",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.3",
   "rating": "5",
   "downloads": "306",

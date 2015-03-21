@@ -2,7 +2,7 @@
   "id": 821,
   "compatibility": "2.0",
   "name": "Player Titles",
-  "type": "JavaScript",
+  "type": "js",
   "version": "0.1.1",
   "rating": "5",
   "downloads": "221",

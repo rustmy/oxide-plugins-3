@@ -2,7 +2,7 @@
   "id": 655,
   "compatibility": "2.0",
   "name": "Dice",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.2.5",
   "rating": "0",
   "downloads": "128",

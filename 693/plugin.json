@@ -2,7 +2,7 @@
   "id": 693,
   "compatibility": "2.0",
   "name": "Enhanced Ban System",
-  "type": "Lua",
+  "type": "lua",
   "version": "2.2.3",
   "rating": "5",
   "downloads": "838",

@@ -2,7 +2,7 @@
   "id": 788,
   "compatibility": "2.0",
   "name": "RotAG-Groups",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.7.3",
   "rating": "4.6",
   "downloads": "541",

@@ -2,7 +2,7 @@
   "id": 660,
   "compatibility": "2.0",
   "name": "Teleportation System",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.4.10",
   "rating": "4.91667",
   "downloads": "4",

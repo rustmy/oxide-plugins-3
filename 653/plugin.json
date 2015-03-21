@@ -2,7 +2,7 @@
   "id": 653,
   "compatibility": "2.0",
   "name": "Suicide & Kill",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.2",
   "rating": "5",
   "downloads": "820",

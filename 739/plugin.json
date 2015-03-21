@@ -2,7 +2,7 @@
   "id": 739,
   "compatibility": "2.0",
   "name": "Zones Manager",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.2.5",
   "rating": "4.57143",
   "downloads": "487",

@@ -2,7 +2,7 @@
   "id": 676,
   "compatibility": "2.0",
   "name": "Help Text",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.4.0",
   "rating": "5",
   "downloads": "2",

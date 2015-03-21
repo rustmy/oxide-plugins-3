@@ -2,7 +2,7 @@
   "id": 694,
   "compatibility": "2.0",
   "name": "PVP Switch",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.1.1",
   "rating": "5",
   "downloads": "546",

@@ -2,7 +2,7 @@
   "id": 815,
   "compatibility": "2.0",
   "name": "Mage MOTD",
-  "type": "JavaScript",
+  "type": "js",
   "version": "Version 1.1",
   "rating": "4",
   "downloads": "229",

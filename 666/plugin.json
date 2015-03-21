@@ -2,7 +2,7 @@
   "id": 666,
   "compatibility": "2.0",
   "name": "Give",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "2.1.2",
   "rating": "5",
   "downloads": "2",

@@ -2,7 +2,7 @@
   "id": 737,
   "compatibility": "2.0",
   "name": "RotAG-NameChanger",
-  "type": "Lua",
+  "type": "lua",
   "version": "2.3.3",
   "rating": "5",
   "downloads": "303",

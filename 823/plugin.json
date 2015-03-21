@@ -2,7 +2,7 @@
   "id": 823,
   "compatibility": "2.0",
   "name": "Telekinesis",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "0.4",
   "rating": "5",
   "downloads": "248",

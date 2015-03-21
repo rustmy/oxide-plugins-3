@@ -2,7 +2,7 @@
   "id": 785,
   "compatibility": "2.0",
   "name": "Airdrop Settings",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.0",
   "rating": "4.9",
   "downloads": "1",

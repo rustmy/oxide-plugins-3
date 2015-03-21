@@ -2,7 +2,7 @@
   "id": 704,
   "compatibility": "2.0",
   "name": "Notifico IRC Bridge",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.2.4",
   "rating": "5",
   "downloads": "52",

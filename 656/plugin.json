@@ -2,7 +2,7 @@
   "id": 656,
   "compatibility": "2.0",
   "name": "Ping",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.2.6",
   "rating": "5",
   "downloads": "686",

@@ -2,7 +2,7 @@
   "id": 765,
   "compatibility": "2.0",
   "name": "AFK Kick",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.3",
   "rating": "5",
   "downloads": "236",

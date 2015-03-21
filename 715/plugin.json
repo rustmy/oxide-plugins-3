@@ -2,7 +2,7 @@
   "id": 715,
   "compatibility": "2.0",
   "name": "Build",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.0",
   "rating": "4.75",
   "downloads": "700",

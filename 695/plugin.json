@@ -2,7 +2,7 @@
   "id": 695,
   "compatibility": "2.0",
   "name": "Crafting Controller",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "2.1.0",
   "rating": "5",
   "downloads": "2",

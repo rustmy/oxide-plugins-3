@@ -2,7 +2,7 @@
   "id": 734,
   "compatibility": "2.0",
   "name": "Anti-Dupe",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.2",
   "rating": "0",
   "downloads": "318",

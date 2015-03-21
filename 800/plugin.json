@@ -2,7 +2,7 @@
   "id": 800,
   "compatibility": "2.0",
   "name": "AutoDoorCloser",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.3.1",
   "rating": "5",
   "downloads": "767",

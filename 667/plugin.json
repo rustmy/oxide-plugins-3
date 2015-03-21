@@ -2,7 +2,7 @@
   "id": 667,
   "compatibility": "2.0",
   "name": "Item Manager Core",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.1",
   "rating": "5",
   "downloads": "161",

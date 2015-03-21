@@ -2,7 +2,7 @@
   "id": 690,
   "compatibility": "2.0",
   "name": "Online Log",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.1",
   "rating": "0",
   "downloads": "210",

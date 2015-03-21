@@ -2,7 +2,7 @@
   "id": 735,
   "compatibility": "2.0",
   "name": "RotAG-Banco",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.3.0",
   "rating": "5",
   "downloads": "172",

@@ -2,7 +2,7 @@
   "id": 738,
   "compatibility": "2.0",
   "name": "R-Lanterns",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.3",
   "rating": "5",
   "downloads": "393",

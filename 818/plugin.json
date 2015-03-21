@@ -2,7 +2,7 @@
   "id": 818,
   "compatibility": "2.0",
   "name": "Spawn",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.2.1",
   "rating": "5",
   "downloads": "176",

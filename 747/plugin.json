@@ -2,7 +2,7 @@
   "id": 747,
   "compatibility": "2.0",
   "name": "Raid [Temporary]",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.6",
   "rating": "5",
   "downloads": "365",

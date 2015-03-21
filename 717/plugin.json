@@ -2,7 +2,7 @@
   "id": 717,
   "compatibility": "2.0",
   "name": "Economics",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.6",
   "rating": "5",
   "downloads": "895",

@@ -2,7 +2,7 @@
   "id": 674,
   "compatibility": "2.0",
   "name": "Reserved",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.6",
   "rating": "5",
   "downloads": "213",

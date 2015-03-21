@@ -2,7 +2,7 @@
   "id": 770,
   "compatibility": "2.0",
   "name": "Money For Gather",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.2.1",
   "rating": "5",
   "downloads": "353",

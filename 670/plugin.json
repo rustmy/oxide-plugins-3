@@ -2,7 +2,7 @@
   "id": 670,
   "compatibility": "2.0",
   "name": "Logger",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.2.8",
   "rating": "5",
   "downloads": "392",

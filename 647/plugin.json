@@ -2,7 +2,7 @@
   "id": 647,
   "compatibility": "2.0",
   "name": "Command Block",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.2.3",
   "rating": "5",
   "downloads": "192",

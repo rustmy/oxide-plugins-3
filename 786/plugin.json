@@ -2,7 +2,7 @@
   "id": 786,
   "compatibility": "2.0",
   "name": "Remove Parachutes",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.0",
   "rating": "4.75",
   "downloads": "233",

@@ -2,7 +2,7 @@
   "id": 806,
   "compatibility": "2.0",
   "name": "ItemConfig",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.0.8",
   "rating": "5",
   "downloads": "568",

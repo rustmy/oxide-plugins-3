@@ -2,7 +2,7 @@
   "id": 797,
   "compatibility": "2.0",
   "name": "Notifier",
-  "type": "Python",
+  "type": "py",
   "version": "2.4.1",
   "rating": "4.8",
   "downloads": "1",

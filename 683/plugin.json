@@ -2,7 +2,7 @@
   "id": 683,
   "compatibility": "2.0",
   "name": "Prod (Who Owns)",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "2.1.3",
   "rating": "5",
   "downloads": "615",

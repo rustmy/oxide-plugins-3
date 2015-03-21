@@ -2,7 +2,7 @@
   "id": 716,
   "compatibility": "2.0",
   "name": "Copy-Paste",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "2.2.0",
   "rating": "5",
   "downloads": "533",

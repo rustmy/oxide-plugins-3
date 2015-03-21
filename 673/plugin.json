@@ -2,7 +2,7 @@
   "id": 673,
   "compatibility": "2.0",
   "name": "Godmode",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.4.3",
   "rating": "5",
   "downloads": "2",

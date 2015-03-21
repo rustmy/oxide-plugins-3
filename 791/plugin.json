@@ -2,7 +2,7 @@
   "id": 791,
   "compatibility": "2.0",
   "name": "Anti Wallhack",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.6.2",
   "rating": "5",
   "downloads": "706",

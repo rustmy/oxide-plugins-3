@@ -2,7 +2,7 @@
   "id": 808,
   "compatibility": "2.0",
   "name": "RotAG-RadEvent",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.0",
   "rating": "5",
   "downloads": "119",

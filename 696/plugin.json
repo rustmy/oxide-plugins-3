@@ -2,7 +2,7 @@
   "id": 696,
   "compatibility": "2.0",
   "name": "DeadPlayersList",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "2.0.4",
   "rating": "5",
   "downloads": "279",

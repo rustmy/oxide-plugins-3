@@ -2,7 +2,7 @@
   "id": 664,
   "compatibility": "2.0",
   "name": "Portgun",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.3.3",
   "rating": "4.66667",
   "downloads": "712",

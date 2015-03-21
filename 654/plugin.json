@@ -2,7 +2,7 @@
   "id": 654,
   "compatibility": "2.0",
   "name": "Whitelist",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.2.4",
   "rating": "4.5",
   "downloads": "307",

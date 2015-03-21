@@ -2,7 +2,7 @@
   "id": 675,
   "compatibility": "2.0",
   "name": "Increased Gather Rate",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.1.2",
   "rating": "5",
   "downloads": "2",

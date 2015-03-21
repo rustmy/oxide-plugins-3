@@ -2,7 +2,7 @@
   "id": 661,
   "compatibility": "2.0",
   "name": "Player List",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.4.0",
   "rating": "4.85714",
   "downloads": "2",

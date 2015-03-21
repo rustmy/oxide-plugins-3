@@ -2,7 +2,7 @@
   "id": 795,
   "compatibility": "2.0",
   "name": "VIP / Admin - Auto Name Changer",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.0",
   "rating": "5",
   "downloads": "547",

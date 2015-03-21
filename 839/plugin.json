@@ -2,7 +2,7 @@
   "id": 839,
   "compatibility": "2.0",
   "name": "Family Share Blocker",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.0.0",
   "rating": "5",
   "downloads": "20",

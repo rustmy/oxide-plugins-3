@@ -2,7 +2,7 @@
   "id": 760,
   "compatibility": "2.0",
   "name": "Warp System",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.0.9",
   "rating": "5",
   "downloads": "420",

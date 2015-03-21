@@ -2,7 +2,7 @@
   "id": 827,
   "compatibility": "2.0",
   "name": "Server Rules",
-  "type": "JavaScript",
+  "type": "js",
   "version": "1.5.0",
   "rating": "5",
   "downloads": "353",

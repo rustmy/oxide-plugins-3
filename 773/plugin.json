@@ -2,7 +2,7 @@
   "id": 773,
   "compatibility": "2.0",
   "name": "Inventory Guardian",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.4",
   "rating": "4.88889",
   "downloads": "451",

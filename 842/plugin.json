@@ -2,7 +2,7 @@
   "id": 842,
   "compatibility": "2.0",
   "name": "Rust:IO Clans",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.0.3",
   "rating": "4",
   "downloads": "147",

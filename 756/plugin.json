@@ -2,7 +2,7 @@
   "id": 756,
   "compatibility": "2.0",
   "name": "Admin Door Unlocker",
-  "type": "Lua",
+  "type": "lua",
   "version": "0.1.1",
   "rating": "4.9",
   "downloads": "1",

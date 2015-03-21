@@ -2,7 +2,7 @@
   "id": 828,
   "compatibility": "2.0",
   "name": "BetterLoot",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.7.0",
   "rating": "5",
   "downloads": "533",

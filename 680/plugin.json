@@ -2,7 +2,7 @@
   "id": 680,
   "compatibility": "2.0",
   "name": "Metabolism Control",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.1.1",
   "rating": "5",
   "downloads": "267",

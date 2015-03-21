@@ -2,7 +2,7 @@
   "id": 649,
   "compatibility": "2.0",
   "name": "Custom Chat Commands",
-  "type": "Lua",
+  "type": "lua",
   "version": "2.2.0",
   "rating": "5",
   "downloads": "590",

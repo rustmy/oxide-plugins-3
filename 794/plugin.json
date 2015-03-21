@@ -2,7 +2,7 @@
   "id": 794,
   "compatibility": "2.0",
   "name": "Jail",
-  "type": "C#/CSharp",
+  "type": "cs",
   "version": "1.0.1",
   "rating": "5",
   "downloads": "302",

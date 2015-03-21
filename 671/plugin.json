@@ -2,7 +2,7 @@
   "id": 671,
   "compatibility": "2.0",
   "name": "Day & Night System",
-  "type": "Lua",
+  "type": "lua",
   "version": "1.0.3",
   "rating": "4.78571",
   "downloads": "2",
