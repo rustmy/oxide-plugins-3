@@ -6,7 +6,7 @@
   "version": "0.2.4",
   "rating": "4.5",
   "downloads": "307",
-  "lastUpdate": "Feb 8, 2015 at 12:04 AM",
+  "lastUpdate": "2015-02-07T23:04:00.000Z",
   "description": "Restricts access to your server, automatically rejecting users whose SteamID is not whitelisted",
   "iconUrl": "data/resource_icons/0/654.jpg?1413498293",
   "downloadUrl": "resources/whitelist.654/download?version=3644",
