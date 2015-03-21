@@ -1,0 +1,14 @@
+{
+  "id": 821,
+  "compatibility": "2.0",
+  "name": "Player Titles",
+  "type": "JavaScript",
+  "version": "0.1.1",
+  "rating": "5",
+  "downloads": "221",
+  "lastUpdate": "Feb 16, 2015 at 7:16 AM",
+  "description": "Provides Titles for Players, Mods, Admins in chat",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/player-titles.821/download?version=3806",
+  "filename": "titles.js"
+}

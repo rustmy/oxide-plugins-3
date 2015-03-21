@@ -1,0 +1,14 @@
+{
+  "id": 695,
+  "compatibility": "2.0",
+  "name": "Crafting Controller",
+  "type": "C#/CSharp",
+  "version": "2.1.0",
+  "rating": "5",
+  "downloads": "2",
+  "lastUpdate": "1426684393",
+  "description": "Allows you to modify the time spend crafting and which items can be crafted.",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/crafting-controller.695/download?version=4061",
+  "filename": "CraftingController.cs"
+}

@@ -1,0 +1,14 @@
+{
+  "id": 684,
+  "compatibility": "2.0",
+  "name": "Auto Broadcast",
+  "type": "Lua",
+  "version": "0.1.1",
+  "rating": "5",
+  "downloads": "975",
+  "lastUpdate": "Oct 26, 2014 at 10:26 AM",
+  "description": "Sends global broadcast messages over a timed interval",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/auto-broadcast.684/download?version=2797",
+  "filename": "autobroadcast.lua"
+}

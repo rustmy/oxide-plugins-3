@@ -1,0 +1,14 @@
+{
+  "id": 749,
+  "compatibility": "2.0",
+  "name": "RustDB",
+  "type": "Lua",
+  "version": "1.2.2",
+  "rating": "5",
+  "downloads": "308",
+  "lastUpdate": "Feb 8, 2015 at 11:31 AM",
+  "description": "Get RustDB banlist / autokick / Add or Remove bans from your rustdb banlist",
+  "iconUrl": "data/resource_icons/0/749.jpg?1420134637",
+  "downloadUrl": "resources/rustdb.749/download?version=3659",
+  "filename": "RustDB.lua"
+}

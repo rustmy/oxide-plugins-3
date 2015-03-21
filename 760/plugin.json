@@ -1,0 +1,14 @@
+{
+  "id": 760,
+  "compatibility": "2.0",
+  "name": "Warp System",
+  "type": "Lua",
+  "version": "0.0.9",
+  "rating": "5",
+  "downloads": "420",
+  "lastUpdate": "Mar 1, 2015 at 6:20 PM",
+  "description": "Create warp points for players",
+  "iconUrl": "data/resource_icons/0/760.jpg?1425152162",
+  "downloadUrl": "resources/warp-system.760/download?version=3935",
+  "filename": "warp-system.lua"
+}

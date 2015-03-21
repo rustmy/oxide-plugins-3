@@ -1,0 +1,14 @@
+{
+  "id": 663,
+  "compatibility": "2.0",
+  "name": "Player Location",
+  "type": "Lua",
+  "version": "1.2.0",
+  "rating": "4.88889",
+  "downloads": "1",
+  "lastUpdate": "Jan 23, 2015 at 1:08 PM",
+  "description": "Allows users to see their current coordinates",
+  "iconUrl": "data/resource_icons/0/663.jpg?1414921052",
+  "downloadUrl": "resources/player-location.663/download?version=3412",
+  "filename": "playerlocation.lua"
+}

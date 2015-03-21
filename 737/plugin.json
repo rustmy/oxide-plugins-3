@@ -1,0 +1,14 @@
+{
+  "id": 737,
+  "compatibility": "2.0",
+  "name": "RotAG-NameChanger",
+  "type": "Lua",
+  "version": "2.3.3",
+  "rating": "5",
+  "downloads": "302",
+  "lastUpdate": "Feb 15, 2015 at 12:33 AM",
+  "description": "An ADMIN plugin to change your chat name in game.",
+  "iconUrl": "data/resource_icons/0/737.jpg?1418660548",
+  "downloadUrl": "resources/rotag-namechanger.737/download?version=3792",
+  "filename": "RotAG-NameChanger.lua"
+}

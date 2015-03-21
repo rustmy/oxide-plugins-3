@@ -1,0 +1,14 @@
+{
+  "id": 736,
+  "compatibility": "2.0",
+  "name": "RotAG-Roubo",
+  "type": "Lua",
+  "version": "1.1.2",
+  "rating": "5",
+  "downloads": "171",
+  "lastUpdate": "Feb 28, 2015 at 5:01 PM",
+  "description": "A robbery system to use with economics from Bombardir",
+  "iconUrl": "data/resource_icons/0/736.jpg?1418629095",
+  "downloadUrl": "resources/rotag-roubo.736/download?version=3919",
+  "filename": "RotAG-Roubo.lua"
+}

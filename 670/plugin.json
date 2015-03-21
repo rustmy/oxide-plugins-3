@@ -1,0 +1,14 @@
+{
+  "id": 670,
+  "compatibility": "2.0",
+  "name": "Logger",
+  "type": "Lua",
+  "version": "0.2.8",
+  "rating": "5",
+  "downloads": "392",
+  "lastUpdate": "Feb 7, 2015 at 6:14 PM",
+  "description": "Logs all chat commands used by players with auth level to the server log and/or chat",
+  "iconUrl": "data/resource_icons/0/670.jpg?1413954291",
+  "downloadUrl": "resources/logger.670/download?version=3696",
+  "filename": "0-logger.lua"
+}

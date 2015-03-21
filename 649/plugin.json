@@ -1,0 +1,14 @@
+{
+  "id": 649,
+  "compatibility": "2.0",
+  "name": "Custom Chat Commands",
+  "type": "Lua",
+  "version": "2.2.0",
+  "rating": "5",
+  "downloads": "590",
+  "lastUpdate": "Jan 31, 2015 at 6:52 PM",
+  "description": "Completely dynamic and unlimited custom chat commands",
+  "iconUrl": "data/resource_icons/0/649.jpg?1414921726",
+  "downloadUrl": "resources/custom-chat-commands.649/download?version=3492",
+  "filename": "CustomChatCommands.lua"
+}

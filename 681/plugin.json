@@ -1,0 +1,14 @@
+{
+  "id": 681,
+  "compatibility": "2.0",
+  "name": "Updater",
+  "type": "Lua",
+  "version": "0.2.10",
+  "rating": "5",
+  "downloads": "1",
+  "lastUpdate": "Feb 9, 2015 at 9:32 PM",
+  "description": "Automatic update checking and notifications for plugins",
+  "iconUrl": "data/resource_icons/0/681.jpg?1414183007",
+  "downloadUrl": "resources/updater.681/download?version=3702",
+  "filename": "updater.lua"
+}

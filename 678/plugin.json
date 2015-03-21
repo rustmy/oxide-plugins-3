@@ -1,0 +1,14 @@
+{
+  "id": 678,
+  "compatibility": "2.0",
+  "name": "Natives",
+  "type": "Lua",
+  "version": "0.1.8",
+  "rating": "0",
+  "downloads": "129",
+  "lastUpdate": "Feb 7, 2015 at 6:13 PM",
+  "description": "Allows only players from the server's country to join",
+  "iconUrl": "data/resource_icons/0/678.jpg?1414103739",
+  "downloadUrl": "resources/natives.678/download?version=3603",
+  "filename": "natives.lua"
+}

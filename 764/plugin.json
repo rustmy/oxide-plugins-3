@@ -1,0 +1,14 @@
+{
+  "id": 764,
+  "compatibility": "2.0",
+  "name": "Server Tags",
+  "type": "Lua",
+  "version": "0.1.0",
+  "rating": "0",
+  "downloads": "86",
+  "lastUpdate": "Jan 9, 2015 at 8:24 PM",
+  "description": "Adds specified tags to the existing server tags",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/server-tags.764/download?version=3259",
+  "filename": "servertags.lua"
+}

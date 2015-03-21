@@ -1,0 +1,14 @@
+{
+  "id": 832,
+  "compatibility": "2.0",
+  "name": "Timed Explosives Modifier",
+  "type": "C#/CSharp",
+  "version": "1.0.0",
+  "rating": "5",
+  "downloads": "197",
+  "lastUpdate": "Mar 6, 2015 at 3:25 PM",
+  "description": "Allows you to modify the damage a timed explosive deals.",
+  "iconUrl": "data/resource_icons/0/832.jpg?1425638230",
+  "downloadUrl": "resources/timed-explosives-modifier.832/download?version=3956",
+  "filename": "TimedExplosivesModifier.cs"
+}

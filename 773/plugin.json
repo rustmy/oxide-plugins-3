@@ -1,0 +1,14 @@
+{
+  "id": 773,
+  "compatibility": "2.0",
+  "name": "Inventory Guardian",
+  "type": "Lua",
+  "version": "0.1.4",
+  "rating": "4.88889",
+  "downloads": "450",
+  "lastUpdate": "Mar 1, 2015 at 6:19 PM",
+  "description": "Restore players inventory even after server Wipe!",
+  "iconUrl": "data/resource_icons/0/773.jpg?1425152192",
+  "downloadUrl": "resources/inventory-guardian.773/download?version=3933",
+  "filename": "Inventory-Guardian.lua"
+}

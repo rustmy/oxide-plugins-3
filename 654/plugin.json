@@ -1,0 +1,14 @@
+{
+  "id": 654,
+  "compatibility": "2.0",
+  "name": "Whitelist",
+  "type": "Lua",
+  "version": "0.2.4",
+  "rating": "4.5",
+  "downloads": "307",
+  "lastUpdate": "Feb 8, 2015 at 12:04 AM",
+  "description": "Restricts access to your server, automatically rejecting users whose SteamID is not whitelisted",
+  "iconUrl": "data/resource_icons/0/654.jpg?1413498293",
+  "downloadUrl": "resources/whitelist.654/download?version=3644",
+  "filename": "whitelist.lua"
+}

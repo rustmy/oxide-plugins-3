@@ -1,0 +1,14 @@
+{
+  "id": 667,
+  "compatibility": "2.0",
+  "name": "Item Manager Core",
+  "type": "Lua",
+  "version": "0.1.1",
+  "rating": "5",
+  "downloads": "161",
+  "lastUpdate": "Oct 21, 2014 at 11:32 PM",
+  "description": "Core Plugin to manage Item Remove / Find / Give for other plugins.",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/item-manager-core.667/download?version=2724",
+  "filename": "item_manager.lua"
+}

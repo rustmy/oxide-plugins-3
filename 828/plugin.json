@@ -1,0 +1,14 @@
+{
+  "id": 828,
+  "compatibility": "2.0",
+  "name": "BetterLoot",
+  "type": "C#/CSharp",
+  "version": "1.7.0",
+  "rating": "5",
+  "downloads": "533",
+  "lastUpdate": "1426856139",
+  "description": "A complete re-implementation of the drop system.",
+  "iconUrl": "data/resource_icons/0/828.jpg?1426597878",
+  "downloadUrl": "resources/betterloot.828/download?version=4089",
+  "filename": "BetterLoot.cs"
+}

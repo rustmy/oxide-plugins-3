@@ -1,0 +1,14 @@
+{
+  "id": 794,
+  "compatibility": "2.0",
+  "name": "Jail",
+  "type": "C#/CSharp",
+  "version": "1.0.1",
+  "rating": "5",
+  "downloads": "302",
+  "lastUpdate": "Feb 9, 2015 at 8:55 PM",
+  "description": "Send players to jail",
+  "iconUrl": "data/resource_icons/0/794.jpg?1422573437",
+  "downloadUrl": "resources/jail.794/download?version=3697",
+  "filename": "Jail.cs"
+}

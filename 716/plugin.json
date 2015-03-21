@@ -1,0 +1,14 @@
+{
+  "id": 716,
+  "compatibility": "2.0",
+  "name": "Copy-Paste",
+  "type": "C#/CSharp",
+  "version": "2.2.0",
+  "rating": "5",
+  "downloads": "532",
+  "lastUpdate": "1426804237",
+  "description": "Copy Paste Buildings",
+  "iconUrl": "data/resource_icons/0/716.jpg?1415899839",
+  "downloadUrl": "resources/copy-paste.716/download?version=4079",
+  "filename": "CopyPaste.cs"
+}

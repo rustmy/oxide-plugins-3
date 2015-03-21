@@ -1,0 +1,14 @@
+{
+  "id": 707,
+  "compatibility": "2.0",
+  "name": "Chat Handler",
+  "type": "Bundle",
+  "version": "2.5.0",
+  "rating": "5",
+  "downloads": "933",
+  "lastUpdate": "1426814619",
+  "description": "Many features to help moderate the chat",
+  "iconUrl": "data/resource_icons/0/707.jpg?1414920023",
+  "downloadUrl": "resources/chat-handler.707/download?version=4082",
+  "filename": "chathandler2.5.zip"
+}

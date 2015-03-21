@@ -1,0 +1,14 @@
+{
+  "id": 842,
+  "compatibility": "2.0",
+  "name": "Rust:IO Clans",
+  "type": "C#/CSharp",
+  "version": "1.0.3",
+  "rating": "4",
+  "downloads": "145",
+  "lastUpdate": "1426776836",
+  "description": "Allows your players to form and manage clans.",
+  "iconUrl": "data/resource_icons/0/842.jpg?1426556990",
+  "downloadUrl": "resources/rust-io-clans.842/download?version=4071",
+  "filename": "RustIOClans.cs"
+}

@@ -1,0 +1,14 @@
+{
+  "id": 770,
+  "compatibility": "2.0",
+  "name": "Money For Gather",
+  "type": "Lua",
+  "version": "1.2.1",
+  "rating": "5",
+  "downloads": "352",
+  "lastUpdate": "Feb 8, 2015 at 7:44 AM",
+  "description": "Gives players money through Economics plugin for various actions (gathering, animal kills)",
+  "iconUrl": "data/resource_icons/0/770.jpg?1421871531",
+  "downloadUrl": "resources/money-for-gather.770/download?version=3658",
+  "filename": "money-for-gather.lua"
+}

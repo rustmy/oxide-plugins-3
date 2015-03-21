@@ -1,0 +1,14 @@
+{
+  "id": 804,
+  "compatibility": "2.0",
+  "name": "Airdrop Controller",
+  "type": "C#/CSharp",
+  "version": "1.1.1",
+  "rating": "4.66667",
+  "downloads": "703",
+  "lastUpdate": "Feb 11, 2015 at 12:42 AM",
+  "description": "Airdrop controller (locations, number of crates, speed, etc)",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/airdrop-controller.804/download?version=3732",
+  "filename": "AirdropControl.cs"
+}

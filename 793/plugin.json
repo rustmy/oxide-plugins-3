@@ -1,0 +1,14 @@
+{
+  "id": 793,
+  "compatibility": "2.0",
+  "name": "Poll System",
+  "type": "C#/CSharp",
+  "version": "1.0.10",
+  "rating": "4.75",
+  "downloads": "225",
+  "lastUpdate": "1426865405",
+  "description": "Admins can run polls in their servers",
+  "iconUrl": "data/resource_icons/0/793.jpg?1422487093",
+  "downloadUrl": "resources/poll-system.793/download?version=4090",
+  "filename": "Polling.cs"
+}

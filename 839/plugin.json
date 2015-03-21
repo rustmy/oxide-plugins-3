@@ -1,0 +1,14 @@
+{
+  "id": 839,
+  "compatibility": "2.0",
+  "name": "Family Share Blocker",
+  "type": "C#/CSharp",
+  "version": "1.0.0",
+  "rating": "5",
+  "downloads": "20",
+  "lastUpdate": "1426447073",
+  "description": "Block family shared accounts from joining your server.",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/family-share-blocker.839/download?version=4023",
+  "filename": "FamilyShareBlocker.cs"
+}

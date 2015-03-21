@@ -1,0 +1,13 @@
+{
+  "id": 815,
+  "compatibility": "2.0",
+  "name": "Mage MOTD",
+  "type": "JavaScript",
+  "rating": "4",
+  "downloads": "229",
+  "lastUpdate": "Feb 11, 2015 at 7:48 AM",
+  "description": "Daily Message for your Server",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/mage-motd.815/download?version=3736",
+  "filename": "MageMotd.js"
+}

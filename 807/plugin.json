@@ -1,0 +1,14 @@
+{
+  "id": 807,
+  "compatibility": "2.0",
+  "name": "Happy Hour",
+  "type": "C#/CSharp",
+  "version": "1.0.3",
+  "rating": "5",
+  "downloads": "127",
+  "lastUpdate": "1426865783",
+  "description": "You want to give players some items in specific times?This plugin just for it :)",
+  "iconUrl": "data/resource_icons/0/807.jpg?1423177386",
+  "downloadUrl": "resources/happy-hour.807/download?version=4091",
+  "filename": "HappyHour.cs"
+}

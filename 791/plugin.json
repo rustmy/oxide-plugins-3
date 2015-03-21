@@ -1,0 +1,14 @@
+{
+  "id": 791,
+  "compatibility": "2.0",
+  "name": "Anti Wallhack",
+  "type": "C#/CSharp",
+  "version": "1.6.2",
+  "rating": "5",
+  "downloads": "706",
+  "lastUpdate": "Feb 14, 2015 at 5:20 PM",
+  "description": "Anti wallhack, detects players that walk inside walls",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/anti-wallhack.791/download?version=3780",
+  "filename": "AntiWallhack.cs"
+}

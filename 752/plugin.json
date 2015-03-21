@@ -1,0 +1,14 @@
+{
+  "id": 752,
+  "compatibility": "2.0",
+  "name": "Voter Reward",
+  "type": "Lua",
+  "version": "1.4.0",
+  "rating": "5",
+  "downloads": "254",
+  "lastUpdate": "Feb 20, 2015 at 4:20 PM",
+  "description": "Rewards players voted for your server on TopRustServers.com, Rust-Servers.net, etc",
+  "iconUrl": "data/resource_icons/0/752.jpg?1420500249",
+  "downloadUrl": "resources/voter-reward.752/download?version=3850",
+  "filename": "voter.lua"
+}

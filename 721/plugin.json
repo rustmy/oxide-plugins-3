@@ -1,0 +1,14 @@
+{
+  "id": 721,
+  "compatibility": "2.0",
+  "name": "Shop",
+  "type": "Lua",
+  "version": "1.1",
+  "rating": "5",
+  "downloads": "946",
+  "lastUpdate": "Feb 17, 2015 at 10:34 PM",
+  "description": "Automatic calculation of price, buying, selling and more...",
+  "iconUrl": "data/resource_icons/0/721.jpg?1416153172",
+  "downloadUrl": "resources/shop.721/download?version=3825",
+  "filename": "Shop.lua"
+}

@@ -1,0 +1,14 @@
+{
+  "id": 836,
+  "compatibility": "2.0",
+  "name": "MoneyTime for Economics",
+  "type": "Lua",
+  "version": "0.8.5",
+  "rating": "0",
+  "downloads": "71",
+  "lastUpdate": "Mar 12, 2015 at 10:43 PM",
+  "description": "Pays Players a specified amount for every specified seconds played.",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/moneytime-for-economics.836/download?version=4002",
+  "filename": "MoneyTime.lua"
+}

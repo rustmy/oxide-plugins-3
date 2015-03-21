@@ -1,0 +1,14 @@
+{
+  "id": 786,
+  "compatibility": "2.0",
+  "name": "Remove Parachutes",
+  "type": "Lua",
+  "version": "1.0.0",
+  "rating": "4.75",
+  "downloads": "233",
+  "lastUpdate": "Jan 22, 2015 at 8:00 PM",
+  "description": "Adds an in-game command for admins to remove leftover parachutes",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/remove-parachutes.786/download?version=3402",
+  "filename": "m-AntiParachutes.lua"
+}

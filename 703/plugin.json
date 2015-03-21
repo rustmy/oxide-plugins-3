@@ -1,0 +1,14 @@
+{
+  "id": 703,
+  "compatibility": "2.0",
+  "name": "Welcome Gifts",
+  "type": "Lua",
+  "version": "0.1.2",
+  "rating": "0",
+  "downloads": "798",
+  "lastUpdate": "Feb 27, 2015 at 5:30 AM",
+  "description": "Gives new players one or more welcome gifts on first join",
+  "iconUrl": "data/resource_icons/0/703.jpg?1414827910",
+  "downloadUrl": "resources/welcome-gifts.703/download?version=3908",
+  "filename": "welcomegifts.lua"
+}

@@ -1,0 +1,14 @@
+{
+  "id": 679,
+  "compatibility": "2.0",
+  "name": "Analytics",
+  "type": "Lua",
+  "version": "0.2.1",
+  "rating": "5",
+  "downloads": "128",
+  "lastUpdate": "Feb 7, 2015 at 6:15 PM",
+  "description": "Real-time collection and reporting of player locations on connect to Google Analytics",
+  "iconUrl": "data/resource_icons/0/679.jpg?1424800424",
+  "downloadUrl": "resources/analytics.679/download?version=3612",
+  "filename": "analytics.lua"
+}

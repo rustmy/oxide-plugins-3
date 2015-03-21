@@ -1,0 +1,14 @@
+{
+  "id": 676,
+  "compatibility": "2.0",
+  "name": "Help Text",
+  "type": "Lua",
+  "version": "1.4.0",
+  "rating": "5",
+  "downloads": "2",
+  "lastUpdate": "Jan 20, 2015 at 8:44 PM",
+  "description": "Allows people to use /help to get help info from all plugins",
+  "iconUrl": "data/resource_icons/0/676.jpg?1414921089",
+  "downloadUrl": "resources/help-text.676/download?version=3367",
+  "filename": "helptext.lua"
+}

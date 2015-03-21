@@ -1,0 +1,14 @@
+{
+  "id": 702,
+  "compatibility": "2.0",
+  "name": "Auth Level",
+  "type": "Lua",
+  "version": "0.1.8",
+  "rating": "5",
+  "downloads": "886",
+  "lastUpdate": "Feb 10, 2015 at 4:51 PM",
+  "description": "Add or remove players as owner/moderator/player via command",
+  "iconUrl": "data/resource_icons/0/702.jpg?1414790195",
+  "downloadUrl": "resources/auth-level.702/download?version=3726",
+  "filename": "authlevel.lua"
+}

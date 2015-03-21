@@ -1,0 +1,14 @@
+{
+  "id": 648,
+  "compatibility": "2.0",
+  "name": "Restrict Names",
+  "type": "Lua",
+  "version": "0.1.1",
+  "rating": "0",
+  "downloads": "167",
+  "lastUpdate": "Oct 27, 2014 at 12:36 AM",
+  "description": "Restricts names and characters",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/restrict-names.648/download?version=2809",
+  "filename": "restrictnames.lua"
+}

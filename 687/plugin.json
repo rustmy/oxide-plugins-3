@@ -1,0 +1,14 @@
+{
+  "id": 687,
+  "compatibility": "2.0",
+  "name": "Friends Friendly Fire",
+  "type": "Lua",
+  "version": "1.3.3",
+  "rating": "5",
+  "downloads": "604",
+  "lastUpdate": "Feb 27, 2015 at 7:26 PM",
+  "description": "Enable/disable friend fire for friends server-wide",
+  "iconUrl": "data/resource_icons/0/687.jpg?1414921316",
+  "downloadUrl": "resources/friends-friendly-fire.687/download?version=3917",
+  "filename": "friendsfriendlyfire.lua"
+}

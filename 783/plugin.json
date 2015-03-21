@@ -1,0 +1,14 @@
+{
+  "id": 783,
+  "compatibility": "2.0",
+  "name": "Spectate Handler",
+  "type": "Lua",
+  "version": "1.0.3",
+  "rating": "5",
+  "downloads": "306",
+  "lastUpdate": "Feb 7, 2015 at 11:56 PM",
+  "description": "Temporary plugin that lets you choose who to spectate",
+  "iconUrl": "styles/default/xenresource/resource_icon.png",
+  "downloadUrl": "resources/spectate-handler.783/download?version=3643",
+  "filename": "spectatePlayer.lua"
+}

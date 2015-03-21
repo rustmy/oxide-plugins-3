@@ -1,0 +1,14 @@
+{
+  "id": 812,
+  "compatibility": "2.0",
+  "name": "Stack Sizes",
+  "type": "C#/CSharp",
+  "version": "1.1.3",
+  "rating": "5",
+  "downloads": "1",
+  "lastUpdate": "Feb 20, 2015 at 10:48 PM",
+  "description": "Lets you change stack sizes",
+  "iconUrl": "data/resource_icons/0/812.jpg?1424821460",
+  "downloadUrl": "resources/stack-sizes.812/download?version=3857",
+  "filename": "StackSizes.cs"
+}

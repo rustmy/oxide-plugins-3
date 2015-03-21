@@ -1,0 +1,14 @@
+{
+  "id": 788,
+  "compatibility": "2.0",
+  "name": "RotAG-Groups",
+  "type": "Lua",
+  "version": "1.7.3",
+  "rating": "4.6",
+  "downloads": "540",
+  "lastUpdate": "Feb 23, 2015 at 4:43 AM",
+  "description": "Groups System with Group Tag in chat and Friendly Fire set for the group",
+  "iconUrl": "data/resource_icons/0/788.jpg?1422053381",
+  "downloadUrl": "resources/rotag-groups.788/download?version=3877",
+  "filename": "RotAG-Groups.lua"
+}
