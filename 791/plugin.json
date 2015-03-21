@@ -4,7 +4,7 @@
   "name": "Anti Wallhack",
   "type": "cs",
   "version": "1.6.2",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 706,
   "lastUpdate": "2015-02-14T16:20:00.000Z",
   "description": "Anti wallhack, detects players that walk inside walls",

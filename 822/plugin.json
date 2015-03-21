@@ -4,7 +4,7 @@
   "name": "Fly",
   "type": "cs",
   "version": "0.2",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 1,
   "lastUpdate": "2015-02-17T19:55:00.000Z",
   "description": "Fly mode for admins and moderators",

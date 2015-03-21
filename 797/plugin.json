@@ -4,7 +4,7 @@
   "name": "Notifier",
   "type": "py",
   "version": "2.4.1",
-  "rating": "4.80",
+  "rating": 4.8,
   "downloads": 1,
   "lastUpdate": "2015-03-19T19:27:56.000Z",
   "description": "Broadcasts chat messages as notifications and advertising.",

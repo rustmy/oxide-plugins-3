@@ -4,7 +4,7 @@
   "name": "VIP / Admin - Auto Name Changer",
   "type": "lua",
   "version": "1.0.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 547,
   "lastUpdate": "2015-03-09T20:03:00.000Z",
   "description": "Adds a VIP or Admin tag to any VIPs or Admins",

@@ -4,7 +4,7 @@
   "name": "Finder",
   "type": "lua",
   "version": "1.4.2",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 653,
   "lastUpdate": "2015-02-07T22:46:00.000Z",
   "description": "Find Players, SleepingBags, Doors, Sleepers, and teleport to them",

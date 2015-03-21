@@ -4,7 +4,7 @@
   "name": "Suicide & Kill",
   "type": "lua",
   "version": "0.1.2",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 820,
   "lastUpdate": "2015-02-07T22:55:00.000Z",
   "description": "Suicide chat command & Admin commands to kill a player",

@@ -4,7 +4,7 @@
   "name": "Anti-Dupe",
   "type": "lua",
   "version": "1.0.2",
-  "rating": "0.00",
+  "rating": 0,
   "downloads": 318,
   "lastUpdate": "2014-12-13T16:37:00.000Z",
   "description": "Prevent player to stack-duplicate items",

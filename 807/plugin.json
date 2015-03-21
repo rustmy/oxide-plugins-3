@@ -4,7 +4,7 @@
   "name": "Happy Hour",
   "type": "cs",
   "version": "1.0.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 127,
   "lastUpdate": "2015-03-20T15:36:23.000Z",
   "description": "You want to give players some items in specific times?This plugin just for it :)",

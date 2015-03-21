@@ -4,7 +4,7 @@
   "name": "Command Block",
   "type": "lua",
   "version": "0.2.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 192,
   "lastUpdate": "2015-02-10T18:53:00.000Z",
   "description": "Blocks configured console commands sent by a client to the server",

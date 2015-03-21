@@ -4,7 +4,7 @@
   "name": "Logger",
   "type": "lua",
   "version": "0.2.8",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 392,
   "lastUpdate": "2015-02-07T17:14:00.000Z",
   "description": "Logs all chat commands used by players with auth level to the server log and/or chat",

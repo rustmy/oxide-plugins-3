@@ -4,7 +4,7 @@
   "name": "Spectate Handler",
   "type": "lua",
   "version": "1.0.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 306,
   "lastUpdate": "2015-02-07T22:56:00.000Z",
   "description": "Temporary plugin that lets you choose who to spectate",

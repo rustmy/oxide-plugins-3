@@ -4,7 +4,7 @@
   "name": "Updater",
   "type": "lua",
   "version": "0.2.10",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 1,
   "lastUpdate": "2015-02-09T20:32:00.000Z",
   "description": "Automatic update checking and notifications for plugins",

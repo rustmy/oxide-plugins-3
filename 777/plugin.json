@@ -4,7 +4,7 @@
   "name": "Running Man",
   "type": "lua",
   "version": "1.0.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 373,
   "lastUpdate": "2015-02-09T17:57:00.000Z",
   "description": "Plugin Runnung Man",

@@ -4,7 +4,7 @@
   "name": "Economics",
   "type": "lua",
   "version": "1.6",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 895,
   "lastUpdate": "2015-02-27T16:03:00.000Z",
   "description": "Basic Economy + Economy API",

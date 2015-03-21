@@ -4,7 +4,7 @@
   "name": "SpectateMgr",
   "type": "lua",
   "version": "0.0.1",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 121,
   "lastUpdate": "2014-11-10T21:20:00.000Z",
   "description": "Manage and log spectate requests.",

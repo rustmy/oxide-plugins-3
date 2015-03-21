@@ -4,7 +4,7 @@
   "name": "LimitedSuicide",
   "type": "cs",
   "version": "1.0.0",
-  "rating": "0.00",
+  "rating": 0,
   "downloads": 70,
   "lastUpdate": "2015-03-10T13:54:00.000Z",
   "description": "Adds a limit to F1 + \"kill\".",

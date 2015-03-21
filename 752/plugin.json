@@ -4,7 +4,7 @@
   "name": "Voter Reward",
   "type": "lua",
   "version": "1.4.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 254,
   "lastUpdate": "2015-02-20T15:20:00.000Z",
   "description": "Rewards players voted for your server on TopRustServers.com, Rust-Servers.net, etc",

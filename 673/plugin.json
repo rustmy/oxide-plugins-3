@@ -4,7 +4,7 @@
   "name": "Godmode",
   "type": "lua",
   "version": "1.4.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 2,
   "lastUpdate": "2015-02-26T23:37:00.000Z",
   "description": "Godmode for server admins.",

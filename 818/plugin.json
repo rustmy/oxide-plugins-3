@@ -4,7 +4,7 @@
   "name": "Spawn",
   "type": "cs",
   "version": "1.2.1",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 176,
   "lastUpdate": "2015-02-20T21:48:00.000Z",
   "description": "Add spawns to your server",

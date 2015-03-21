@@ -4,7 +4,7 @@
   "name": "Timed Explosives Modifier",
   "type": "cs",
   "version": "1.0.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 197,
   "lastUpdate": "2015-03-06T14:25:00.000Z",
   "description": "Allows you to modify the damage a timed explosive deals.",

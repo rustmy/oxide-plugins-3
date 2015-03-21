@@ -4,7 +4,7 @@
   "name": "Give",
   "type": "cs",
   "version": "2.1.2",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 2,
   "lastUpdate": "2015-03-11T18:57:00.000Z",
   "description": "Give a player or yourself",

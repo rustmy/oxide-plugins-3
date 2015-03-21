@@ -4,7 +4,7 @@
   "name": "Admin Door Unlocker",
   "type": "lua",
   "version": "0.1.1",
-  "rating": "4.90",
+  "rating": 4.9,
   "downloads": 1,
   "lastUpdate": "2015-03-01T17:19:00.000Z",
   "description": "Open locked doors/boxes",

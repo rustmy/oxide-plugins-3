@@ -4,7 +4,7 @@
   "name": "Building Privileges Viewer",
   "type": "cs",
   "version": "1.0",
-  "rating": "0.00",
+  "rating": 0,
   "downloads": 63,
   "lastUpdate": "2015-02-06T14:55:00.000Z",
   "description": "View building privileges & locations of tool cupboards around you",

@@ -4,7 +4,7 @@
   "name": "Simple Compass",
   "type": "lua",
   "version": "1.0.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 1,
   "lastUpdate": "2014-11-12T19:58:00.000Z",
   "description": "Adds an in-game command to check the direction you're facing.",

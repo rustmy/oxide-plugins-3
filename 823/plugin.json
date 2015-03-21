@@ -4,7 +4,7 @@
   "name": "Telekinesis",
   "type": "cs",
   "version": "0.4",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 248,
   "lastUpdate": "2015-02-17T20:41:00.000Z",
   "description": "Move objects by thought!",

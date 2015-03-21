@@ -4,7 +4,7 @@
   "name": "Analytics",
   "type": "lua",
   "version": "0.2.1",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 128,
   "lastUpdate": "2015-02-07T17:15:00.000Z",
   "description": "Real-time collection and reporting of player locations on connect to Google Analytics",

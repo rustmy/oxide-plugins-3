@@ -4,7 +4,7 @@
   "name": "ItemConfig",
   "type": "cs",
   "version": "1.0.8",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 568,
   "lastUpdate": "2015-03-13T17:53:00.000Z",
   "description": "Settings for items, blueprints, constructions...",

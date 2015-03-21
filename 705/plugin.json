@@ -4,7 +4,7 @@
   "name": "Push API",
   "type": "lua",
   "version": "0.1.4",
-  "rating": "0.00",
+  "rating": 0,
   "downloads": 60,
   "lastUpdate": "2015-02-07T17:14:00.000Z",
   "description": "API for sending messages via Pushover and Pushalot mobile notification services",

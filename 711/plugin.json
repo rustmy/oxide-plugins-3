@@ -4,7 +4,7 @@
   "name": "Clean Up & Count Informations",
   "type": "lua",
   "version": "1.3.2",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 525,
   "lastUpdate": "2015-02-07T22:47:00.000Z",
   "description": "Clean up : bags, animals, trees",

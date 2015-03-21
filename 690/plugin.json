@@ -4,7 +4,7 @@
   "name": "Online Log",
   "type": "lua",
   "version": "0.1.1",
-  "rating": "0.00",
+  "rating": 0,
   "downloads": 210,
   "lastUpdate": "2015-01-07T00:55:00.000Z",
   "description": "Creates a JSON formatted log of all online players for use with external scripts",

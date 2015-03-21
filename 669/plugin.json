@@ -4,7 +4,7 @@
   "name": "Respawner",
   "type": "lua",
   "version": "0.1.7",
-  "rating": "0.00",
+  "rating": 0,
   "downloads": 272,
   "lastUpdate": "2015-03-14T21:11:00.000Z",
   "description": "Automatically respawns players after they die",

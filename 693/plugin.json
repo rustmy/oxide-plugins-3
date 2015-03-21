@@ -4,7 +4,7 @@
   "name": "Enhanced Ban System",
   "type": "lua",
   "version": "2.2.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 838,
   "lastUpdate": "2015-01-31T18:03:00.000Z",
   "description": "Ban system with advanced features",

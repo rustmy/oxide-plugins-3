@@ -4,7 +4,7 @@
   "name": "Rust:IO Clans",
   "type": "cs",
   "version": "1.0.3",
-  "rating": "4.00",
+  "rating": 4,
   "downloads": 147,
   "lastUpdate": "2015-03-19T14:53:56.000Z",
   "description": "Allows your players to form and manage clans.",

@@ -4,7 +4,7 @@
   "name": "Save",
   "type": "cs",
   "version": "2.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 1,
   "lastUpdate": "2015-02-11T17:35:00.000Z",
   "description": "Manually save the world",

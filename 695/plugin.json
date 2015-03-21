@@ -4,7 +4,7 @@
   "name": "Crafting Controller",
   "type": "cs",
   "version": "2.1.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 2,
   "lastUpdate": "2015-03-18T13:13:13.000Z",
   "description": "Allows you to modify the time spend crafting and which items can be crafted.",

@@ -4,7 +4,7 @@
   "name": "Player List",
   "type": "lua",
   "version": "1.4.0",
-  "rating": "4.86",
+  "rating": 4.86,
   "downloads": 2,
   "lastUpdate": "2015-01-23T11:24:00.000Z",
   "description": "Allows users to see who or how many are users are currently online",

@@ -4,7 +4,7 @@
   "name": "Rust:IO Template",
   "type": "cs",
   "version": "1.0.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 28,
   "lastUpdate": "2015-03-17T13:29:35.000Z",
   "description": "A template to help you get started to develop plugins using the Rust:IO API.",

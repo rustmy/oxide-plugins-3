@@ -4,7 +4,7 @@
   "name": "Ping",
   "type": "lua",
   "version": "0.2.6",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 686,
   "lastUpdate": "2015-03-09T14:37:00.000Z",
   "description": "Player ping checking and optional high ping rejection on join",

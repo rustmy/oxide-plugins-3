@@ -4,7 +4,7 @@
   "name": "Item Manager Core",
   "type": "lua",
   "version": "0.1.1",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 161,
   "lastUpdate": "2014-10-21T21:32:00.000Z",
   "description": "Core Plugin to manage Item Remove / Find / Give for other plugins.",

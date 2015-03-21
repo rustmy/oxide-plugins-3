@@ -4,7 +4,7 @@
   "name": "BlueprintManager",
   "type": "cs",
   "version": "1.0.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 221,
   "lastUpdate": "2015-03-17T14:17:51.000Z",
   "description": "Add, AddAll, Reset learned Blueprints",

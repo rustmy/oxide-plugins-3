@@ -4,7 +4,7 @@
   "name": "Private Messaging",
   "type": "lua",
   "version": "1.2.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 871,
   "lastUpdate": "2015-03-08T15:49:00.000Z",
   "description": "Allows users to chat privately with each other",

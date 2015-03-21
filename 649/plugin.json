@@ -4,7 +4,7 @@
   "name": "Custom Chat Commands",
   "type": "lua",
   "version": "2.2.0",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 590,
   "lastUpdate": "2015-01-31T17:52:00.000Z",
   "description": "Completely dynamic and unlimited custom chat commands",

@@ -4,7 +4,7 @@
   "name": "Whitelist",
   "type": "lua",
   "version": "0.2.4",
-  "rating": "4.50",
+  "rating": 4.5,
   "downloads": 307,
   "lastUpdate": "2015-02-07T23:04:00.000Z",
   "description": "Restricts access to your server, automatically rejecting users whose SteamID is not whitelisted",

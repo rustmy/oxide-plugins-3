@@ -4,7 +4,7 @@
   "name": "Death Notes",
   "type": "py",
   "version": "2.2.3",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 1,
   "lastUpdate": "2015-03-01T01:20:00.000Z",
   "description": "Broadcasts players deaths to chat.",

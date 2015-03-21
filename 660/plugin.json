@@ -4,7 +4,7 @@
   "name": "Teleportation System",
   "type": "lua",
   "version": "1.4.10",
-  "rating": "4.92",
+  "rating": 4.92,
   "downloads": 4,
   "lastUpdate": "2015-03-11T17:42:00.000Z",
   "description": "Offers admin teleport commands, optional tpa system and an option homes system.",

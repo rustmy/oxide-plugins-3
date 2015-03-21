@@ -4,7 +4,7 @@
   "name": "Player Titles",
   "type": "js",
   "version": "0.1.1",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 221,
   "lastUpdate": "2015-02-16T06:16:00.000Z",
   "description": "Provides Titles for Players, Mods, Admins in chat",

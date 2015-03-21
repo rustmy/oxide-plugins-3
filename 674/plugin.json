@@ -4,7 +4,7 @@
   "name": "Reserved",
   "type": "lua",
   "version": "0.1.6",
-  "rating": "5.00",
+  "rating": 5,
   "downloads": 213,
   "lastUpdate": "2015-02-07T23:04:00.000Z",
   "description": "Reserves a number of slots so that reserved players can connect",
