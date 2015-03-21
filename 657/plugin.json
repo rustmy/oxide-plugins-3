@@ -5,7 +5,7 @@
   "type": "lua",
   "version": "0.2.0",
   "rating": 0,
-  "downloads": 173,
+  "downloads": 174,
   "lastUpdate": "2014-10-17T06:29:00.000Z",
   "description": "Hurts target player on command, with optional amount",
   "iconUrl": "data/resource_icons/0/657.jpg?1414689211",

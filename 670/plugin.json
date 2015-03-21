@@ -5,7 +5,7 @@
   "type": "lua",
   "version": "0.2.8",
   "rating": 5,
-  "downloads": 392,
+  "downloads": 393,
   "lastUpdate": "2015-02-07T17:14:00.000Z",
   "description": "Logs all chat commands used by players with auth level to the server log and/or chat",
   "iconUrl": "data/resource_icons/0/670.jpg?1413954291",
