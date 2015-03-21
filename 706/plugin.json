@@ -9,6 +9,5 @@
   "lastUpdate": "Nov 2, 2014 at 3:36 AM",
   "description": "Allows other plugins to encode and decode JSON",
   "iconUrl": "data/resource_icons/0/706.jpg?1414954877",
-  "downloadUrl": "resources/json-library.706/download?version=2900",
-  "filename": "json.lua"
+  "downloadUrl": "resources/json-library.706/download?version=2900"
 }

@@ -9,6 +9,5 @@
   "lastUpdate": "Feb 8, 2015 at 12:04 AM",
   "description": "Reserves a number of slots so that reserved players can connect",
   "iconUrl": "data/resource_icons/0/674.jpg?1414087540",
-  "downloadUrl": "resources/reserved.674/download?version=3645",
-  "filename": "reserved.lua"
+  "downloadUrl": "resources/reserved.674/download?version=3645"
 }

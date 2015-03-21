@@ -9,6 +9,5 @@
   "lastUpdate": "Oct 17, 2014 at 8:29 AM",
   "description": "Hurts target player on command, with optional amount",
   "iconUrl": "data/resource_icons/0/657.jpg?1414689211",
-  "downloadUrl": "resources/hurt-me.657/download?version=2693",
-  "filename": "hurtme.lua"
+  "downloadUrl": "resources/hurt-me.657/download?version=2693"
 }

@@ -9,6 +9,5 @@
   "lastUpdate": "Jan 7, 2015 at 1:55 AM",
   "description": "Creates a JSON formatted log of all online players for use with external scripts",
   "iconUrl": "data/resource_icons/0/690.jpg?1414438939",
-  "downloadUrl": "resources/online-log.690/download?version=3234",
-  "filename": "onlinelog.lua"
+  "downloadUrl": "resources/online-log.690/download?version=3234"
 }

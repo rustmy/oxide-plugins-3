@@ -9,6 +9,5 @@
   "lastUpdate": "Nov 22, 2014 at 8:36 PM",
   "description": "Allow your players to register their name on your server to prevent abusing",
   "iconUrl": "data/resource_icons/0/701.jpg?1414920450",
-  "downloadUrl": "resources/authenticator.701/download?version=3010",
-  "filename": "authenticator.lua"
+  "downloadUrl": "resources/authenticator.701/download?version=3010"
 }

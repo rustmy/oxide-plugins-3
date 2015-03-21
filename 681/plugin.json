@@ -9,6 +9,5 @@
   "lastUpdate": "Feb 9, 2015 at 9:32 PM",
   "description": "Automatic update checking and notifications for plugins",
   "iconUrl": "data/resource_icons/0/681.jpg?1414183007",
-  "downloadUrl": "resources/updater.681/download?version=3702",
-  "filename": "updater.lua"
+  "downloadUrl": "resources/updater.681/download?version=3702"
 }

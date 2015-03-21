@@ -9,6 +9,5 @@
   "lastUpdate": "Feb 7, 2015 at 6:08 PM",
   "description": "Sends messages and alerts to configured IRC channels via Notifico - http://n.tkte.ch/",
   "iconUrl": "data/resource_icons/0/704.jpg?1414881824",
-  "downloadUrl": "resources/notifico-irc-bridge.704/download?version=3600",
-  "filename": "notifico.lua"
+  "downloadUrl": "resources/notifico-irc-bridge.704/download?version=3600"
 }

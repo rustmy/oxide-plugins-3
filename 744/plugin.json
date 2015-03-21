@@ -5,10 +5,9 @@
   "type": "Lua",
   "version": "1.1.1",
   "rating": "0",
-  "downloads": "246",
+  "downloads": "247",
   "lastUpdate": "Feb 7, 2015 at 11:48 PM",
   "description": "add sticky notes to locations for other players to read",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/sticky-notes.744/download?version=3631",
-  "filename": "stickynotes.lua"
+  "downloadUrl": "resources/sticky-notes.744/download?version=3631"
 }

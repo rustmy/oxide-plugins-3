@@ -9,6 +9,5 @@
   "lastUpdate": "Feb 7, 2015 at 6:14 PM",
   "description": "API for sending email messages via supported transactional email services",
   "iconUrl": "data/resource_icons/0/712.jpg?1414955448",
-  "downloadUrl": "resources/email-api.712/download?version=3606",
-  "filename": "email.lua"
+  "downloadUrl": "resources/email-api.712/download?version=3606"
 }

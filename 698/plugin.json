@@ -9,6 +9,5 @@
   "lastUpdate": "Feb 8, 2015 at 12:04 AM",
   "description": "Allows or blocks players from specific countries via a whitelist or blacklist of country codes",
   "iconUrl": "data/resource_icons/0/698.jpg?1425152873",
-  "downloadUrl": "resources/country-block.698/download?version=3647",
-  "filename": "countryblock.lua"
+  "downloadUrl": "resources/country-block.698/download?version=3647"
 }

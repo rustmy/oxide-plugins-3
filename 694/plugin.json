@@ -9,6 +9,5 @@
   "lastUpdate": "Nov 23, 2014 at 6:28 AM",
   "description": "Allows you to switch between PVP and PVE",
   "iconUrl": "data/resource_icons/0/694.jpg?1414921411",
-  "downloadUrl": "resources/pvp-switch.694/download?version=3020",
-  "filename": "pvpswitch.lua"
+  "downloadUrl": "resources/pvp-switch.694/download?version=3020"
 }

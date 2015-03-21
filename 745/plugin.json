@@ -5,10 +5,9 @@
   "type": "Lua",
   "version": "1.1.5",
   "rating": "5",
-  "downloads": "359",
+  "downloads": "360",
   "lastUpdate": "Jan 4, 2015 at 1:17 AM",
   "description": "Control the buildings placement in your server",
   "iconUrl": "data/resource_icons/0/745.jpg?1419469872",
-  "downloadUrl": "resources/build-controller.745/download?version=3216",
-  "filename": "BuildControl.lua"
+  "downloadUrl": "resources/build-controller.745/download?version=3216"
 }
