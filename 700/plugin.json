@@ -9,5 +9,6 @@
   "lastUpdate": "Oct 31, 2014 at 3:59 PM",
   "description": "Solves the problem with banid commands not being saved to the banlist",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/rust-ban-saver.700/download?version=2861"
+  "downloadUrl": "resources/rust-ban-saver.700/download?version=2861",
+  "filename": "m-RustBanSaver.lua"
 }

@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 14, 2015 at 5:20 PM",
   "description": "Anti wallhack, detects players that walk inside walls",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/anti-wallhack.791/download?version=3780"
+  "downloadUrl": "resources/anti-wallhack.791/download?version=3780",
+  "filename": "AntiWallhack.cs"
 }

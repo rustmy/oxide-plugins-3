@@ -9,5 +9,6 @@
   "lastUpdate": "Mar 11, 2015 at 2:47 PM",
   "description": "An API to manage a friend list",
   "iconUrl": "data/resource_icons/0/686.jpg?1414921187",
-  "downloadUrl": "resources/friends-api.686/download?version=3987"
+  "downloadUrl": "resources/friends-api.686/download?version=3987",
+  "filename": "0friendsAPI.lua"
 }

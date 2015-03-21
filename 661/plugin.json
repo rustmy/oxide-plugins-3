@@ -9,5 +9,6 @@
   "lastUpdate": "Jan 23, 2015 at 12:24 PM",
   "description": "Allows users to see who or how many are users are currently online",
   "iconUrl": "data/resource_icons/0/661.jpg?1414920945",
-  "downloadUrl": "resources/player-list.661/download?version=3410"
+  "downloadUrl": "resources/player-list.661/download?version=3410",
+  "filename": "playerlist.lua"
 }

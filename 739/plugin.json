@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 13, 2015 at 6:14 PM",
   "description": "Zones Manager",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/zones-manager.739/download?version=3766"
+  "downloadUrl": "resources/zones-manager.739/download?version=3766",
+  "filename": "r-Zones.lua"
 }

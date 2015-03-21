@@ -9,5 +9,6 @@
   "lastUpdate": "Nov 10, 2014 at 10:20 PM",
   "description": "Manage and log spectate requests.",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/spectatemgr.718/download?version=2960"
+  "downloadUrl": "resources/spectatemgr.718/download?version=2960",
+  "filename": "spectateMgr.lua"
 }

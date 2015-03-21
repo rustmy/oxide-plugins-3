@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 20, 2015 at 8:11 AM",
   "description": "Airdrop limit parachute drop loot cargoplane supplydrop",
   "iconUrl": "data/resource_icons/0/785.jpg?1425152918",
-  "downloadUrl": "resources/airdrop-settings.785/download?version=3846"
+  "downloadUrl": "resources/airdrop-settings.785/download?version=3846",
+  "filename": "airdrop_settings.lua"
 }

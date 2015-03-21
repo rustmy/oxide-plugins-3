@@ -9,5 +9,6 @@
   "lastUpdate": "Mar 9, 2015 at 9:03 PM",
   "description": "Adds a VIP or Admin tag to any VIPs or Admins",
   "iconUrl": "data/resource_icons/0/795.jpg?1422635682",
-  "downloadUrl": "resources/vip-admin-auto-name-changer.795/download?version=3980"
+  "downloadUrl": "resources/vip-admin-auto-name-changer.795/download?version=3980",
+  "filename": "vipname.lua"
 }

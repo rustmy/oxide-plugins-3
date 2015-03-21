@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 7, 2015 at 11:47 PM",
   "description": "Clean up : bags, animals, trees",
   "iconUrl": "data/resource_icons/0/711.jpg?1415893784",
-  "downloadUrl": "resources/clean-up-count-informations.711/download?version=3629"
+  "downloadUrl": "resources/clean-up-count-informations.711/download?version=3629",
+  "filename": "cleanup.lua"
 }

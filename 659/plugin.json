@@ -9,5 +9,6 @@
   "lastUpdate": "Mar 8, 2015 at 4:49 PM",
   "description": "Allows users to chat privately with each other",
   "iconUrl": "data/resource_icons/0/659.jpg?1414920819",
-  "downloadUrl": "resources/private-messaging.659/download?version=3969"
+  "downloadUrl": "resources/private-messaging.659/download?version=3969",
+  "filename": "privatemessage.lua"
 }

@@ -9,5 +9,6 @@
   "lastUpdate": "1426784770",
   "description": "Setup a Rank system, or a custom title system",
   "iconUrl": "data/resource_icons/0/830.jpg?1425355163",
-  "downloadUrl": "resources/ranks-and-titles.830/download?version=4073"
+  "downloadUrl": "resources/ranks-and-titles.830/download?version=4073",
+  "filename": "RanksAndTitles.js"
 }

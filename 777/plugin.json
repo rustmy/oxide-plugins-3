@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 9, 2015 at 6:57 PM",
   "description": "Plugin Runnung Man",
   "iconUrl": "data/resource_icons/0/777.jpg?1423379941",
-  "downloadUrl": "resources/running-man.777/download?version=3693"
+  "downloadUrl": "resources/running-man.777/download?version=3693",
+  "filename": "event.lua"
 }

@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 8, 2015 at 12:04 AM",
   "description": "Restricts access to your server, automatically rejecting users whose SteamID is not whitelisted",
   "iconUrl": "data/resource_icons/0/654.jpg?1413498293",
-  "downloadUrl": "resources/whitelist.654/download?version=3644"
+  "downloadUrl": "resources/whitelist.654/download?version=3644",
+  "filename": "whitelist.lua"
 }

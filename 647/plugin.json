@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 10, 2015 at 7:53 PM",
   "description": "Blocks configured console commands sent by a client to the server",
   "iconUrl": "data/resource_icons/0/647.jpg?1413394188",
-  "downloadUrl": "resources/command-block.647/download?version=3729"
+  "downloadUrl": "resources/command-block.647/download?version=3729",
+  "filename": "commandblock.lua"
 }

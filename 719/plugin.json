@@ -9,5 +9,6 @@
   "lastUpdate": "Nov 12, 2014 at 8:58 PM",
   "description": "Adds an in-game command to check the direction you're facing.",
   "iconUrl": "data/resource_icons/0/719.jpg?1415821239",
-  "downloadUrl": "resources/simple-compass.719/download?version=2966"
+  "downloadUrl": "resources/simple-compass.719/download?version=2966",
+  "filename": "m-Compass.lua"
 }

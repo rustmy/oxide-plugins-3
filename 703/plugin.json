@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 27, 2015 at 5:30 AM",
   "description": "Gives new players one or more welcome gifts on first join",
   "iconUrl": "data/resource_icons/0/703.jpg?1414827910",
-  "downloadUrl": "resources/welcome-gifts.703/download?version=3908"
+  "downloadUrl": "resources/welcome-gifts.703/download?version=3908",
+  "filename": "welcomegifts.lua"
 }

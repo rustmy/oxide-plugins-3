@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 10, 2015 at 3:50 PM",
   "description": "Spawn any entities",
   "iconUrl": "data/resource_icons/0/732.jpg?1417962739",
-  "downloadUrl": "resources/spawner.732/download?version=3725"
+  "downloadUrl": "resources/spawner.732/download?version=3725",
+  "filename": "spawner.lua"
 }

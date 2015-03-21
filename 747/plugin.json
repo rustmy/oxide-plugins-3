@@ -9,5 +9,6 @@
   "lastUpdate": "Jan 23, 2015 at 8:27 PM",
   "description": "A temporary plugin which will make bases raidable",
   "iconUrl": "data/resource_icons/0/747.jpg?1419700103",
-  "downloadUrl": "resources/raid-temporary.747/download?version=3418"
+  "downloadUrl": "resources/raid-temporary.747/download?version=3418",
+  "filename": "raid[T].lua"
 }

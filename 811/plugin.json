@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 23, 2015 at 6:44 PM",
   "description": "Lets you set up how you want your users to spawn",
   "iconUrl": "data/resource_icons/0/811.jpg?1424821437",
-  "downloadUrl": "resources/better-start.811/download?version=3879"
+  "downloadUrl": "resources/better-start.811/download?version=3879",
+  "filename": "BetterStart.cs"
 }

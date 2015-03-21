@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 7, 2015 at 6:14 PM",
   "description": "API for sending messages via Pushover and Pushalot mobile notification services",
   "iconUrl": "data/resource_icons/0/705.jpg?1414892586",
-  "downloadUrl": "resources/push-api.705/download?version=3610"
+  "downloadUrl": "resources/push-api.705/download?version=3610",
+  "filename": "push.lua"
 }

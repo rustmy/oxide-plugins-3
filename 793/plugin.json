@@ -9,5 +9,6 @@
   "lastUpdate": "1426865405",
   "description": "Admins can run polls in their servers",
   "iconUrl": "data/resource_icons/0/793.jpg?1422487093",
-  "downloadUrl": "resources/poll-system.793/download?version=4090"
+  "downloadUrl": "resources/poll-system.793/download?version=4090",
+  "filename": "Polling.cs"
 }

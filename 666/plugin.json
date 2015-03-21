@@ -9,5 +9,6 @@
   "lastUpdate": "Mar 11, 2015 at 7:57 PM",
   "description": "Give a player or yourself",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/give.666/download?version=3993"
+  "downloadUrl": "resources/give.666/download?version=3993",
+  "filename": "Give.cs"
 }

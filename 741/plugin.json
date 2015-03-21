@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 14, 2015 at 12:53 AM",
   "description": "Arena Mod Deathmatch",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/arena-deathmatch.741/download?version=3777"
+  "downloadUrl": "resources/arena-deathmatch.741/download?version=3777",
+  "filename": "arena_deathmatch.lua"
 }

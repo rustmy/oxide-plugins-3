@@ -9,5 +9,6 @@
   "lastUpdate": "1426847056",
   "description": "Get owners of deployable, building structures and whitelist of tool cupboards",
   "iconUrl": "data/resource_icons/0/683.jpg?1423671050",
-  "downloadUrl": "resources/prod-who-owns.683/download?version=4088"
+  "downloadUrl": "resources/prod-who-owns.683/download?version=4088",
+  "filename": "Prod.cs"
 }

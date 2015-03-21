@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 20, 2015 at 10:48 PM",
   "description": "Add spawns to your server",
   "iconUrl": "data/resource_icons/0/818.jpg?1424821472",
-  "downloadUrl": "resources/spawn.818/download?version=3855"
+  "downloadUrl": "resources/spawn.818/download?version=3855",
+  "filename": "Spawn.cs"
 }

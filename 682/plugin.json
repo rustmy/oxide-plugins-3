@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 20, 2015 at 12:41 PM",
   "description": "Sets owners of houses when someone builds a house part",
   "iconUrl": "data/resource_icons/0/682.jpg?1423672179",
-  "downloadUrl": "resources/building-owners.682/download?version=3847"
+  "downloadUrl": "resources/building-owners.682/download?version=3847",
+  "filename": "BuildingOwners.cs"
 }

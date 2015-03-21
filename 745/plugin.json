@@ -9,5 +9,6 @@
   "lastUpdate": "Jan 4, 2015 at 1:17 AM",
   "description": "Control the buildings placement in your server",
   "iconUrl": "data/resource_icons/0/745.jpg?1419469872",
-  "downloadUrl": "resources/build-controller.745/download?version=3216"
+  "downloadUrl": "resources/build-controller.745/download?version=3216",
+  "filename": "BuildControl.lua"
 }

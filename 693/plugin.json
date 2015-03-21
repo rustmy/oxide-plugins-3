@@ -9,5 +9,6 @@
   "lastUpdate": "Jan 31, 2015 at 7:03 PM",
   "description": "Ban system with advanced features",
   "iconUrl": "data/resource_icons/0/693.jpg?1414921362",
-  "downloadUrl": "resources/enhanced-ban-system.693/download?version=3493"
+  "downloadUrl": "resources/enhanced-ban-system.693/download?version=3493",
+  "filename": "EnhancedBanSystem.lua"
 }

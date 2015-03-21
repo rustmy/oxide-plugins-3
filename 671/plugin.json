@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 17, 2015 at 7:08 PM",
   "description": "Gives you more control over the in-game time!",
   "iconUrl": "data/resource_icons/0/671.jpg?1420582830",
-  "downloadUrl": "resources/day-night-system.671/download?version=3819"
+  "downloadUrl": "resources/day-night-system.671/download?version=3819",
+  "filename": "m-Time.lua"
 }

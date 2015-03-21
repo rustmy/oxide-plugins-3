@@ -9,5 +9,6 @@
   "lastUpdate": "Feb 7, 2015 at 6:09 PM",
   "description": "Feeling lucky? Roll one or multiple dice to get a random number",
   "iconUrl": "data/resource_icons/0/655.jpg?1413500944",
-  "downloadUrl": "resources/dice.655/download?version=3601"
+  "downloadUrl": "resources/dice.655/download?version=3601",
+  "filename": "dice.lua"
 }

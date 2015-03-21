@@ -9,5 +9,6 @@
   "lastUpdate": "Mar 9, 2015 at 2:47 PM",
   "description": "Modify the length of which a player's corpse remains active in the world.",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/player-corpse-duration-modifier.778/download?version=3978"
+  "downloadUrl": "resources/player-corpse-duration-modifier.778/download?version=3978",
+  "filename": "m-DisappearingCorpses.lua"
 }

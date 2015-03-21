@@ -9,5 +9,6 @@
   "lastUpdate": "Mar 11, 2015 at 7:53 PM",
   "description": "Auto switch on & off lanterns when players enter a tool cupboard radius",
   "iconUrl": "styles/default/xenresource/resource_icon.png",
-  "downloadUrl": "resources/r-lanterns.738/download?version=3992"
+  "downloadUrl": "resources/r-lanterns.738/download?version=3992",
+  "filename": "r-Lanterns.lua"
 }

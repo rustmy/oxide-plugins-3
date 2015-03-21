@@ -9,5 +9,6 @@
   "lastUpdate": "1426624275",
   "description": "Is a simple cash system",
   "iconUrl": "data/resource_icons/0/844.jpg?1426567348",
-  "downloadUrl": "resources/cash-system.844/download?version=4054"
+  "downloadUrl": "resources/cash-system.844/download?version=4054",
+  "filename": "CashSystem.cs"
 }
