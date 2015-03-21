@@ -8,7 +8,6 @@
   "downloads": 63,
   "lastUpdate": "2015-02-06T14:55:00.000Z",
   "description": "View building privileges & locations of tool cupboards around you",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/building-privileges-viewer.809/download?version=3573",
   "filename": "BuildingPrivileges.cs"
 }

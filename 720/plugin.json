@@ -8,7 +8,6 @@
   "downloads": 360,
   "lastUpdate": "2015-02-07T22:55:00.000Z",
   "description": "Spawns database plugin for external plugins",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/spawns-database.720/download?version=3641",
   "filename": "spawns.lua"
 }

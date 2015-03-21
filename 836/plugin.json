@@ -8,7 +8,6 @@
   "downloads": 72,
   "lastUpdate": "2015-03-12T21:43:00.000Z",
   "description": "Pays Players a specified amount for every specified seconds played.",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/moneytime-for-economics.836/download?version=4002",
   "filename": "MoneyTime.lua"
 }

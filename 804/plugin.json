@@ -8,7 +8,6 @@
   "downloads": 710,
   "lastUpdate": "2015-02-10T23:42:00.000Z",
   "description": "Airdrop controller (locations, number of crates, speed, etc)",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/airdrop-controller.804/download?version=3732",
   "filename": "AirdropControl.cs"
 }

@@ -8,7 +8,6 @@
   "downloads": 281,
   "lastUpdate": "2015-03-20T18:52:45.000Z",
   "description": "Additional player list that tracks dead players names, used by other plugins.",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/deadplayerslist.696/download?version=4093",
   "filename": "DeadPlayersList.cs"
 }

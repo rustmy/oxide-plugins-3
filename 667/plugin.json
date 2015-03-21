@@ -8,7 +8,6 @@
   "downloads": 161,
   "lastUpdate": "2014-10-21T21:32:00.000Z",
   "description": "Core Plugin to manage Item Remove / Find / Give for other plugins.",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/item-manager-core.667/download?version=2724",
   "filename": "item_manager.lua"
 }

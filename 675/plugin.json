@@ -8,7 +8,6 @@
   "downloads": 2,
   "lastUpdate": "2015-02-10T06:18:00.000Z",
   "description": "Basic plugin to increase the amount of items gained from gathering resources.",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/increased-gather-rate.675/download?version=3721",
   "filename": "m-GatherRate.lua"
 }

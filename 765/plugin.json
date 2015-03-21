@@ -8,7 +8,6 @@
   "downloads": 236,
   "lastUpdate": "2015-01-31T22:15:00.000Z",
   "description": "Kicks players that are AFK (away from keyboard) for set amount of seconds",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/afk-kick.765/download?version=3499",
   "filename": "afk.lua"
 }

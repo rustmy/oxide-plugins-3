@@ -8,7 +8,6 @@
   "downloads": 2,
   "lastUpdate": "2015-03-18T13:13:13.000Z",
   "description": "Allows you to modify the time spend crafting and which items can be crafted.",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/crafting-controller.695/download?version=4061",
   "filename": "CraftingController.cs"
 }

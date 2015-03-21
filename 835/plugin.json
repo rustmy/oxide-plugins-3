@@ -8,7 +8,6 @@
   "downloads": 72,
   "lastUpdate": "2015-03-10T13:54:00.000Z",
   "description": "Adds a limit to F1 + \"kill\".",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/limitedsuicide.835/download?version=3982",
   "filename": "LimitedSuicide.cs"
 }

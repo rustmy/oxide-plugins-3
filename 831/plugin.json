@@ -8,7 +8,6 @@
   "downloads": 190,
   "lastUpdate": "2015-03-09T11:27:00.000Z",
   "description": "Blocks a player from building horizontally",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/horizontal-building-blocker.831/download?version=3977",
   "filename": "HorizontalBlocker.lua"
 }

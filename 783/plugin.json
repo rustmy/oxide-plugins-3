@@ -8,7 +8,6 @@
   "downloads": 307,
   "lastUpdate": "2015-02-07T22:56:00.000Z",
   "description": "Temporary plugin that lets you choose who to spectate",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/spectate-handler.783/download?version=3643",
   "filename": "spectatePlayer.lua"
 }

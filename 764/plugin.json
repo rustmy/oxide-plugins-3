@@ -8,7 +8,6 @@
   "downloads": 86,
   "lastUpdate": "2015-01-09T19:24:00.000Z",
   "description": "Adds specified tags to the existing server tags",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/server-tags.764/download?version=3259",
   "filename": "servertags.lua"
 }

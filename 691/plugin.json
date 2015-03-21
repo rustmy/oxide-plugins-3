@@ -8,7 +8,6 @@
   "downloads": 399,
   "lastUpdate": "2014-11-01T19:07:00.000Z",
   "description": "Unlock and lock doors, for admins and/or players",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/door-unlock-lock.691/download?version=2892",
   "filename": "lock-unlock.lua"
 }

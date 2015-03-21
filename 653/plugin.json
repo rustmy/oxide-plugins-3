@@ -8,7 +8,6 @@
   "downloads": 822,
   "lastUpdate": "2015-02-07T22:55:00.000Z",
   "description": "Suicide chat command & Admin commands to kill a player",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/suicide-kill.653/download?version=3642",
   "filename": "suicide.lua"
 }

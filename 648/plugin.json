@@ -8,7 +8,6 @@
   "downloads": 168,
   "lastUpdate": "2014-10-26T23:36:00.000Z",
   "description": "Restricts names and characters",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/restrict-names.648/download?version=2809",
   "filename": "restrictnames.lua"
 }

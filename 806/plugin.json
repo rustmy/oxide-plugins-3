@@ -8,7 +8,6 @@
   "downloads": 568,
   "lastUpdate": "2015-03-13T17:53:00.000Z",
   "description": "Settings for items, blueprints, constructions...",
-  "iconUrl": "styles/default/xenresource/resource_icon.png",
   "downloadUrl": "resources/itemconfig.806/download?version=4006",
   "filename": "ItemConfig.cs"
 }
