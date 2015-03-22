@@ -5,13 +5,13 @@
   "name": "Build Blocker",
   "category": "Fixes",
   "type": "cs",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 168,
-  "updated": "2015-03-20T16:28:07.000Z",
+  "downloads": 175,
+  "updated": "2015-03-21T22:55:18.000Z",
   "description": "Fixes blocks in objects!",
   "iconUrl": "data/resource_icons/0/834.jpg?1426523209",
-  "downloadUrl": "resources/build-blocker.834/download?version=4092",
+  "downloadUrl": "resources/build-blocker.834/download?version=4102",
   "filename": "BuildBlocker.cs"
 }

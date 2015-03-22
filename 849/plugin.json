@@ -1,0 +1,17 @@
+{
+  "id": 849,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "Bounty Board",
+  "category": "Fun",
+  "type": "js",
+  "version": "1.0.0",
+  "author": "KillParadise",
+  "rating": 0,
+  "downloads": 23,
+  "updated": "2015-03-22T03:31:29.000Z",
+  "description": "Adds a Bounty System to the server",
+  "iconUrl": "data/resource_icons/0/849.jpg?1426993287",
+  "downloadUrl": "resources/bounty-board.849/download?version=4105",
+  "filename": "BountyBoard.js"
+}

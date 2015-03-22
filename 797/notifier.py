@@ -1,3 +1,4 @@
+import re
 import Rust
 import BasePlayer
 import server
@@ -6,7 +7,7 @@ from System import Action, Int32, String
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.1
+LATEST_CFG = 3.2
 LINE = '-' * 50
 
 class notifier:
@@ -18,7 +19,7 @@ class notifier:
 
         # PLUGIN INFO
         self.Title = 'Notifier'
-        self.Version = V(2, 4, 1)
+        self.Version = V(2, 5, 0)
         self.Author = 'SkinN'
         self.Description = 'Broadcasts chat messages as notifications and advertising.'
         self.HasConfig = True
@@ -43,7 +44,7 @@ class notifier:
                 'HIDE ADMINS CONNECTIONS': False,
                 'CHAT PLAYERS LIST': True,
                 'CONSOLE PLAYERS LIST': True,
-                'ADVERTS INTERVAL': 200,
+                'ADVERTS INTERVAL': 300,
                 'ENABLE WELCOME MESSAGE': True,
                 'ENABLE ADVERTS': True,
                 'ENABLE HELPTEXT': True,
@@ -71,19 +72,18 @@ class notifier:
                 'ADMINS LIST DESC': '/admins - Lists all the Admins currently online in the chat.',
                 'PLUGINS LIST DESC': '/plugins - Lists all the server plugins in the chat.',
                 'RULES DESC': '/rules - Lists the server rules on the chat.',
-                'SEED DESC': '/seed - Prints the current server seed on the chat. (Or informs if it\'s random)'
+                'SEED DESC': '/seed - Prints the current server seed on the chat. (Unless it is Random)'
             },
             'WELCOME MESSAGE': (
-                'Welcome {username}, to our server!',
+                'Welcome [cyan]{username}[/end], to our server!',
                 'Type /help for all available commands.',
-                'IP: {ip}:{port} | SEED: {seed}'
+                'SERVER IP: [cyan]{ip}:{port}[/end]'
             ),
             'ADVERTS': (
-                'Want to know the available commands? Type /help.',
-                'Respect the server /rules.',
-                'This server is running Oxide 2.',
-                'Cheating is strictly prohibited.',
-                'Our server seed is {seed}.'
+                '[lime]Want to know the available commands?[/end] Type /help.',
+                'Respect the server [red]/rules[/end].',
+                'This server is running [orange]Oxide 2[/end].',
+                'Cheating is strictly prohibited.'
             ),
             'COLORS': {
                 'PREFIX': 'red',
@@ -100,6 +100,13 @@ class notifier:
                 'PLUGINS LIST': 'plugins',
                 'SEED': 'seed',
                 'ADMINS LIST': 'admins'
+            },
+            'SIZE': {
+                'PREFIX': 10,
+                'CONNECTED': 10,
+                'DISCONNECTED': 10,
+                'ADVERTS': 10,
+                'WELCOME MESSAGE': 10
             },
             'RULES': {
                 'EN': (
@@ -195,12 +202,13 @@ class notifier:
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
             # NEW CHANGES
-            self.Config['RULES']['UA'] = (
-                'Обман суворо заборонено.',
-                'Поважайте всіх гравців',
-                'Щоб уникнути спаму в чаті.',
-                'Грати чесно і не зловживати помилки / подвиги.'
-            )
+            self.Config['SIZE'] = {
+                'PREFIX': 10,
+                'CONNECTED': 10,
+                'DISCONNECTED': 10,
+                'ADVERTS': 10,
+                'WELCOME MESSAGE': 10
+            }
 
         # SAVE CHANGES
         self.SaveConfig()
@@ -219,13 +227,14 @@ class notifier:
             self.UpdateConfig()
 
         # CONFIGURATION VARIABLES
-        global MSG, PLUGIN, COLOR
+        global MSG, PLUGIN, COLOR, SIZE
+        SIZE = self.Config['SIZE']
         MSG = self.Config['MESSAGES']
         COLOR = self.Config['COLORS']
         PLUGIN = self.Config['SETTINGS']
 
         # PLUGIN SPECIFIC
-        self.prefix = '<color=%s>%s</color>' % (COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
+        self.prefix = '<size=%s><color=%s>%s</color></size>' % (SIZE['PREFIX'], COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
         self.title = '<color=red>%s</color>' % self.Title.upper()
         self.countries = {}
         self.lastadvert = 0
@@ -242,15 +251,13 @@ class notifier:
 
             if sec < 60:
 
-                self.console('Adverts interval must at least 1 minute, changing interval to default. (Current: %s second/s)' % sec)
+                self.console('Adverts interval can\'t be lower than 60 seconds, setting to default value. (Current: %s second/s)' % sec)
 
-            # CHECK IF INTERVAL IS AT LEAST ONE MINUTE, OTHERWISE CHANGE TO DEFAULT
-            sec = sec if sec > 60 or DEV else 200
+            sec = sec if sec > 59 else 300
 
-            # START ADVERTS LOOP
             self.adverts_loop = timer.Repeat(sec, 0, Action(self.send_advert), self.Plugin)
 
-            self.console('Adverts are enabled, started messages loop (Interval: %s minutes)' % (sec/60))
+            self.console('Adverts are enabled, starting messages loop (Interval: %d minute/s %d second/s)' % divmod(sec, 60))
 
         else:
 
@@ -308,7 +315,7 @@ class notifier:
 
         if self.Config['SETTINGS']['BROADCAST TO CONSOLE'] or force:
 
-            print('[%s v%s] :: %s' % (self.Title, str(self.Version), text))
+            print('[%s v%s] :: %s' % (self.Title, str(self.Version), self._format(text, True)))
 
     # --------------------------------------------------------------------------
     def pconsole(self, player, text, color='white'):
@@ -317,18 +324,20 @@ class notifier:
         player.SendConsoleCommand('echo <color=%s>%s</color>' % (color, text))
 
     # --------------------------------------------------------------------------
-    def say(self, text, color='white', userid=0, force=True):
+    def say(self, text, color='white', size=10, userid=0, force=True):
         ''' Sends a global chat message '''
 
         if self.prefix and force:
 
-            rust.BroadcastChat('%s<color=white> ' % self.prefix, '</color><color=%s>%s</color>' % (color, text), str(userid))
+            string = '%s <color=white>:</color> <size=%s><color=%s>%s</color></size>' % (self.prefix, size, color, self._format(text))
+
+            rust.BroadcastChat(string, None, str(userid))
 
         else:
 
-            rust.BroadcastChat('<color=%s>%s</color>' % (color, text), None, str(userid))
+            rust.BroadcastChat('<size=%s><color=%s>%s</color></size>' % (size, color, self._format(text)), None, str(userid))
 
-        self.console(text)
+        self.console(self._format(text, True))
 
     # --------------------------------------------------------------------------
     def tell(self, player, text, color='white', userid=0, force=True):
@@ -336,11 +345,39 @@ class notifier:
 
         if self.prefix and force:
 
-            rust.SendChatMessage(player, '%s<color=white> ' % self.prefix, '</color><color=%s>%s</color>' % (color, text), str(userid))
+            rust.SendChatMessage(player, '%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, self._format(text)), None, str(userid))
 
         else:
 
-            rust.SendChatMessage(player, '<color=%s>%s</color>' % (color, text), None, str(userid))
+            rust.SendChatMessage(player, '<color=%s>%s</color>' % (color, self._format(text)), None, str(userid))
+
+    # --------------------------------------------------------------------------
+    def _format(self, text, con=False):
+
+        if con:
+
+            for x in (r'\[(\w+)\]', r'\[#(\w+)\]'):
+
+                text = re.sub(x, '', text)
+
+            text = text.replace('[/end]', '')
+
+        else:
+
+            # REPLACE COLOR NAMES
+            for x in re.findall(r'\[(\w+)\]', text):
+
+                text = text.replace('[%s]' % x, '<color=%s>' % x)
+
+            # REPLACE HEX CODES
+            for x in re.findall(r'\[#(\w+)\]', text):
+
+                text = text.replace('[#%s]' % x, '<color=#%s>' % x)
+
+            # REPLACE COLOR ENDINGS
+            text = text.replace('[/end]', '</color>')
+
+        return text
 
     # ==========================================================================
     # <>> HOOKS
@@ -374,7 +411,7 @@ class notifier:
 
                     line = line.format(ip=str(server.port), port=str(server.ip), seed=str(server.seed) if server.seed else 'Random', username=player.displayName)
 
-                    self.tell(player, line, COLOR['WELCOME MESSAGE'])
+                    self.tell(player, line, COLOR['WELCOME MESSAGE'], SIZE['WELCOME MESSAGE'])
 
             else:
 
@@ -398,10 +435,11 @@ class notifier:
 
                     text = MSG['DISCONNECTED'].format(country=target['country'], username=target['username'], steamid=target['steamid'])
 
-                    self.say(text, COLOR['DISCONNECTED MESSAGE'], target['steamid'])
+                    self.say(text, COLOR['DISCONNECTED MESSAGE'], SIZE['DISCONNECTED'], target['steamid'])
 
             # REMOVE FROM THE COUNTRIES DICTIONARY
             if target['steamid'] in self.countries:
+
                 del self.countries[target['steamid']]
 
     # ==========================================================================
@@ -415,15 +453,19 @@ class notifier:
 
             index = self.lastadvert
 
-            while index == self.lastadvert:
+            count = len(l)
 
-                index = random.Range(0, len(l))
+            if count > 1:
 
-            self.lastadvert = index
+                while index == self.lastadvert:
+
+                    index = random.Range(0, len(l))
+
+                self.lastadvert = index
 
             line = l[index].format(ip=str(server.port), port=str(server.ip), seed=str(server.seed) if server.seed else 'Random')
 
-            self.say(line, COLOR['ADVERTS'])
+            self.say(line, COLOR['ADVERTS'], SIZE['ADVERTS'])
 
         else:
 
@@ -479,7 +521,7 @@ class notifier:
     # --------------------------------------------------------------------------
     def players_list_CMD(self, player, cmd, args):
 
-        l = player.activePlayerList
+        l = self.player_list()
 
         count_msg = MSG['PLAYERS COUNT'].format(count='<color=lime>%s</color>' % len(l)) if len(l) > 1 else MSG['ONLY PLAYER']
         title = '%s | %s:' % (self.title, MSG['PLAYERS LIST TITLE'])
@@ -489,7 +531,7 @@ class notifier:
         if chat:
 
             names = ['<color=lime>%s</color>' % x.displayName for x in l]
-            names = [names[i:i + 6] for i in range(0, len(names), 6)]
+            names = [names[i:i + 4] for i in range(0, len(names), 6)]
 
             self.tell(player, title, force=False)
             self.tell(player, LINE, force=False)
@@ -520,7 +562,7 @@ class notifier:
 
             for num, ply in enumerate(l):
 
-                self.pconsole(player, '<color=orange>{num}.</color> {country} | {steamid} | <color=lime>{username}</color>'.format(num=num+1, **self.get_player(player)))
+                self.pconsole(player, '<color=orange>{num}.</color> {country} | {steamid} | <color=lime>{username}</color>'.format(num='%03d' % (num + 1), **self.get_player(ply)))
 
             self.pconsole(player, LINE)
             self.pconsole(player, count_msg, 'yellow')
@@ -557,7 +599,7 @@ class notifier:
         self.tell(player, LINE, force=False)
         self.tell(player, '<color=lime>%s v%s</color> by <color=lime>SkinN</color>' % (self.title, self.Version), force=False)
         self.tell(player, self.Description, 'lime', force=False)
-        self.tell(player, '| RESOURSE ID: <color=lime>%s</color> | CONFIG: v<color=lime>%s</color> |' % (self.Title, self.Config['CONFIG_VERSION']), force=False)
+        self.tell(player, '| RESOURSE ID: <color=lime>%s</color> | CONFIG: v<color=lime>%s</color> |' % (self.ResourceId, self.Config['CONFIG_VERSION']), force=False)
         self.tell(player, LINE, force=False)
         self.tell(player, '<< Click the icon to contact me.', userid='76561197999302614', force=False)
 
@@ -613,7 +655,7 @@ class notifier:
 
                         text = MSG['CONNECTED'].format(country=country, username=target['username'], steamid=target['steamid'])
 
-                        self.say(text, COLOR['CONNECTED MESSAGE'], target['steamid'])
+                        self.say(text, COLOR['CONNECTED MESSAGE'], SIZE['CONNECTED'], target['steamid'])
 
         # WEBRESQUET
         webrequests.EnqueueGet('http://ipinfo.io/%s/country' % ip, Action[Int32,String](response_handler), self.Plugin)

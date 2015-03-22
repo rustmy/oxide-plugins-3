@@ -1,7 +1,7 @@
 var RanksAndTitles = {
 	Title: "Ranks And Titles",
 	Author: "Killparadise",
-	Version: V(1, 4, 6),
+	Version: V(1, 4, 7),
 	ResourceId: 830,
 	Url: "http://oxidemod.org/resources/ranks-and-titles.830/",
 	HasConfig: true,
@@ -996,28 +996,9 @@ var RanksAndTitles = {
 		}
 	},
 
-	getFullName: function(player) {
-		var steamID = rust.UserIDFromPlayer(player);
-		var title = TitlesData.PlayerData[steamID].Title || "";
-		var hidden = TitlesData.PlayerData[steamID].hidden || false;
-		var colorOn = this.Config.Settings.colorSupport;
-		var color = this.getColor(steamID);
-		var authLevel = player.net.connection.authLevel;
-
-		if (title !== "" && colorOn && !hidden && authLevel === 0) {
-			return "<color=" + this.Config.Settings.chatNameColor + ">" + player.displayName + "</color>" + " <color=" + color + ">[" + title + "]</color> ";
-		} else if (title !== "" && !colorOn && !hidden && authLevel === 0) {
-			return "<color=" + this.Config.Settings.chatNameColor + ">" + player.displayName + " [" + title + "] </color>";
-		} else if (hidden) {
-			return "<color=" + this.Config.Settings.chatNameColor + ">" + player.displayName + "</color> ";
-		} else if (authLevel >= 1 && colorOn) {
-			return "<color=" + this.Config.Settings.staffchatNameColor + ">" + player.displayName + "</color>" + " <color=" + color + ">[" + title + "]</color> ";
-		} else if (authLevel >= 1 && !colorOn) {
-			return "<color=" + this.Config.Settings.staffchatNameColor + ">" + player.displayName + " [" + title + "] " + "</color> ";
-		} else {
-			return false;
-		}
-	},
+	grabPlayerData : function(steamID, key) {
+        return TitlesData.PlayerData[steamID][key]
+    },
 
 	//Our char function is called whenever a chat message is sent, it grabs a slew of information including, player files, the message
 	//the player title and realname, and the steamId, using all of this it checks to make sure the chat wasn't empty or a command

@@ -5,13 +5,13 @@
   "name": "Notifier",
   "category": "Chat-Related",
   "type": "py",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "author": "SkinN õ.Õ&#039;.|.",
-  "rating": 4.8,
+  "rating": 4.8125,
   "downloads": 1,
-  "updated": "2015-03-19T19:27:56.000Z",
+  "updated": "2015-03-22T02:30:42.000Z",
   "description": "Broadcasts chat messages as notifications and advertising.",
   "iconUrl": "data/resource_icons/0/797.jpg?1426574939",
-  "downloadUrl": "resources/notifier.797/download?version=4075",
+  "downloadUrl": "resources/notifier.797/download?version=4104",
   "filename": "notifier.py"
 }

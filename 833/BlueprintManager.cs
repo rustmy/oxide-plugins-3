@@ -5,17 +5,24 @@ using System.Collections.Generic;
 
 namespace Oxide.Plugins
 {
-    [Info("BlueprintManager", "Nogrod", "1.0.3", ResourceId = 833)]
+    [Info("BlueprintManager", "Nogrod", "1.0.4", ResourceId = 833)]
     class BlueprintManager : RustPlugin
     {
         private readonly Dictionary<string, string> _itemShortname = new Dictionary<string, string>();
-        private int _authLevel;
-        private int _authLevelOther;
+        private int _authLevel = 2;
+        private int _authLevelOther = 2;
+        private bool _giveAllOnConnect;
+        private bool _configChanged;
 
         void OnServerInitialized()
         {
             _authLevel = Convert.ToInt32(GetConfig("authLevel", 2));
             _authLevelOther = Convert.ToInt32(GetConfig("authLevelOther", 2));
+            _giveAllOnConnect = Convert.ToBoolean(GetConfig("giveAllOnConnect", false));
+            if (_configChanged) {
+                SaveConfig();
+                _configChanged = false;
+            }
             InitializeShortname();
         }
 
@@ -23,6 +30,20 @@ namespace Oxide.Plugins
         {
             GetConfig("authLevel", 2);
             GetConfig("authLevelOther", 2);
+            GetConfig("giveAllOnConnect", false);
+        }
+
+        void OnPlayerInit(BasePlayer player)
+        {
+            if (_giveAllOnConnect)
+            {
+                var definitions = ItemManager.GetItemDefinitions();
+                foreach (var definition in definitions)
+                {
+                    player.blueprints.Learn(definition);
+                }
+                SendReply(player, "You learned all blueprints");
+            }
         }
 
         private void InitializeShortname()
@@ -47,7 +68,10 @@ namespace Oxide.Plugins
 
         private object GetConfig(string key, object defaultValue)
         {
-            return Config[key] ?? (Config[key] = defaultValue);
+            if (Config[key] != null) return Config[key];
+            Config[key] = defaultValue;
+            _configChanged = true;
+            return Config[key];
         }
 
         [ChatCommand("bpadd")]

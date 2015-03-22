@@ -8,7 +8,7 @@
   "version": "0.2.4",
   "author": "Wulfspider",
   "rating": 4.5,
-  "downloads": 308,
+  "downloads": 309,
   "updated": "2015-02-07T23:04:00.000Z",
   "description": "Restricts access to your server, automatically rejecting users whose SteamID is not whitelisted",
   "iconUrl": "data/resource_icons/0/654.jpg?1413498293",
