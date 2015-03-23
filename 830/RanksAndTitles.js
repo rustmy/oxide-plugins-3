@@ -1,7 +1,7 @@
 var RanksAndTitles = {
 	Title: "Ranks And Titles",
 	Author: "Killparadise",
-	Version: V(1, 4, 7),
+	Version: V(1, 4, 8),
 	ResourceId: 830,
 	Url: "http://oxidemod.org/resources/ranks-and-titles.830/",
 	HasConfig: true,
@@ -11,7 +11,6 @@ var RanksAndTitles = {
 		this.loadTitleData();
 		command.AddChatCommand("rt", this.Plugin, "switchCmd");
 		command.AddChatCommand("rtdebug", this.Plugin, "debug");
-		command.AddChatCommand("depun", this.Plugin, "debugPunish");
 	},
 
 	OnServerInitialized: function() {
@@ -348,13 +347,14 @@ var RanksAndTitles = {
 	//Checks if data is present, if not it will attempt to build the players data spot
 	refreshData: function(player, cmd, args) {
 		var steamID = rust.UserIDFromPlayer(player);
-		this.checkPlayerData(player, steamID);
-		if (TitleData.PlayerData[steamID] === undefined) {
+		if (TitlesData.PlayerData[steamID] === undefined) {
 			print("No Data found, Attempting to build Data");
 			rust.SendChatMessage(player, prefix.ranksandtitles, msgs.noData, "0");
 		} else {
 			rust.SendChatMessage(player, prefix.ranksandtitles, msgs.dataRfrsh, "0");
 		}
+		TitlesData.PlayerData[steamID].Title = "";
+		this.checkPlayerData(player, steamID);
 	},
 
 	/*-----------------------------------------------------------------
@@ -624,7 +624,6 @@ var RanksAndTitles = {
 				rust.SendChatMessage(player, prefix.ranksandtitles, msgs.punishMsg.replace(/rankName|karmaAmt/gi, function(matched) {
 					return rplObj[matched];
 				}), "0");
-				print(karma);
 				return karma;
 			} else {
 				return 0;
@@ -916,11 +915,7 @@ var RanksAndTitles = {
 			i = 0;
 		if (args[2].length) {
 			for (i; i < j; i++) {
-				print("Given Value: " + args[2].toLowerCase());
-				print(this.Config.Titles[i].title.toLowerCase())
-				print("equal: " + this.Config.Titles[i].title.toLowerCase() === args[2].toLowerCase())
 				if (args[2].toLowerCase() === this.Config.Titles[i].title.toLowerCase()) {
-					print("check my if got value")
 					getPlayer[0].displayName = getPlayerData[getPlayer[1]].RealName + "[" + this.Config.Titles[i].title + "]";
 					TitlesData.PlayerData[getPlayer[1]].Title = this.Config.Titles[i].title;
 				}

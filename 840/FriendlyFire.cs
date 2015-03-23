@@ -13,8 +13,8 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Rust:IO FriendlyFire", "playrust.io / dcode", "1.0.4", ResourceId = 840)]
-    public class RustIOFriendlyFire : RustPlugin
+    [Info("Rust:IO FriendlyFire", "playrust.io / dcode", "1.1.0", ResourceId = 840)]
+    public class FriendlyFire : RustPlugin
     {
 
         #region Rust:IO Bindings
@@ -97,36 +97,46 @@ namespace Oxide.Plugins
 
         [HookMethod("OnServerInitialized")]
         void OnServerInitialized() {
-            InitializeRustIO();
-            LoadConfig();
-            var customMessages = GetConfig<Dictionary<string, object>>("messages", null);
-            if (customMessages != null)
-                foreach (var pair in customMessages)
-                    messages[pair.Key] = Convert.ToString(pair.Value);
+            try {
+                InitializeRustIO();
+                LoadConfig();
+                var customMessages = GetConfig<Dictionary<string, object>>("messages", null);
+                if (customMessages != null)
+                    foreach (var pair in customMessages)
+                        messages[pair.Key] = Convert.ToString(pair.Value);
+            } catch (Exception ex) {
+                Error("OnServerInitialized failed: " + ex.Message);
+            }
         }
 
         [HookMethod("OnEntityAttacked")]
         object OnEntityAttacked(MonoBehaviour entity, HitInfo hit) {
-            if (lib == null || !(entity is BasePlayer) || !(hit.Initiator is BasePlayer))
-                return null;
-            var victim = entity as BasePlayer;
-            var victimId = victim.userID.ToString();
-            var attacker = hit.Initiator as BasePlayer;
-            var attackerId = attacker.userID.ToString();
-            var key = attackerId + "-" + victimId;
-            if (HasFriend(attackerId, victimId)) {
-                DateTime now = DateTime.UtcNow;
-                DateTime time;
-                if (!notificationTimes.TryGetValue(key, out time) || time < now.AddSeconds(-10)) {
-                    attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map.", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
-                    notificationTimes[key] = now;
+            try {
+                if (lib == null || !(entity is BasePlayer) || !(hit.Initiator is BasePlayer))
+                    return null;
+                var victim = entity as BasePlayer;
+                var victimId = victim.userID.ToString();
+                var attacker = hit.Initiator as BasePlayer;
+                var attackerId = attacker.userID.ToString();
+                var key = attackerId + "-" + victimId;
+                if (HasFriend(attackerId, victimId)) {
+                    DateTime now = DateTime.UtcNow;
+                    DateTime time;
+                    if (!notificationTimes.TryGetValue(key, out time) || time < now.AddSeconds(-10)) {
+                        attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map.", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
+                        notificationTimes[key] = now;
+                    }
+                    return false;
                 }
-                return false;
+            } catch (Exception ex) {
+                Error("OnEntityAttacked failed: " + ex.Message);
             }
             return null;
         }
 
         private void cmdChatFriendlyfireImpl(BasePlayer player, string command, string[] args) {
+            if (!IsInstalled())
+                return;
             if (args.Length != 0) {
                 SendReply(player, _("Usage: /ff or /friendlyfire"));
                 return;
@@ -169,5 +179,21 @@ namespace Oxide.Plugins
         private void cmdChatFriendlyfire(BasePlayer player, string command, string[] args) {
             cmdChatFriendlyfireImpl(player, command, args);
         }
+
+        #region Utility Methods
+
+        private void Log(string message) {
+            Puts("{0}: {1}", Title, message);
+        }
+
+        private void Warn(string message) {
+            PrintWarning("{0}: {1}", Title, message);
+        }
+
+        private void Error(string message) {
+            PrintError("{0}: {1}", Title, message);
+        }
+
+        #endregion
     }
 }

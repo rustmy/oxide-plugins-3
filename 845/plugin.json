@@ -8,10 +8,10 @@
   "version": "1.0.0",
   "author": "dcode",
   "rating": 5,
-  "downloads": 30,
-  "updated": "2015-03-17T13:29:35.000Z",
+  "downloads": 35,
+  "updated": "2015-03-17T13:29:00.000Z",
   "description": "A template to help you get started to develop plugins using the Rust:IO API.",
-  "iconUrl": "data/resource_icons/0/845.jpg?1426596151",
+  "iconUrl": "data/resource_icons/0/845.jpg?1427126017",
   "downloadUrl": "resources/rust-io-template.845/download?version=4044",
   "filename": "RustIOTemplate.cs"
 }

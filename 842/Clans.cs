@@ -13,8 +13,8 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("Rust:IO Clans", "playrust.io / dcode", "1.0.3", ResourceId=842)]
-    public class RustIOClans : RustPlugin
+    [Info("Rust:IO Clans", "playrust.io / dcode", "1.1.0", ResourceId=842)]
+    public class Clans : RustPlugin
     {
 
         #region Rust:IO Bindings
@@ -299,47 +299,63 @@ namespace Oxide.Plugins
 
         [HookMethod("OnServerInitialized")]
         void OnServerInitialized() {
-            InitializeRustIO();
-            LoadConfig();
-            var customMessages = GetConfig<Dictionary<string, object>>("messages", null);
-            if (customMessages != null)
-                foreach (var pair in customMessages)
-                    messages[pair.Key] = Convert.ToString(pair.Value);
-            LoadData();
-            foreach (var player in BasePlayer.activePlayerList)
-                SetupPlayer(player);
-            foreach (var player in BasePlayer.sleepingPlayerList)
-                SetupPlayer(player);
+            try {
+                InitializeRustIO();
+                LoadConfig();
+                var customMessages = GetConfig<Dictionary<string, object>>("messages", null);
+                if (customMessages != null)
+                    foreach (var pair in customMessages)
+                        messages[pair.Key] = Convert.ToString(pair.Value);
+                LoadData();
+                foreach (var player in BasePlayer.activePlayerList)
+                    SetupPlayer(player);
+                foreach (var player in BasePlayer.sleepingPlayerList)
+                    SetupPlayer(player);
+            } catch (Exception ex) {
+                Error("OnServerInitialized failed: " + ex.Message);
+            }
         }
 
         [HookMethod("OnPlayerInit")]
         void OnPlayerInit(BasePlayer player) {
-            SetupPlayer(player);
-            var clan = FindClanByUser(player.userID.ToString());
-            if (clan != null)
-                clan.Broadcast(_("%NAME% has come online!", new Dictionary<string, string>() {{ "NAME", player.displayName }}));
+            try {
+                SetupPlayer(player);
+                var clan = FindClanByUser(player.userID.ToString());
+                if (clan != null)
+                    clan.Broadcast(_("%NAME% has come online!", new Dictionary<string, string>() { { "NAME", player.displayName } }));
+            } catch (Exception ex) {
+                Error("OnPlayerInit failed: " + ex.Message);
+            }
         }
 
         [HookMethod("OnPlayerDisconnected")]
         void OnPlayerDisconnected(BasePlayer player) {
-            var clan = FindClanByUser(player.userID.ToString());
-            if (clan != null)
-                clan.Broadcast(_("%NAME% has gone offline.", new Dictionary<string,string>() {{ "NAME", player.displayName }}));
+            try {
+                var clan = FindClanByUser(player.userID.ToString());
+                if (clan != null)
+                    clan.Broadcast(_("%NAME% has gone offline.", new Dictionary<string, string>() { { "NAME", player.displayName } }));
+            } catch (Exception ex) {
+                Error("OnPlayerDisconnected failed: " + ex.Message);
+            }
         }
 
         [HookMethod("Unload")]
         void OnUnload() {
-            // Reset player names to originals
-            foreach (var pair in originalNames) {
-                var playerId = Convert.ToUInt64(pair.Key);
-                var player = BasePlayer.FindByID(playerId);
-                if (player != null)
-                    player.displayName = pair.Value;
-                else {
-                    player = BasePlayer.FindSleeping(playerId);
+            try {
+                // Reset player names to originals
+                foreach (var pair in originalNames) {
+                    var playerId = Convert.ToUInt64(pair.Key);
+                    var player = BasePlayer.FindByID(playerId);
                     if (player != null)
                         player.displayName = pair.Value;
+                    else {
+                        player = BasePlayer.FindSleeping(playerId);
+                        if (player != null)
+                            player.displayName = pair.Value;
+                    }
                 }
+            } catch (Exception ex) {
+                Error("Unload failed: " + ex.Message);
             }
         }
 
@@ -416,7 +432,7 @@ namespace Oxide.Plugins
                         sb.Append(_("Please provide a short description of your clan."));
                         break;
                     }
-                    if (clans.ContainsKey(args[2])) {
+                    if (clans.ContainsKey(args[1])) {
                         sb.Append(_("There is already a clan with this tag."));
                         break;
                     }
@@ -698,5 +714,21 @@ namespace Oxide.Plugins
                 }
             }
         }
+
+        #region Utility Methods
+
+        private void Log(string message) {
+            Puts("{0}: {1}", Title, message);
+        }
+
+        private void Warn(string message) {
+            PrintWarning("{0}: {1}", Title, message);
+        }
+
+        private void Error(string message) {
+            PrintError("{0}: {1}", Title, message);
+        }
+
+        #endregion
     }
 }

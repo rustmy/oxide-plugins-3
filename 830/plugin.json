@@ -5,13 +5,13 @@
   "name": "Ranks And Titles",
   "category": "Fun",
   "type": "js",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "author": "KillParadise",
   "rating": 4.85714,
-  "downloads": 342,
-  "updated": "2015-03-22T04:17:48.000Z",
+  "downloads": 368,
+  "updated": "2015-03-22T22:32:22.000Z",
   "description": "Setup a Rank system, or a custom title system",
   "iconUrl": "data/resource_icons/0/830.jpg?1425355163",
-  "downloadUrl": "resources/ranks-and-titles.830/download?version=4106",
+  "downloadUrl": "resources/ranks-and-titles.830/download?version=4114",
   "filename": "RanksAndTitles.js"
 }

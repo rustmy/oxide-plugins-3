@@ -9,7 +9,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Build", "Reneb", "1.0")]
+    [Info("Build", "Reneb", "1.0.2")]
     class Build : RustPlugin
     {
         class BuildPlayer : MonoBehaviour
@@ -972,8 +972,16 @@ namespace Oxide.Plugins
         {
             if (!hasAccess(player)) return;
             BuildPlayer buildplayer = GetBuildPlayer(player);
-            buildplayer.currentType = "erase";
-            SendReply(player, "Building Tool: Remove Activated");
+            if (buildplayer.currentType != null && buildplayer.currentType == "erase")
+            {
+                UnityEngine.GameObject.Destroy(player.GetComponent<BuildPlayer>());
+                SendReply(player, "Building Tool: Remove Deactivated");
+            }
+            else
+            {
+                buildplayer.currentType = "erase";
+                SendReply(player, "Building Tool: Remove Activated");
+            }
         }
         [ChatCommand("plant")]
         void cmdChatPlant(BasePlayer player, string command, string[] args)

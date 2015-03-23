@@ -1,0 +1,17 @@
+{
+  "id": 851,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "NPC Controller",
+  "category": "Fun",
+  "type": "cs",
+  "version": "0.0.1",
+  "author": "Bombardir",
+  "rating": 5,
+  "downloads": 39,
+  "updated": "2015-03-22T19:49:55.000Z",
+  "description": "Control any npc (not player)",
+  "iconUrl": "data/resource_icons/0/851.jpg?1427054612",
+  "downloadUrl": "resources/npc-controller.851/download?version=4110",
+  "filename": "NpcController.cs"
+}

@@ -5,13 +5,13 @@
   "name": "Bounty Board",
   "category": "Fun",
   "type": "js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "KillParadise",
   "rating": 0,
-  "downloads": 23,
-  "updated": "2015-03-22T03:31:29.000Z",
+  "downloads": 57,
+  "updated": "2015-03-23T00:17:22.000Z",
   "description": "Adds a Bounty System to the server",
   "iconUrl": "data/resource_icons/0/849.jpg?1426993287",
-  "downloadUrl": "resources/bounty-board.849/download?version=4105",
+  "downloadUrl": "resources/bounty-board.849/download?version=4115",
   "filename": "BountyBoard.js"
 }

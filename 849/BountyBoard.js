@@ -1,7 +1,7 @@
 var BountyBoard = {
 	Title: "Bounty Board",
 	Author: "Killparadise",
-	Version: V(1, 0, 0),
+	Version: V(1, 0, 1),
 	HasConfig: true,
 	Init: function() {
 		this.getData();
@@ -9,8 +9,8 @@ var BountyBoard = {
 	},
 
 	OnServerInitialized: function() {
-		msgs = this.Config.Messages;
-		prefix = this.Config.Prefix;
+		this.msgs = this.Config.Messages;
+		this.prefix = this.Config.Prefix;
 		command.AddChatCommand("bty", this.Plugin, "cmdBounty");
 	},
 
@@ -48,21 +48,13 @@ var BountyBoard = {
 
 		this.Config.Help = [
 
-			"/rt - display your rank or title",
-			"/rt stats - get your current stats if in ranks mode",
-			"/rt refresh - refreshes your data file, recommended only used after system switch"
+			"/bty - Check the current bounty on your head",
+	    "/bty add playername amt itemname - Add a bounty onto a targeted player.",
+	    "/bty board - shows the Bounty Board of everyone who has a bounty."
 		];
 		this.Config.AdminHelp = [
 
-			"/rt wipe playername - Wipes the sleceted players Kills, Deaths, KDR, and Karma",
-			"/rt set playername title - Sets a custom title to the selected player, this must be a title in config (NOT RANK)",
-			"/rt remove playername - removes a given players custom title, and sets them back into the ransk tree",
-			"/rt switch - switch titles only mode on and off, this will use config title automatically without Ranks system",
-			"/rt noadmin - Removes admins (auth 2 or higher) from ranks system no kills, or ranks will be given.",
-			"/rt kset playername karma - set a selected players karma level",
-			"/rt kcheck playername - check the selected players karma",
-			"/rt kadd playername karma - adds the entered amount of karma to the selected player",
-			"/rt krem playername karma - removes the entered amount of karma from the selected player"
+			"/bty reset - resets all of the bounty board data"
 		];
 	},
 
@@ -100,7 +92,7 @@ var BountyBoard = {
 				found.push(foundID);
 				return found;
 			} else {
-				rust.SendChatMessage(player, prefix.titles, msgs.NoPlyrs, "0");
+				rust.SendChatMessage(player, this.prefix, this.msgs.NoPlyrs, "0");
 				return false;
 			}
 		} catch (e) {
@@ -160,14 +152,17 @@ var BountyBoard = {
 				case "board":
 					this.checkBoard(player, cmd, args);
 					break;
+				case "help":
+					this.BtyHelp(player);
+					break;
 				case "reset":
 					if (authLvl >= this.Config.authLevel) {
 						this.resetData(player, cmd, args);
 					} else if (authLvl < this.Config.authLevel) {
-						rust.SendChatMessage(player, prefix, msgs.noPerms, "0");
+						rust.SendChatMessage(player, this.prefix, this.msgs.noPerms, "0");
 						return false;
 					} else {
-						rust.SendChatMessage(player, prefix, msgs.badSyntaxRank, "0");
+						rust.SendChatMessage(player, this.prefix, this.msgs.invSyn.replace("{cmd}", "/bty arg"), "0");
 						return false;
 					}
 				default:
@@ -176,9 +171,9 @@ var BountyBoard = {
 						this.checkPlayerData(player);
 					} else {
 						if (BountyData.PlayerData[steamID].Bounty.length > 0) {
-							rust.SendChatMessage(player, prefix, msgs.currBty + " " + "<color=green>" + BountyData.PlayerData[steamID].Bounty + "</color>", "0");
+							rust.SendChatMessage(player, this.prefix, this.msgs.currBty + " " + "<color=green>" + BountyData.PlayerData[steamID].Bounty + "</color>", "0");
 						} else {
-							rust.SendChatMessage(player, prefix, msgs.currBty + " " + "<color=green>" + "0" + "</color>", "0");
+							rust.SendChatMessage(player, this.prefix, this.msgs.currBty + " " + "<color=green>" + "0" + "</color>", "0");
 						}
 					}
 					break;
@@ -194,7 +189,7 @@ var BountyBoard = {
 			delete BountyData.Board;
 			this.saveData();
 			this.getData();
-			rust.SendChatMessage(player, prefix, msgs.resetData, "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.resetData, "0");
 		} catch (e) {
 			print(e.message.toString())
 		}
@@ -205,19 +200,19 @@ var BountyBoard = {
 			var pName = this.findPlayerByName(player, args);
 			var steamID = rust.UserIDFromPlayer(player);
 		} else if (args.length === 1) {
-			rust.SendChatMessage(player, prefix, msgs.curTar, "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.curTar, "0");
 		} else {
-			rust.SendChatMessage(player, prefix, msgs.invSyn.replace("{cmd}", "/bty target playername"), "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.invSyn.replace("{cmd}", "/bty target playername"), "0");
 		}
 
 		if (pName[0].displayName !== player.displayName && BountyData.PlayerData[pName[1]].Bounty !== "" && pName[0].IsConnected()) {
 			BountyData.PlayerData[steamID].Target = pName[0].displayName;
-			rust.SendChatMessage(player, prefix, msgs.setTar, "0");
-			rust.SendChatMessage(pName[0], prefix, player.displayName + msgs.setTrgWarn, "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.setTar, "0");
+			rust.SendChatMessage(pName[0], this.prefix, player.displayName + this.msgs.setTrgWarn, "0");
 		} else if (!pName[0].IsConnected()) {
-			rust.SendChatMessage(player, prefix, msgs.offline, "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.offline, "0");
 		} else {
-			rust.SendChatMessage(player, prefix, msgs.noBty, "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.noBty, "0");
 		}
 	},
 
@@ -232,6 +227,7 @@ var BountyBoard = {
 				"amt": Number(args[2]),
 				"itemName": args[3]
 			};
+
 			var targetPlayer = this.findPlayerByName(player, args);
 			if (!BountyData.PlayerData[targetPlayer[1]]) this.checkPlayerData(targetPlayer[0]);
 			while (mainList.MoveNext()) {
@@ -244,15 +240,15 @@ var BountyBoard = {
 			}
 
 			if (argObj.amt > amount) {
-				rust.SendChatMessage(player, prefix, msgs.notEnough.replace("{RssName}", argObj.itemName), "0");
+				rust.SendChatMessage(player, this.prefix, this.msgs.notEnough.replace("{RssName}", argObj.itemName), "0");
 				return false;
 			} else if (argObj.amt <= 0) {
-				rust.SendChatMessage(player, prefix, msgs.negBty, "0");
+				rust.SendChatMessage(player, this.prefix, this.msgs.negBty, "0");
 			} else if (argObj.amt > this.Config.Settings.maxBounty) {
-				rust.SendChatMessage(player, prefix, msgs.overMax.replace("{maxBty}", this.Config.Settings.maxBounty), "0");
+				rust.SendChatMessage(player, this.prefix, this.msgs.overMax.replace("{maxBty}", this.Config.Settings.maxBounty), "0");
 				return false;
 			} else if (name !== argObj.itemName) {
-				rust.SendChatMessage(player, prefix, msgs.notFound, "0");
+				rust.SendChatMessage(player, this.prefix, this.msgs.notFound, "0");
 				return false;
 			}
 
@@ -262,10 +258,10 @@ var BountyBoard = {
 				BountyData.PlayerData[targetPlayer[1]].Bounty.push(argObj.amt + " " + argObj.itemName);
 				BountyData.PlayerData[targetPlayer[1]].BountyType.push(argObj.itemName);
 			}
-			rust.SendChatMessage(targetPlayer[0], prefix, msgs.btyPlaced.replace("{bty}", argObj.amt + " " + argObj.itemName), "0");
-			rust.SendChatMessage(player, prefix, msgs.btySet.replace("{bty}", argObj.amt + " " + argObj.itemName), "0");
+			rust.SendChatMessage(targetPlayer[0], this.prefix, this.msgs.btyPlaced.replace("{bty}", argObj.amt + " " + argObj.itemName), "0");
+			rust.SendChatMessage(player, this.prefix, this.msgs.btySet.replace("{bty}", argObj.amt + " " + argObj.itemName), "0");
 			if (argObj.amt > amount) {
-				rust.SendChatMessage(player, prefix, msgs.notEnough.replace("{RssName}", argObj.itemName), "0");
+				rust.SendChatMessage(player, this.prefix, this.msgs.notEnough.replace("{RssName}", argObj.itemName), "0");
 				return false;
 			}
 			this.saveData();
@@ -378,7 +374,7 @@ var BountyBoard = {
 				}
 
 				if (BountyData.PlayerData[attackerID].isStaff && !this.Config.Settings.staffCollect) {
-					rust.SendChatMessage(attacker, prefix, msgs.staff, "0");
+					rust.SendChatMessage(attacker, this.prefix, this.msgs.staff, "0");
 					return false;
 				}
 				if (BountyData.PlayerData[victimID].Bounty.length > 0 && victim.displayName !== attacker.displayName) {
@@ -387,7 +383,7 @@ var BountyBoard = {
 						btyAmt: BountyData.PlayerData[victimID].Bounty,
 						deadPlyr: victim.displayName
 					}
-					rust.BroadcastChat(prefix, msgs.btyClaim.replace(/plyrName|btyAmt|deadPlyr/g, function(matched) {
+					rust.BroadcastChat(this.prefix, this.msgs.btyClaim.replace(/plyrName|btyAmt|deadPlyr/g, function(matched) {
 						return rpObj[matched]
 					}), "0");
 					this.claimBounty(victimID, attackerID);
@@ -401,8 +397,8 @@ var BountyBoard = {
 		}
 	},
 
-	SendHelpText: function(player) {
-		rust.SendChatMessage(player, null, "--------------RanksAndTitles Commands------------", "0");
+	BtyHelp: function(player) {
+		rust.SendChatMessage(player, null, "--------------BountyBoard Commands------------", "0");
 		var authLvl = player.net.connection.authLevel;
 		for (var i = 0; i < this.Config.Help.length; i++) {
 			rust.SendChatMessage(player, null, this.Config.Help[i], "0");

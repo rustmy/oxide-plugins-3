@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterLoot", "playrust.io / dcode", "1.7.0", ResourceId = 828)]
+    [Info("BetterLoot", "playrust.io / dcode", "1.7.1", ResourceId = 828)]
     public class BetterLoot : RustPlugin
     {
 
@@ -312,26 +312,29 @@ namespace Oxide.Plugins
         void OnServerInitialized() {
             if (initialized)
                 return;
+            try {
+                LoadConfig();
 
-            LoadConfig();
+                blueprintProbability = GetConfig<double>("blueprintProbability", defaultBlueprintProbability);
+                minItemsPerBarrel = GetConfig<int>("minItemsPerBarrel", defaultMinItemsPerBarrel);
+                maxItemsPerBarrel = GetConfig<int>("maxItemsPerBarrel", defaultMaxItemsPerBarrel);
+                minItemsPerCrate = GetConfig<int>("minItemsPerCrate", defaultMinItemsPerCrate);
+                maxItemsPerCrate = GetConfig<int>("maxItemsPerCrate", defaultMaxItemsPerCrate);
+                baseItemRarity = GetConfig<double>("baseItemRarity", defaultBaseItemRarity);
+                baseBlueprintRarity = GetConfig<double>("baseBlueprintRarity", defaultBaseBlueprintRarity);
+                refreshMinutes = GetConfig<int>("refreshMinutes", defaultRefreshMinutes);
+                itemBlacklist = GetConfig<List<string>>("itemBlacklist", new List<string>()); /* ref */ Config["itemBlacklist"] = itemBlacklist;
+                blueprintBlacklist = GetConfig<List<string>>("blueprintBlacklist", new List<string>()); /* ref */ Config["blueprintBlacklist"] = blueprintBlacklist;
+                enforceBlacklist = GetConfig<bool>("enforceBlacklist", defaultEnforceBlacklist);
+                dropWeaponsWithAmmo = GetConfig<bool>("dropWeaponsWithAmmo", defaultDropWeaponsWithAmmo);
+                dropLimits = GetConfig<Dictionary<string, int>>("dropLimits", defaultDropLimits); /* ref */ Config["dropLimits"] = dropLimits;
 
-            blueprintProbability = GetConfig<double>("blueprintProbability", defaultBlueprintProbability);
-            minItemsPerBarrel = GetConfig<int>("minItemsPerBarrel", defaultMinItemsPerBarrel);
-            maxItemsPerBarrel = GetConfig<int>("maxItemsPerBarrel", defaultMaxItemsPerBarrel);
-            minItemsPerCrate = GetConfig<int>("minItemsPerCrate", defaultMinItemsPerCrate);
-            maxItemsPerCrate = GetConfig<int>("maxItemsPerCrate", defaultMaxItemsPerCrate);
-            baseItemRarity = GetConfig<double>("baseItemRarity", defaultBaseItemRarity);
-            baseBlueprintRarity = GetConfig<double>("baseBlueprintRarity", defaultBaseBlueprintRarity);
-            refreshMinutes = GetConfig<int>("refreshMinutes", defaultRefreshMinutes);
-            itemBlacklist = GetConfig<List<string>>("itemBlacklist", new List<string>()); /* ref */ Config["itemBlacklist"] = itemBlacklist;
-            blueprintBlacklist = GetConfig<List<string>>("blueprintBlacklist", new List<string>()); /* ref */ Config["blueprintBlacklist"] = blueprintBlacklist;
-            enforceBlacklist = GetConfig<bool>("enforceBlacklist", defaultEnforceBlacklist);
-            dropWeaponsWithAmmo = GetConfig<bool>("dropWeaponsWithAmmo", defaultDropWeaponsWithAmmo);
-            dropLimits = GetConfig<Dictionary<string, int>>("dropLimits", defaultDropLimits); /* ref */ Config["dropLimits"] = dropLimits;
-
-            updateScheduled = 3;
-            Log("Updating in T-"+updateScheduled+" ...");
-            // ^ Wait a couple of ticks to give plugins that modify items a chance to do their thing prior to calculating loot tables.
+                updateScheduled = 3;
+                Log("Updating in T-" + updateScheduled + " ...");
+                // ^ Wait a couple of ticks to give plugins that modify items a chance to do their thing prior to calculating loot tables.
+            } catch (Exception ex) {
+                Error("OnServerInitialized failed: " + ex.Message);
+            }
         }
 
         // Asks the mighty RNG for an item
@@ -495,10 +498,14 @@ namespace Oxide.Plugins
         private void OnEntitySpawn(BaseNetworkable entity) {
             if (!initialized)
                 return;
-            var container = entity as LootContainer;
-            if (container == null || container.inventory == null || container.inventory.itemList == null)
-                return;
-            PopulateContainer(container);
+            try {
+                var container = entity as LootContainer;
+                if (container == null || container.inventory == null || container.inventory.itemList == null)
+                    return;
+                PopulateContainer(container);
+            } catch (Exception ex) {
+                Error("OnEntitySpawn failed: " + ex.Message);
+            }
         }
 
         [ChatCommand("loot")]
@@ -658,10 +665,10 @@ namespace Oxide.Plugins
         private void OnItemAddedToContainer(ItemContainer container, Item item) {
             if (!initialized || !enforceBlacklist)
                 return;
-            var owner = item.GetOwnerPlayer();
-            if (owner != null && (ServerUsers.Is(owner.userID, ServerUsers.UserGroup.Owner) || ServerUsers.Is(owner.userID, ServerUsers.UserGroup.Moderator)))
-                return;
             try {
+                var owner = item.GetOwnerPlayer();
+                if (owner != null && (ServerUsers.Is(owner.userID, ServerUsers.UserGroup.Owner) || ServerUsers.Is(owner.userID, ServerUsers.UserGroup.Moderator)))
+                    return;
                 if (!item.isBlueprint && itemBlacklist.Contains(item.info.shortname)) {
                     item.RemoveFromContainer();
                     item.Remove(0f);
@@ -672,48 +679,60 @@ namespace Oxide.Plugins
                     Log(string.Format("A blueprint instance of '{0}' has been destroyed", item.info.shortname));
                 }
             } catch (Exception ex) {
-                Warn("OnItemAddedToContainer failed: " + ex.Message);
+                Error("OnItemAddedToContainer failed: " + ex.Message);
             }
         }
 
         [HookMethod("OnTick")]
         private void OnTick() {
-            if (updateScheduled == 0) {
-                updateScheduled = -1;
-                UpdateInternals(true);
-            } else if (updateScheduled > 0) {
-                --updateScheduled;
-            }
-            var now = DateTime.UtcNow;
-            if (lastRefresh < now.AddMinutes(-1)) {
-                lastRefresh = now;
-                int n = 0;
-                int m = 0;
-                while (refreshList.Count > 0) {
-                    var ctr = refreshList[0];
-                    if (ctr.time < now) {
-                        if (ctr.container.IsOpen())
-                            continue; // Do not refresh while occupied
-                        refreshList.RemoveAt(0);
-                        if (!ctr.container.isDestroyed) {
-                            try {
-                                PopulateContainer(ctr.container);
-                                ++n;
-                            } catch (Exception ex) {
-                                Error("Failed to refresh container: " + ContainerName(ctr.container) + ": " + ex.Message + "\n" + ex.StackTrace);
-                            }
-                        } else ++m;
-                    } else
-                        break;
+            try {
+                if (updateScheduled == 0) {
+                    updateScheduled = -1;
+                    UpdateInternals(true);
+                } else if (updateScheduled > 0) {
+                    --updateScheduled;
                 }
-                if (n > 0 || m > 0)
-                    Log("Refreshed " + n + " containers ("+m+" destroyed)");
+            } catch (Exception ex) {
+                Error("OnTick scheduled update failed: " + ex.Message);
+            }
+            try {
+                var now = DateTime.UtcNow;
+                if (lastRefresh < now.AddMinutes(-1)) {
+                    lastRefresh = now;
+                    int n = 0;
+                    int m = 0;
+                    while (refreshList.Count > 0) {
+                        var ctr = refreshList[0];
+                        if (ctr.time < now) {
+                            if (ctr.container.IsOpen())
+                                continue; // Do not refresh while occupied
+                            refreshList.RemoveAt(0);
+                            if (!ctr.container.isDestroyed) {
+                                try {
+                                    PopulateContainer(ctr.container);
+                                    ++n;
+                                } catch (Exception ex) {
+                                    Error("Failed to refresh container: " + ContainerName(ctr.container) + ": " + ex.Message + "\n" + ex.StackTrace);
+                                }
+                            } else ++m;
+                        } else
+                            break;
+                    }
+                    if (n > 0 || m > 0)
+                        Log("Refreshed " + n + " containers (" + m + " destroyed)");
+                }
+            } catch (Exception ex) {
+                Error("OnTick scheduled refresh failed: " + ex.Message);
             }
         }
 
         [HookMethod("BuildServerTags")]
         private void BuildServerTags(IList<string> taglist) {
-            taglist.Add("betterloot");
+            try {
+                taglist.Add("betterloot");
+            } catch (Exception ex) {
+                Error("BuildServerTags failed: " + ex.Message);
+            }
         }
 
         #region Utility Methods

@@ -7,7 +7,7 @@ from System import Action, Int32, String
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.2
+LATEST_CFG = 3.3
 LINE = '-' * 50
 
 class notifier:
@@ -19,7 +19,7 @@ class notifier:
 
         # PLUGIN INFO
         self.Title = 'Notifier'
-        self.Version = V(2, 5, 0)
+        self.Version = V(2, 5, 1)
         self.Author = 'SkinN'
         self.Description = 'Broadcasts chat messages as notifications and advertising.'
         self.HasConfig = True
@@ -75,14 +75,14 @@ class notifier:
                 'SEED DESC': '/seed - Prints the current server seed on the chat. (Unless it is Random)'
             },
             'WELCOME MESSAGE': (
-                'Welcome [cyan]{username}[/end], to our server!',
+                'Welcome :cyan:{username}:/end:, to our server!',
                 'Type /help for all available commands.',
-                'SERVER IP: [cyan]{ip}:{port}[/end]'
+                'SERVER IP: :cyan:{ip}:{port}:/end:'
             ),
             'ADVERTS': (
-                '[lime]Want to know the available commands?[/end] Type /help.',
-                'Respect the server [red]/rules[/end].',
-                'This server is running [orange]Oxide 2[/end].',
+                ':lime:Want to know the available commands?:/end: Type /help.',
+                'Respect the server :red:/rules:/end:.',
+                'This server is running :orange:Oxide 2:/end:.',
                 'Cheating is strictly prohibited.'
             ),
             'COLORS': {
@@ -90,7 +90,7 @@ class notifier:
                 'CONNECTED MESSAGE': 'lime',
                 'DISCONNECTED MESSAGE': 'lime',
                 'WELCOME MESSAGE': '#0099FF',
-                'ADVERTS': 'yellow',
+                'ADVERTS': 'white',
                 'OWNER NAME': 'white',
                 'MODERATOR NAME': 'white'
             },
@@ -100,13 +100,6 @@ class notifier:
                 'PLUGINS LIST': 'plugins',
                 'SEED': 'seed',
                 'ADMINS LIST': 'admins'
-            },
-            'SIZE': {
-                'PREFIX': 10,
-                'CONNECTED': 10,
-                'DISCONNECTED': 10,
-                'ADVERTS': 10,
-                'WELCOME MESSAGE': 10
             },
             'RULES': {
                 'EN': (
@@ -202,13 +195,9 @@ class notifier:
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
             # NEW CHANGES
-            self.Config['SIZE'] = {
-                'PREFIX': 10,
-                'CONNECTED': 10,
-                'DISCONNECTED': 10,
-                'ADVERTS': 10,
-                'WELCOME MESSAGE': 10
-            }
+            if 'SIZE' in self.Config:
+
+                del self.Config['SIZE']
 
         # SAVE CHANGES
         self.SaveConfig()
@@ -227,14 +216,13 @@ class notifier:
             self.UpdateConfig()
 
         # CONFIGURATION VARIABLES
-        global MSG, PLUGIN, COLOR, SIZE
-        SIZE = self.Config['SIZE']
+        global MSG, PLUGIN, COLOR
         MSG = self.Config['MESSAGES']
         COLOR = self.Config['COLORS']
         PLUGIN = self.Config['SETTINGS']
 
         # PLUGIN SPECIFIC
-        self.prefix = '<size=%s><color=%s>%s</color></size>' % (SIZE['PREFIX'], COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
+        self.prefix = '<color=%s>%s</color>' % (COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
         self.title = '<color=red>%s</color>' % self.Title.upper()
         self.countries = {}
         self.lastadvert = 0
@@ -324,18 +312,18 @@ class notifier:
         player.SendConsoleCommand('echo <color=%s>%s</color>' % (color, text))
 
     # --------------------------------------------------------------------------
-    def say(self, text, color='white', size=10, userid=0, force=True):
+    def say(self, text, color='white', userid=0, force=True):
         ''' Sends a global chat message '''
 
         if self.prefix and force:
 
-            string = '%s <color=white>:</color> <size=%s><color=%s>%s</color></size>' % (self.prefix, size, color, self._format(text))
+            string = '%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, self._format(text))
 
             rust.BroadcastChat(string, None, str(userid))
 
         else:
 
-            rust.BroadcastChat('<size=%s><color=%s>%s</color></size>' % (size, color, self._format(text)), None, str(userid))
+            rust.BroadcastChat('<color=%s>%s</color>' % (color, self._format(text)), None, str(userid))
 
         self.console(self._format(text, True))
 
@@ -356,26 +344,26 @@ class notifier:
 
         if con:
 
-            for x in (r'\[(\w+)\]', r'\[#(\w+)\]'):
+            for x in (r'\:(\w+)\:', r'\:#(\w+)\:'):
 
                 text = re.sub(x, '', text)
 
-            text = text.replace('[/end]', '')
+            text = text.replace(':/end:', '')
 
         else:
 
             # REPLACE COLOR NAMES
-            for x in re.findall(r'\[(\w+)\]', text):
+            for x in re.findall(r'\:(\w+)\:', text):
 
-                text = text.replace('[%s]' % x, '<color=%s>' % x)
+                text = text.replace(':%s:' % x, '<color=%s>' % x)
 
             # REPLACE HEX CODES
-            for x in re.findall(r'\[#(\w+)\]', text):
+            for x in re.findall(r'\:#(\w+)\:', text):
 
-                text = text.replace('[#%s]' % x, '<color=#%s>' % x)
+                text = text.replace(':#%s:' % x, '<color=#%s>' % x)
 
             # REPLACE COLOR ENDINGS
-            text = text.replace('[/end]', '</color>')
+            text = text.replace(':/end:', '</color>')
 
         return text
 
@@ -411,7 +399,7 @@ class notifier:
 
                     line = line.format(ip=str(server.port), port=str(server.ip), seed=str(server.seed) if server.seed else 'Random', username=player.displayName)
 
-                    self.tell(player, line, COLOR['WELCOME MESSAGE'], SIZE['WELCOME MESSAGE'])
+                    self.tell(player, line, COLOR['WELCOME MESSAGE'])
 
             else:
 
@@ -435,7 +423,7 @@ class notifier:
 
                     text = MSG['DISCONNECTED'].format(country=target['country'], username=target['username'], steamid=target['steamid'])
 
-                    self.say(text, COLOR['DISCONNECTED MESSAGE'], SIZE['DISCONNECTED'], target['steamid'])
+                    self.say(text, COLOR['DISCONNECTED MESSAGE'], target['steamid'])
 
             # REMOVE FROM THE COUNTRIES DICTIONARY
             if target['steamid'] in self.countries:
@@ -465,7 +453,7 @@ class notifier:
 
             line = l[index].format(ip=str(server.port), port=str(server.ip), seed=str(server.seed) if server.seed else 'Random')
 
-            self.say(line, COLOR['ADVERTS'], SIZE['ADVERTS'])
+            self.say(line, COLOR['ADVERTS'])
 
         else:
 
@@ -655,7 +643,7 @@ class notifier:
 
                         text = MSG['CONNECTED'].format(country=country, username=target['username'], steamid=target['steamid'])
 
-                        self.say(text, COLOR['CONNECTED MESSAGE'], SIZE['CONNECTED'], target['steamid'])
+                        self.say(text, COLOR['CONNECTED MESSAGE'], target['steamid'])
 
         # WEBRESQUET
         webrequests.EnqueueGet('http://ipinfo.io/%s/country' % ip, Action[Int32,String](response_handler), self.Plugin)
