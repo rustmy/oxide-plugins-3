@@ -1,0 +1,17 @@
+{
+  "id": 854,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "Easy Reload All",
+  "category": "Admin-Tools",
+  "type": "lua",
+  "version": "1.0.0",
+  "author": "LaserHydra",
+  "rating": 0,
+  "downloads": 40,
+  "updated": "2015-03-24T00:38:52.000Z",
+  "description": "Easy reloading of all plugins",
+  "iconUrl": "data/resource_icons/0/854.jpg?1427153231",
+  "downloadUrl": "resources/easy-reload-all.854/download?version=4128",
+  "filename": "reloadall.lua"
+}

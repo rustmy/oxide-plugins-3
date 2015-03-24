@@ -9,7 +9,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Build", "Reneb", "1.0.2")]
+    [Info("Build", "Reneb", "1.0.3")]
     class Build : RustPlugin
     {
         class BuildPlayer : MonoBehaviour
@@ -284,16 +284,24 @@ namespace Oxide.Plugins
             // Floor Triangles to Floor Triangles type
             var FTtoFT = new Dictionary<Vector3, Quaternion>();
             FTtoFT.Add(new Vector3(0f, 0f, 0f), new Quaternion(0f,1f, 0f, 0.0000001629207f));
-            FTtoFT.Add(new Vector3(-0.8f, 0f, 1.3f), new Quaternion(0f, 0.4999998f, 0f, -0.8660255f));
-            FTtoFT.Add(new Vector3(0.8f, 0f, 1.3f), new Quaternion(0f, 0.5000001f, 0f, 0.8660254f));
+            FTtoFT.Add(new Vector3(-0.75f, 0f, 1.299038f), new Quaternion(0f, 0.4999998f, 0f, -0.8660255f));
+            FTtoFT.Add(new Vector3(0.75f, 0f, 1.299038f), new Quaternion(0f, 0.5000001f, 0f, 0.8660254f));
             FloorTriangleType.Add(SocketType.FloorTriangle, FTtoFT);
 
-            // Floor Triangles to Wall type was a big fail, i'm not good enough with Quaternion to make it work :(
-            /*var FTtoWall = new Dictionary<Vector3, Quaternion>();
-            FTtoWall.Add(new Vector3(0f, 0f, 0f), new Quaternion(0f, 0.7f, 0f, 0.7000001629207f)); // THIS ONE IS FINE ... BUT THE OTHER NO XD
-            FTtoWall.Add(new Vector3(-0.8f, 0f, 1.3f), new Quaternion(0f, 0.4999998f, 0f, -0.8660255f));
-            FTtoWall.Add(new Vector3(0.8f, 0f, 1.3f), new Quaternion(0f, 0.5000001f, 0f, 0.8660254f));
-            FloorTriangleType.Add(SocketType.Wall, FTtoWall);*/
+            // Floor Triangles to Wall type
+            var FTtoWall = new Dictionary<Vector3, Quaternion>();
+            FTtoWall.Add(new Vector3(0f, 0f, 0f), new Quaternion(0f, 0.7f, 0f, 0.7000001629207f)); 
+            FTtoWall.Add(new Vector3(-0.75f, 0f, 1.299038f), new Quaternion(0f, 0.96593f, 0f, -0.25882f));
+            FTtoWall.Add(new Vector3(0.75f, 0f, 1.299038f), new Quaternion(0f, -0.25882f, 0f, 0.96593f));
+            FloorTriangleType.Add(SocketType.Wall, FTtoWall);
+
+            // Floor Triangles to Floor type is a big fail, need to work on that still
+           /* var FTtoFloor = new Dictionary<Vector3, Quaternion>();
+            FTtoFloor.Add(new Vector3(0f, 0f, 0f), new Quaternion(0f, 0.7f, 0f, 0.7000001629207f)); 
+            FTtoFloor.Add(new Vector3(-0.75f, 0f, 1.299038f), new Quaternion(0f, 0.96593f, 0f, -0.25882f));
+            FTtoFloor.Add(new Vector3(0.75f, 0f, 1.299038f), new Quaternion(0f, -0.25882f, 0f, 0.96593f));
+            FloorTriangleType.Add(SocketType.Floor, FTtoFloor);
+            */
 
             // So at the moment only Floor and Foundation triangles can connect to easy other.
             TypeToType.Add(SocketType.FloorTriangle, FloorTriangleType);
@@ -324,16 +332,17 @@ namespace Oxide.Plugins
             foreach (Construction construction in UnityEngine.Resources.FindObjectsOfTypeAll<Construction>())
             {
                     Construction.Common item = new Construction.Common(construction, allSkins);
-                    /*if (construction.name == "foundation")
+                    if (construction.name == "foundation.triangle")
                     {
                         Construction.Socket[] socketArray = item.sockets;
 
                         foreach (Construction.Socket socket in socketArray) 
                         {
-                            Puts(string.Format("{0} {1} {2} {3}", socket.name, socket.type.ToString(), socket.position.ToString(), socket.rotation.w.ToString()));
+                            //Puts(string.Format("{0} {1} {2} {3}", socket.name, socket.type.ToString(), socket.position.ToString(), socket.rotation.w.ToString()));
+                            Puts(string.Format("{0} {1} {2} {3} {4}", socket.name, socket.type.ToString(), socket.position.x.ToString(), socket.position.y.ToString(), socket.position.z.ToString()));
                         }
                         Puts("================");
-                    }*/
+                    }
                     nameToBlockPrefab.Add(item.name, item.fullname);
             }
         }

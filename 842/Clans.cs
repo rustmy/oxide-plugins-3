@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("Rust:IO Clans", "playrust.io / dcode", "1.1.0", ResourceId=842)]
+    [Info("Rust:IO Clans", "playrust.io / dcode", "1.1.1", ResourceId=842)]
     public class Clans : RustPlugin
     {
 
@@ -170,7 +170,7 @@ namespace Oxide.Plugins
             "<color=#ffd479>/clan</color> - Displays relevant information about your current clan",
             "<color=#ffd479>/c Message...</color> - Sends a message to all online clan members",
             "<color=#ffd479>/clan create \"TAG\" \"Description\"</color> - Creates a new clan you own",
-            "<color=#ffd479>/clan join \"TAG\"\"</color> - Joins a clan you have been invited to",
+            "<color=#ffd479>/clan join \"TAG\"</color> - Joins a clan you have been invited to",
             "<color=#ffd479>/clan leave</color> - Leaves your current clan",
             "<color=#74c6ff>Moderator</color> commands:",
             "<color=#ffd479>/clan invite \"Player name\"</color> - Invites a player to your clan",

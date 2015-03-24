@@ -8,10 +8,10 @@
   "version": "1.2.3",
   "author": "Domestos",
   "rating": 5,
-  "downloads": 886,
+  "downloads": 887,
   "updated": "2015-03-08T15:49:00.000Z",
   "description": "Allows users to chat privately with each other",
-  "iconUrl": "data/resource_icons/0/659.jpg?1414920819",
+  "iconUrl": "data/resource_icons/0/659.jpg?1427202327",
   "downloadUrl": "resources/private-messaging.659/download?version=3969",
   "filename": "privatemessage.lua"
 }

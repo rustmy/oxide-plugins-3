@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterLoot", "playrust.io / dcode", "1.7.1", ResourceId = 828)]
+    [Info("BetterLoot", "playrust.io / dcode", "1.7.2", ResourceId = 828)]
     public class BetterLoot : RustPlugin
     {
 
@@ -416,10 +416,8 @@ namespace Oxide.Plugins
         // Populates a container with loot
         private void PopulateContainer(LootContainer container) {
             if (container.inventory == null) {
-                // Log("Creating inventory for " + ContainerName(container) + " with " + container.inventorySlots + " slots");
-                container.inventory = new ItemContainer();
-                container.inventory.capacity = container.inventorySlots;
-                container.inventory.itemList = new List<Item>();
+                Warn("Container " + ContainerName(container) + " has no inventory (skipping)");
+                return;
             }
             int min = 1;
             int max = 0;
@@ -486,7 +484,7 @@ namespace Oxide.Plugins
                     }
                 }
             }
-            // Log("Populating " + ContainerName(container) + " with " + sb.ToString());
+            Log("Populating " + ContainerName(container) + " with " + sb.ToString());
             foreach (var item in items)
                 item.MoveToContainer(container.inventory, -1, false);
             container.inventory.MarkDirty();
@@ -670,13 +668,13 @@ namespace Oxide.Plugins
                 if (owner != null && (ServerUsers.Is(owner.userID, ServerUsers.UserGroup.Owner) || ServerUsers.Is(owner.userID, ServerUsers.UserGroup.Moderator)))
                     return;
                 if (!item.isBlueprint && itemBlacklist.Contains(item.info.shortname)) {
+                    Log(string.Format("Destroying item instance of '{0}'", item.info.shortname));
                     item.RemoveFromContainer();
                     item.Remove(0f);
-                    Log(string.Format("An item instance of '{0}' has been destroyed", item.info.shortname));
                 } else if (item.isBlueprint && blueprintBlacklist.Contains(item.info.shortname)) {
+                    Log(string.Format("Destroying blueprint instance of '{0}'", item.info.shortname));
                     item.RemoveFromContainer();
                     item.Remove(0f);
-                    Log(string.Format("A blueprint instance of '{0}' has been destroyed", item.info.shortname));
                 }
             } catch (Exception ex) {
                 Error("OnItemAddedToContainer failed: " + ex.Message);
