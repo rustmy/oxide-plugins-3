@@ -3,11 +3,11 @@
 using System;
 using System.Reflection;
 using UnityEngine;
-
+ 
 namespace Oxide.Plugins
 {
 
-	[Info("Fly", "Bombardir", 0.2)]
+    [Info("Fly", "Bombardir", "0.5.0", ResourceId = 822)]
 	class Fly : RustPlugin
 	{
         private static FieldInfo serverinput;
@@ -15,9 +15,6 @@ namespace Oxide.Plugins
 
 		class FlyMode : MonoBehaviour 
 		{
-			public float MaxSpeed = 30;
-			public float MinSpeed = 5;
-			public float StandartSpeed = 10;
 			private float speed;
             private Vector3 direction;
             private InputState input;
@@ -37,61 +34,80 @@ namespace Oxide.Plugins
 					player.SendNetworkUpdate(BasePlayer.NetworkQueue.Update);
 				}
 			}
+
+            private void Move(Vector3 newpos)
+            {
+                transform.position = newpos;
+                player.ClientRPC(null, player, "ForcePositionTo", new object[] { newpos });
+            }
 		
 			void Awake () 
 			{
+                speed = 10;
                 player = GetComponent<BasePlayer>();
 				input = serverinput.GetValue(player) as InputState;
 				enabled = false;
 			}
-			
 
-            void Update()
+            void FixedUpdate()
             {
-                if (!player.IsSpectating())
-                    player.ChangePlayerState(PlayerState.Type.Spectating, false);
+                if (input.IsDown(BUTTON.CHAT))
+                    enabled = false;
+                else
+                {
+                    if (!player.IsSpectating())
+                    {
+                        player.SetPlayerFlag(BasePlayer.PlayerFlags.Spectating, true);
+                        TransformEx.SetLayerRecursive(gameObject, "Invisible");
+                        CancelInvoke("MetabolismUpdate");
+                        CancelInvoke("InventoryUpdate");
+                    }
 
-				direction = Vector3.zero;
-				if (input.IsDown(BUTTON.FORWARD))
-					direction.z++;
-				if (input.IsDown(BUTTON.RIGHT))
-					direction.x++;
-				if (input.IsDown(BUTTON.LEFT))
-					direction.x--;
-				if (input.IsDown(BUTTON.BACKWARD))
-					direction.z--;
+                    direction = Vector3.zero;
+                    if (input.IsDown(BUTTON.FORWARD))
+                        direction.z++;
+                    if (input.IsDown(BUTTON.RIGHT))
+                        direction.x++;
+                    if (input.IsDown(BUTTON.LEFT))
+                        direction.x--;
+                    if (input.IsDown(BUTTON.BACKWARD))
+                        direction.z--;
 
-				if (direction != Vector3.zero)
-				{
-					CheckParent();
-					
-					if (input.IsDown(BUTTON.SPRINT))
-						speed = MaxSpeed;
-					else if (input.IsDown(BUTTON.LOOK_ALT))
-						speed = MinSpeed;
-					else
-						speed = StandartSpeed;
+                    if (input.IsDown(BUTTON.FIRE_PRIMARY))
+                        if (input.IsDown(BUTTON.PREVIOUS))
+                            speed++;
+                        else if (input.IsDown(BUTTON.NEXT))
+                            speed--;
 
-                    MovePlayerToPos(player, transform.position, transform.position + Quaternion.Euler(input.current.aimAngles) * direction * Time.deltaTime * speed);
-				}
+                    if (direction != Vector3.zero)
+                    {
+                        CheckParent();
+                        Move(transform.position + Quaternion.Euler(input.current.aimAngles) * direction * Time.deltaTime * speed);
+                    }
+                }
             }
 
             void OnDisable()
             {
 				CheckParent();
-                player.ChangePlayerState(PlayerState.Type.Normal, false);
+                RaycastHit hit;
+                if (Physics.Raycast(new Ray(transform.position, Vector3.down), out hit, 25000) || Physics.Raycast(new Ray(transform.position, Vector3.up), out hit, 25000))
+                    Move(hit.point);
+                player.metabolism.Reset();
+                InvokeRepeating("InventoryUpdate", 1f, 0.1f * UnityEngine.Random.Range(0.99f, 1.01f));
+                player.SetPlayerFlag(BasePlayer.PlayerFlags.Spectating, false);
+                TransformEx.SetLayerRecursive(gameObject, "Player (Server)");
+                player.ChatMessage("Fly deactivated!");
             }
 		}
-
-		private static void MovePlayerToPos(BasePlayer player, Vector3 oldpos, Vector3 newpos)
-		{
-			player.transform.position = newpos;
-			if (Vector3.Distance(newpos, oldpos) > 25.0)
-				player.ClientRPC(null, player, "ForcePositionTo", new object[] { newpos });
-			else
-				player.SendNetworkUpdate(BasePlayer.NetworkQueue.UpdateDistance);
-		}
 		
+        void OnPlayerDisconnected(BasePlayer player)
+        {
+            FlyMode fly = player.GetComponent<FlyMode>();
+            if (fly)
+                fly.enabled = false;
+        }
+
 		void LoadDefaultConfig()
 		{
 			Config["AuthLevel"] = 2;
@@ -100,7 +116,7 @@ namespace Oxide.Plugins
     
         void Init()
         {
-            serverinput = typeof(BasePlayer).GetField("serverInput", (BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic));
+            serverinput = typeof(BasePlayer).GetField("serverInput", (BindingFlags.Instance | BindingFlags.NonPublic));
 			if (Config["AuthLevel"] != null)
 				authLevel = Convert.ToByte(Config["AuthLevel"]);
         }
@@ -121,55 +137,11 @@ namespace Oxide.Plugins
 				FlyMode fly = player.GetComponent<FlyMode>();
 				if (!fly)
 					fly = player.gameObject.AddComponent<FlyMode>();
-					
-				if (args.Length > 1)
-					switch (args[0])
-					{
-						case "standart":
-							fly.StandartSpeed = Convert.ToSingle(args[1]);
-							SendReply(player, "Now, the standart speed = "+args[1]);
-							break;
-						case "max":
-							fly.MaxSpeed = Convert.ToSingle(args[1]);
-							SendReply(player, "Now, the max speed = "+args[1]);
-							break;
-						case "min":
-							fly.MinSpeed = Convert.ToSingle(args[1]);
-							SendReply(player, "Now, the min speed = "+args[1]);
-							break;
-						default:
-							SendReply(player, "Variables: standart, max, min");
-							break;
-					}
-				else
-					if (fly.enabled)
-					{
-						fly.enabled = false;
-						SendReply(player, "Fly deactivated!");	
-					}
-					else
-					{
-						fly.enabled = true;
-						SendReply(player, "Fly activated!");
-					}
+				fly.enabled = true;
+				SendReply(player, "Fly activated!");
 			}
 			else
 				SendReply(player, "No Permission!");
         }
-		
-		[ChatCommand("land")]
-        void Land(BasePlayer player, string command, string[] args)
-        {
-            if (player.net.connection.authLevel >= authLevel)
-			{
-				RaycastHit hit;
-                if (Physics.Raycast(new Ray(player.transform.position, Vector3.down), out hit, 25000) || Physics.Raycast(new Ray(player.transform.position, Vector3.up), out hit, 25000))
-					MovePlayerToPos(player, player.transform.position, hit.point);
-                else
-                    SendReply(player, "Can't find position to land!");
-			}
-			else
-				SendReply(player, "No Permission!");
-		}
 	}
 }

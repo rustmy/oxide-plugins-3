@@ -5,12 +5,12 @@
   "name": "ItemConfig",
   "category": "Mechanics",
   "type": "cs",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": "Ðie wilde Betty",
   "rating": 5,
-  "downloads": 579,
-  "updated": "2015-03-13T17:53:00.000Z",
+  "downloads": 614,
+  "updated": "2015-03-27T02:32:29.000Z",
   "description": "Settings for items, blueprints, constructions...",
-  "downloadUrl": "resources/itemconfig.806/download?version=4006",
+  "downloadUrl": "resources/itemconfig.806/download?version=4167",
   "filename": "ItemConfig.cs"
 }

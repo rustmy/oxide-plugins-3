@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("Rust:IO Clans", "playrust.io / dcode", "1.1.1", ResourceId=842)]
+    [Info("Clans", "playrust.io / dcode", "1.4.1", ResourceId = 842)]
     public class Clans : RustPlugin
     {
 
@@ -59,6 +59,7 @@ namespace Oxide.Plugins
         private Dictionary<string, string> originalNames = new Dictionary<string, string>();
         private Regex tagRe = new Regex("^[a-zA-Z0-9]{2,6}$");
         private Dictionary<string, string> messages = new Dictionary<string, string>();
+        private static char nbsp = Convert.ToChar(160);
 
         // Loads the data file
         private void LoadData() {
@@ -126,6 +127,7 @@ namespace Oxide.Plugins
         private List<string> texts = new List<string>() {
             "%NAME% has come online!",
             "%NAME% has gone offline.",
+
             "You are currently not a member of a clan.",
             "You are the owner of:",
             "You are a moderator of:",
@@ -133,6 +135,7 @@ namespace Oxide.Plugins
             "Members online:",
             "Pending invites:",
             "To learn more about clans, type: <color=\"#ffd479\">/clan help</color>",
+
             "Usage: <color=\"#ffd479\">/clan create \"TAG\" \"Description\"</color>",
             "You are already a member of a clan.",
             "Clan tags must be 2 to 6 characters long and may contain standard letters and numbers only",
@@ -140,6 +143,7 @@ namespace Oxide.Plugins
             "There is already a clan with this tag.",
             "You are now the owner of your new clan:",
             "To invite new members, type: <color=\"#ffd479\">/clan invite \"Player name\"</color>",
+
             "Usage: <color=\"#ffd479\">/clan invite \"Player name\"</color>",
             "You need to be a moderator of your clan to use this command.",
             "No such player or player name not unique:",
@@ -149,23 +153,35 @@ namespace Oxide.Plugins
             "This player is already a moderator of your clan:",
             "This player is not a moderator of your clan:",
             "%MEMBER% invited %PLAYER% to the clan.",
-            "You have been invited to join the clan:",
-            "To join, type: <color=#ffd479>/clan join \"%TAG%\"</color>",
             "Usage: <color=\"#ffd479\">/clan join \"TAG\"</color>",
             "You have not been invited to join this clan.",
             "%NAME% has joined the clan!",
+            "You have been invited to join the clan:",
+            "To join, type: <color=#ffd479>/clan join \"%TAG%\"</color>",
+
             "Usage: <color=\"#ffd479\">/clan promote \"Player name\"</color>",
             "You need to be the owner of your clan to use this command.",
             "%OWNER% promoted %MEMBER% to moderator.",
+
             "Usage: <color=\"#ffd479\">/clan demote \"Player name\"</color>",
+
             "Usage: <color=\"#ffd479\">/clan leave</color>",
             "You have left your current clan.",
             "%NAME% has left the clan.",
+
             "Usage: <color=\"#ffd479\">/clan kick \"Player name\"</color>",
             "This player is an owner or moderator and cannot be kicked:",
             "%NAME% kicked %MEMBER% from the clan.",
+
             "Usage: <color=\"#ffd479\">/clan disband forever</color>",
             "Your current clan has been disbanded forever.",
+
+            "Usage: <color=\"#ffd479\">/clan delete \"TAG\"</color>",
+            "You need to be a server owner to delete clans.",
+            "There is no clan with that tag:",
+            "Your clan has been deleted by the server owner.",
+            "You have deleted the clan:",
+
             "Available commands:",
             "<color=#ffd479>/clan</color> - Displays relevant information about your current clan",
             "<color=#ffd479>/c Message...</color> - Sends a message to all online clan members",
@@ -178,7 +194,12 @@ namespace Oxide.Plugins
             "<color=#a1ff46>Owner</color> commands:",
             "<color=#ffd479>/clan promote \"Name\"</color> - Promotes a member to moderator",
             "<color=#ffd479>/clan demote \"Name\"</color> - Demotes a moderator to member",
-            "<color=#ffd479>/clan disband forever</color> - Disbands your clan (no undo)"
+            "<color=#ffd479>/clan disband forever</color> - Disbands your clan (no undo)",
+            "<color=#cd422b>Server owner</color> commands:",
+            "<color=#ffd479>/clan delete \"TAG\"</color> - Deletes a clan (no undo)",
+
+            "<color=\"#ffd479\">/clan</color> - Displays your current clan status",
+            "<color=\"#ffd479\">/clan help</color> - Learn how to create or join a clan"
         };
 
         // Loads the default configuration
@@ -256,14 +277,18 @@ namespace Oxide.Plugins
         private string StripTag(string name, Clan clan) {
             if (clan == null)
                 return name;
-            var tag = "[" + clan.tag + "] ";
-            while (name.StartsWith(tag)) // Not sure why this happens
-                name = name.Substring(tag.Length);
+            var p = name.LastIndexOf("]"+nbsp);
+            if (p >= 0)
+                return name.Substring(p + 2);
+            var re = new Regex("^\\["+clan.tag+"\\]\\s");
+            while (re.IsMatch(name))
+                name = name.Substring(clan.tag.Length+3);
             return name;
         }
 
         // Sets up a player to use the correct clan tag
         private void SetupPlayer(BasePlayer player) {
+            var prevName = player.displayName;
             var playerId = player.userID.ToString();
             var clan = FindClanByUser(playerId);
             player.displayName = StripTag(player.displayName, clan);
@@ -276,10 +301,12 @@ namespace Oxide.Plugins
             if (clan == null) {
                 player.displayName = originalName;
             } else {
-                var tag = "[" + clan.tag + "] ";
+                var tag = "[" + clan.tag + "]"+nbsp;
                 if (!player.displayName.StartsWith(tag))
                     player.displayName = tag + originalName;
             }
+            if (player.displayName != prevName)
+                player.SendNetworkUpdate();
         }
 
         // Sets up all players contained in playerIds
@@ -316,13 +343,18 @@ namespace Oxide.Plugins
             }
         }
 
+        [HookMethod("OnUserApprove")]
+        void OnUserApprove(Network.Connection connection) {
+            originalNames[connection.userid.ToString()] = connection.username;
+        }
+
         [HookMethod("OnPlayerInit")]
         void OnPlayerInit(BasePlayer player) {
             try {
                 SetupPlayer(player);
                 var clan = FindClanByUser(player.userID.ToString());
                 if (clan != null)
-                    clan.Broadcast(_("%NAME% has come online!", new Dictionary<string, string>() { { "NAME", player.displayName } }));
+                    clan.Broadcast(_("%NAME% has come online!", new Dictionary<string, string>() { { "NAME", StripTag(player.displayName, clan) } }));
             } catch (Exception ex) {
                 Error("OnPlayerInit failed: " + ex.Message);
             }
@@ -333,7 +365,7 @@ namespace Oxide.Plugins
             try {
                 var clan = FindClanByUser(player.userID.ToString());
                 if (clan != null)
-                    clan.Broadcast(_("%NAME% has gone offline.", new Dictionary<string, string>() { { "NAME", player.displayName } }));
+                    clan.Broadcast(_("%NAME% has gone offline.", new Dictionary<string, string>() { { "NAME", StripTag(player.displayName, clan) } }));
             } catch (Exception ex) {
                 Error("OnPlayerDisconnected failed: " + ex.Message);
             }
@@ -359,6 +391,20 @@ namespace Oxide.Plugins
             }
         }
 
+        [HookMethod("SendHelpText")]
+        private void SendHelpText(BasePlayer player) {
+            var sb = new StringBuilder()
+               .Append("<size=18>Clans</size> by <color=#ce422b>http://playrust.io</color>\n")
+               .Append("  ").Append(_("<color=\"#ffd479\">/clan</color> - Displays your current clan status")).Append("\n")
+               .Append("  ").Append(_("<color=\"#ffd479\">/clan help</color> - Learn how to create or join a clan"));
+            player.ChatMessage(sb.ToString());
+        }
+
+        [HookMethod("BuildServerTags")]
+        private void BuildServerTags(IList<string> taglist) {
+            taglist.Add("clans");
+        }
+
         [ChatCommand("clan")]
         private void cmdChatClan(BasePlayer player, string command, string[] args) {
             var userId = player.userID.ToString();
@@ -366,7 +412,7 @@ namespace Oxide.Plugins
             var sb = new StringBuilder();
             // No arguments: List clans and get help how to create one
             if (args.Length == 0) {
-                sb.Append("<size=22>Clans</size> by <color=#ce422b>http://playrust.io</color>\n");
+                sb.Append("<size=22>Clans</size> "+Version+" by <color=#ce422b>http://playrust.io</color>\n");
                 if (myClan == null) {
                     sb.Append(_("You are currently not a member of a clan.")).Append("\n");
                 } else {
@@ -385,9 +431,9 @@ namespace Oxide.Plugins
                         if (p != null) {
                             if (n > 0) sb.Append(", ");
                             if (myClan.IsOwner(memberId)) {
-                                sb.Append("<color=#a1ff46>").Append(p.displayName).Append("</color>");
+                                sb.Append("<color=#a1ff46>").Append(StripTag(p.displayName, myClan)).Append("</color>");
                             } else if (myClan.IsModerator(memberId)) {
-                                sb.Append("<color=#74c6ff>").Append(p.displayName).Append("</color>");
+                                sb.Append("<color=#74c6ff>").Append(StripTag(p.displayName, myClan)).Append("</color>");
                             } else {
                                 sb.Append(p.displayName);
                             }
@@ -473,7 +519,7 @@ namespace Oxide.Plugins
                     }
                     myClan.invited.Add(invUserId);
                     SaveData();
-                    myClan.Broadcast(_("%MEMBER% invited %PLAYER% to the clan.", new Dictionary<string,string>() { {"MEMBER",player.displayName}, {"PLAYER",invPlayer.displayName}}));
+                    myClan.Broadcast(_("%MEMBER% invited %PLAYER% to the clan.", new Dictionary<string,string>() { {"MEMBER",StripTag(player.displayName, myClan)}, {"PLAYER",invPlayer.displayName}}));
                     invPlayer.SendConsoleCommand("chat.add", "", 
                         _("You have been invited to join the clan:") + " [" + myClan.tag + "] " + myClan.description + "\n"+
                         _("To join, type: <color=#ffd479>/clan join \"%TAG%\"</color>", new Dictionary<string,string>() {{"TAG",myClan.tag}}));
@@ -496,7 +542,7 @@ namespace Oxide.Plugins
                     myClan.members.Add(userId);
                     SaveData();
                     SetupPlayer(player);
-                    myClan.Broadcast(_("%NAME% has joined the clan!", new Dictionary<string,string>() {{"NAME",player.displayName}}));
+                    myClan.Broadcast(_("%NAME% has joined the clan!", new Dictionary<string,string>() {{"NAME",StripTag(player.displayName,myClan)}}));
                     foreach (var memberId in myClan.members) {
                         if (memberId != userId && IsInstalled()) {
                             AddFriend(memberId, userId);
@@ -533,7 +579,7 @@ namespace Oxide.Plugins
                     }
                     myClan.moderators.Add(promotePlayerUserId);
                     SaveData();
-                    myClan.Broadcast(_("%OWNER% promoted %MEMBER% to moderator.", new Dictionary<string,string>() {{"OWNER", player.displayName}, {"MEMBER", promotePlayer.displayName}}));
+                    myClan.Broadcast(_("%OWNER% promoted %MEMBER% to moderator.", new Dictionary<string,string>() {{"OWNER",StripTag(player.displayName,myClan)}, {"MEMBER",StripTag(promotePlayer.displayName,myClan)}}));
                     break;
                 case "demote":
                     if (args.Length != 2) {
@@ -621,7 +667,7 @@ namespace Oxide.Plugins
                     myClan.invited.Remove(kickPlayerUserId);
                     SaveData();
                     SetupPlayer(kickPlayer); // Remove clan tag
-                    myClan.Broadcast(_("%NAME% kicked %MEMBER% from the clan.", new Dictionary<string,string>() {{"NAME",player.displayName},{"MEMBER",kickPlayer.displayName}}));
+                    myClan.Broadcast(_("%NAME% kicked %MEMBER% from the clan.", new Dictionary<string,string>() {{"NAME",StripTag(player.displayName,myClan)},{"MEMBER",kickPlayer.displayName}}));
                     break;
                 case "disband":
                     if (args.Length != 2) {
@@ -641,6 +687,26 @@ namespace Oxide.Plugins
                     myClan.Broadcast(_("Your current clan has been disbanded forever."));
                     SetupPlayers(myClan.members); // Remove clan tags
                     break;
+                case "delete":
+                    if (args.Length != 2) {
+                        sb.Append(_("Usage: <color=\"#ffd479\">/clan delete \"TAG\"</color>"));
+                        break;
+                    }
+                    if (player.net.connection.authLevel < 2) {
+                        sb.Append(_("You need to be a server owner to delete clans."));
+                        break;
+                    }
+                    Clan clan;
+                    if (!clans.TryGetValue(args[1], out clan)) {
+                        sb.Append(_("There is no clan with that tag:")).Append(" ").Append(args[1]);
+                        break;
+                    }
+                    clan.Broadcast(_("Your clan has been deleted by the server owner."));
+                    clans.Remove(args[1]);
+                    SaveData();
+                    SetupPlayers(clan.members);
+                    sb.Append(_("You have deleted the clan:")).Append(" [").Append(clan.tag).Append("] ").Append(clan.description);
+                    break;
                 default:
                     sb.Append(_("Available commands:")).Append("\n");
                     sb.Append("  ").Append(_("<color=#ffd479>/clan</color> - Displays relevant information about your current clan")).Append("\n");
@@ -654,10 +720,14 @@ namespace Oxide.Plugins
                     sb.Append(_("<color=#a1ff46>Owner</color> commands:")).Append("\n");
                     sb.Append("  ").Append(_("<color=#ffd479>/clan promote \"Name\"</color> - Promotes a member to moderator")).Append("\n");
                     sb.Append("  ").Append(_("<color=#ffd479>/clan demote \"Name\"</color> - Demotes a moderator to member")).Append("\n");
-                    sb.Append("  ").Append(_("<color=#ffd479>/clan disband forever</color> - Disbands your clan (no undo)"));
+                    sb.Append("  ").Append(_("<color=#ffd479>/clan disband forever</color> - Disbands your clan (no undo)")).Append("\n");
+                    if (player.net.connection.authLevel >= 2) {
+                        sb.Append(_("<color=#cd422b>Server owner</color> commands:")).Append("\n");
+                        sb.Append("  ").Append(_("<color=#ffd479>/clan delete \"TAG\"</color> - Deletes a clan (no undo)")).Append("\n");
+                    }
                     break;
             }
-            SendReply(player, sb.ToString());
+            SendReply(player, sb.ToString().TrimEnd());
         }
 
         [ChatCommand("c")]

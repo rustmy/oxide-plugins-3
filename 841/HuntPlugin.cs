@@ -12,32 +12,51 @@ using UnityEngine;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Oxide.Core.Libraries;
 using Oxide.Plugins;
+using Rust;
 using Random=System.Random;
+using Time=UnityEngine.Time;
 using System.Collections;
 
 namespace Oxide.Plugins
 {
 
-    [Info("Hunt RPG", "PedraozauM / SW", "1.2.7", ResourceId = 841)]
+    [Info("Hunt RPG", "PedraozauM / SW", "1.2.8", ResourceId = 841)]
     public class HuntPlugin : RustPlugin
     {
+        [PluginReference] private Plugin NpcController;
         private readonly HuntRPG HuntRPGInstance;
         private bool ServerInitialized;
         private bool UpdateConfig;
         private bool UpdatePlayerData;
         private DynamicConfigFile HuntDataFile;
+        private VersionNumber DataVersion;
 
         public HuntPlugin()
         {
             HasConfig = true;
             HuntRPGInstance = new HuntRPG(this);
+            DataVersion = new VersionNumber(0,9,0);
+        }
+
+        public void GiveTamePermission(string playerid, string perm)
+        {
+            if (permission.UserHasPermission(playerid, perm)) return;
+            permission.GrantUserPermission(playerid, perm, NpcController);
+        }
+
+        public void RevokeTamePermission(string playerid, string perm)
+        {
+            if (!permission.UserHasPermission(playerid, perm)) return;
+            permission.RevokeUserPermission(playerid, perm);
         }
 
         protected override void LoadDefaultConfig()
         {
             UpdateConfig = true;
             DefaultConfig();
+            UpdateData();
         }
 
         private void DefaultConfig()
@@ -46,9 +65,13 @@ namespace Oxide.Plugins
             {
                 //this will only be called if there is not a config file, or it needs updating
                 Config[HK.ConfigVersion] = Version;
+                Config[HK.DataVersion] = DataVersion;
                 Config[HK.XPTable] = HuntTablesGenerator.GenerateXPTable(HK.MaxLevel, HK.BaseXP, HK.LevelMultiplier, HK.LevelModule, HK.ModuleReducer);
-                Config[HK.MessagesTable] = HuntTablesGenerator.GenerateMessageTable();
+                Config[HK.MaxStatsTable] = HuntTablesGenerator.GenerateMaxStatsTable();
                 Config[HK.SkillTable] = HuntTablesGenerator.GenerateSkillTable();
+                Config[HK.ResearchSkillTable] = HuntTablesGenerator.GenerateResearchTable();
+                Config[HK.UpgradeBuildTable] = HuntTablesGenerator.GenerateUpgradeBuildingTable();
+                Config[HK.MessagesTable] = HuntTablesGenerator.GenerateMessageTable();
                 SaveConfig();
             }
             else
@@ -57,8 +80,11 @@ namespace Oxide.Plugins
                 Config[HK.ItemTable] = HuntTablesGenerator.GenerateItemTable();
                 SaveConfig();
             }
+        }
 
-            if (!UpdatePlayerData || !UpdateConfig) return;
+        private void UpdateData()
+        {
+            if (!UpdatePlayerData) return;
             // this will only be called if this version requires a data wipe and the config is outdated.
             LogToConsole("This version needs a wipe to data file.");
             LogToConsole("Dont worry levels will be kept! =]");
@@ -76,6 +102,8 @@ namespace Oxide.Plugins
                 HuntRPGInstance.LevelUpPlayer(rpgInfo, profile.Value.Level);
             }
             LogToConsole("Data file updated!");
+            Config[HK.DataVersion] = DataVersion;
+            SaveConfig();
             SaveRPG(rpgInfos, new Dictionary<string, string>());
             UpdatePlayerData = false;
         }
@@ -95,10 +123,20 @@ namespace Oxide.Plugins
             var xpTable = ReadFromConfig<Dictionary<int, long>>(HK.XPTable);
             var messagesTable = ReadFromConfig<PluginMessagesConfig>(HK.MessagesTable);
             var skillTable = ReadFromConfig<Dictionary<string, Skill>>(HK.SkillTable);
+            var maxStatsTable = ReadFromConfig<Dictionary<string, float>>(HK.MaxStatsTable);
             var itemTable = ReadFromConfig<Dictionary<string, ItemInfo>>(HK.ItemTable);
-            HuntRPGInstance.ConfigRPG(messagesTable, xpTable, skillTable, itemTable, rpgConfig, playerFurnaces);
+            var researchSkillTable = ReadFromConfig<Dictionary<string, int>>(HK.ResearchSkillTable);
+            var upgradeBuildTable = ReadFromConfig<Dictionary<BuildingGrade.Enum, float>>(HK.UpgradeBuildTable);
+            HuntRPGInstance.ConfigRPG(messagesTable, xpTable, maxStatsTable, upgradeBuildTable, skillTable, researchSkillTable, itemTable, rpgConfig, playerFurnaces);
             if (showMsgs)
                 LogToConsole("Data and config loaded!");
+            var plugin = plugins.Find("NpcController");
+            if (plugin == null)
+            {
+                LogToConsole("NpcController plugin was not found, disabling taming skill");
+                skillTable[HRK.Tamer].Enabled = false;
+            }
+
         }
 
         public T ReadFromConfig<T>(string configKey)
@@ -153,21 +191,33 @@ namespace Oxide.Plugins
             var configVersion = new VersionNumber();
             if (Config[HK.ConfigVersion] != null)
                 configVersion = ReadFromConfig<VersionNumber>(HK.ConfigVersion);
-            if (Version.Equals(configVersion))
+            var dataVersion = new VersionNumber();
+            if (Config[HK.DataVersion] != null)
+                dataVersion = ReadFromConfig<VersionNumber>(HK.DataVersion);
+            var needDataUpdate = !DataVersion.Equals(dataVersion);
+            var needConfigUpdate = !Version.Equals(configVersion);
+            if (!needConfigUpdate && !needDataUpdate)
             {
                 PrintToChat("<color=lightblue>Hunt</color>: RPG Loaded!");
                 PrintToChat("<color=lightblue>Hunt</color>: To see the Hunt RPG help type \"/hunt\" or \"/h\"");
                 return;
             }
-            LogToConsole("Your config needs updating...Doing it now.");
-            Config.Clear();
-            UpdateConfig = true;
-            UpdatePlayerData = true;
-            var wasUpdated = UpdatePlayerData;
-            DefaultConfig();
-            LogToConsole("Config updated!");
-            foreach (var player in BasePlayer.activePlayerList)
-                HuntRPGInstance.PlayerInit(player, wasUpdated);
+            if (needConfigUpdate)
+            {
+                LogToConsole("Your config needs updating...Doing it now.");
+                Config.Clear();
+                UpdateConfig = true;
+                DefaultConfig();
+                LogToConsole("Config updated!");
+            }
+            UpdatePlayerData = needDataUpdate;
+            if (needDataUpdate)
+            {
+                var wasUpdated = UpdatePlayerData;
+                UpdateData();
+                foreach (var player in BasePlayer.activePlayerList)
+                    HuntRPGInstance.PlayerInit(player, wasUpdated);
+            }
         }
 
         [HookMethod("OnPlayerInit")]
@@ -175,6 +225,12 @@ namespace Oxide.Plugins
         {
             HuntRPGInstance.PlayerInit(player, UpdatePlayerData);
         }
+
+        //[HookMethod("OnItemAddedToContainer")]
+        //void OnItemAddedToContainer(ItemContainer itemContainer, Item item)
+        //{
+        //    HuntRPGInstance.OnItemAddedToContainer(itemContainer, item);
+        //}
 
         [HookMethod("OnEntityAttacked")]
         object OnEntityAttacked(MonoBehaviour entity, HitInfo hitInfo)
@@ -330,11 +386,12 @@ namespace Hunt.RPG
         private Dictionary<string, Skill> SkillTable;
         private Dictionary<int, long> XPTable;
         private Dictionary<string, ItemInfo> ItemTable;
-        private Dictionary<ItemCategory, int> ResearchTable;
+        private Dictionary<string, int> ResearchTable;
         private Dictionary<string, string> PlayersFurnaces;
         private readonly Dictionary<string, float> PlayerLastPercentChange;
         private readonly Dictionary<string, Dictionary<string,float>> SkillsCooldowns;
         private Dictionary<BuildingGrade.Enum, float> UpgradeBuildingTable;
+        private Dictionary<string, float> MaxStatsTable;
         private readonly HuntPlugin PluginInstance;
         readonly Random RandomGenerator = new Random();
 
@@ -345,15 +402,16 @@ namespace Hunt.RPG
             PlayerLastPercentChange = new Dictionary<string, float>();
         }
 
-        public void ConfigRPG(PluginMessagesConfig messagesTable, Dictionary<int, long> xpTable, Dictionary<string, Skill> skillTable, Dictionary<string, ItemInfo> itemTable, Dictionary<string, RPGInfo> rpgConfig, Dictionary<string, string> playerFurnaces)
+        public void ConfigRPG(PluginMessagesConfig messagesTable, Dictionary<int, long> xpTable, Dictionary<string, float> maxStatsTable, Dictionary<BuildingGrade.Enum, float> upgradeBuildTable, Dictionary<string, Skill> skillTable, Dictionary<string, int> researchSkillTable, Dictionary<string, ItemInfo> itemTable, Dictionary<string, RPGInfo> rpgConfig, Dictionary<string, string> playerFurnaces)
         {
             MessagesTable = messagesTable;
             XPTable = xpTable;
             SkillTable = skillTable;
+            MaxStatsTable = maxStatsTable;
             ItemTable = itemTable;
             RPGConfig = rpgConfig;
-            ResearchTable = HuntTablesGenerator.GenerateResearchTable();
-            UpgradeBuildingTable = HuntTablesGenerator.GenerateUpgradeBuildingTable();
+            ResearchTable = researchSkillTable;
+            UpgradeBuildingTable = upgradeBuildTable;
             PlayersFurnaces = playerFurnaces;
         }
 
@@ -387,10 +445,6 @@ namespace Hunt.RPG
                     break;
                 case "shortcuts":
                     ChatMessage(player, MessagesTable.GetMessage(HMK.Shortcuts));
-                    break;
-                case "h":
-                case "health":
-                    ChatMessage(player, CurrentHealth(rpgInfo, player));
                     break;
                 case "p":
                 case "profile":
@@ -524,10 +578,25 @@ namespace Hunt.RPG
             if (!canEvade) return false;
             var randomFloat = Random(0, 1);
             RPGInfo rpgInfo = RPGInfo(player);
-            var evasion = RPGHelper.GetEvasion(rpgInfo);
+            var evasion = RPGHelper.GetEvasion(rpgInfo, MaxStatsTable[HRK.AgiEvasionGain]);
             bool evaded = randomFloat <= evasion;
-            ChatMessage(player, evaded ? "Dodged!" : CurrentHealth(rpgInfo, player));
-            return evaded;
+            if (evaded)
+            {
+                ChatMessage(player, "Dodged!");
+                return true;
+            }
+            var blockPercent = RPGHelper.GetBlock(rpgInfo, MaxStatsTable[HRK.StrBlockGain]);
+            //var total = hitInfo.damageTypes.Total();
+            float[] array = hitInfo.damageTypes.types;
+            for (int index = 0; index < array.Length; index++)
+            {
+                var damage = array[index];
+                damage = damage - (damage * blockPercent);
+                hitInfo.damageTypes.Set((DamageType)index, damage);
+            }
+            //var blocked = hitInfo.damageTypes.Total();
+            //ChatMessage(player, String.Format("Blocked {0:F1}/{1}", total-blocked, total));
+            return false;
         }
 
         double Random(double a, double b)
@@ -537,14 +606,15 @@ namespace Hunt.RPG
 
         public ItemCraftTask OnItemCraft(ItemCraftTask item)
         {
-            var itemName = item.blueprint.targetItem.displayName.translated;
+            BasePlayer player = item.owner;
+            var itemName = item.blueprint.targetItem.displayName.translated.ToLower();
             if (!ItemTable.ContainsKey(itemName))
                 return null;
             var blueprintTime = ItemTable[itemName].BlueprintTime;
-            BasePlayer player = item.owner;
+            
             var rpgInfo = RPGInfo(player);
             float craftingTime = blueprintTime;
-            float craftingReducer = RPGHelper.GetCraftingReducer(rpgInfo);
+            float craftingReducer = RPGHelper.GetCraftingReducer(rpgInfo, MaxStatsTable[HRK.IntCraftingReducer]);
             var amountToReduce = (craftingTime*craftingReducer);    
             float reducedCraftingTime = craftingTime - amountToReduce;
             item.blueprint.time = reducedCraftingTime;
@@ -651,9 +721,9 @@ namespace Hunt.RPG
             sb.AppendLine();
             sb.AppendLine(String.Format("========{0}========", rpgInfo.SteamName));
             sb.AppendLine(String.Format("Level: {0}", rpgInfo.Level));
-            sb.AppendLine(CurrentHealth(rpgInfo, player));
-            sb.AppendLine(String.Format("Evasion Chance: {0:P}", RPGHelper.GetEvasion(rpgInfo)));
-            sb.AppendLine(String.Format("Crafting Reducer: {0:P}", RPGHelper.GetCraftingReducer(rpgInfo)));
+            sb.AppendLine(String.Format("Damage Block: {0:P}", RPGHelper.GetBlock(rpgInfo, MaxStatsTable[HRK.StrBlockGain])));
+            sb.AppendLine(String.Format("Evasion Chance: {0:P}", RPGHelper.GetEvasion(rpgInfo, MaxStatsTable[HRK.AgiEvasionGain])));
+            sb.AppendLine(String.Format("Crafting Reducer: {0:P}", RPGHelper.GetCraftingReducer(rpgInfo, MaxStatsTable[HRK.IntCraftingReducer])));
             sb.AppendLine(XPProgression(rpgInfo));
             sb.Append(String.Format("<color={0}>Agi: {1}</color> | ","green", rpgInfo.Agility));
             sb.Append(String.Format("<color={0}>Str: {1}</color> | ", "red", rpgInfo.Strength));
@@ -666,11 +736,6 @@ namespace Hunt.RPG
                 sb.AppendLine(String.Format("{0}: {1}/{2}", skill.Key, skill.Value, SkillTable[skill.Key].MaxPoints));
             sb.AppendLine("====================");
             return sb.ToString();
-        }
-
-        private string CurrentHealth(RPGInfo rpgInfo, BasePlayer player)
-        {
-            return String.Format("Health: {0:F1}/{1:F}", player.health, RPGHelper.GetMaxHealth(rpgInfo));
         }
 
         private void ChatMessage(BasePlayer player, IEnumerable<string> messages)
@@ -697,12 +762,23 @@ namespace Hunt.RPG
             var playerResearchPoints = rpgInfo.Skills[HRK.Researcher];
             var itemname = args[1];
             itemname = itemname.ToLower();
-            if (ItemTable.ContainsKey(itemname))
-                itemname = ItemTable[itemname].Shortname;
+            if (!ItemTable.ContainsKey(itemname))
+            {
+                ChatMessage(player, MessagesTable.GetMessage(HMK.ItemNotFound, new[] { itemname }));
+                return false;
+            }
+
+            var itemInfo = ItemTable[itemname];
+            itemname = itemInfo.Shortname;
             var definition = ItemManager.FindItemDefinition(itemname);
             if (definition == null)
             {
                 ChatMessage(player, MessagesTable.GetMessage(HMK.ItemNotFound, new[] { itemname }));
+                return false;
+            }
+            if (!itemInfo.CanResearch)
+            {
+                ChatMessage(player, MessagesTable.GetMessage(HMK.ResearchBlocked, new []{ itemname }));
                 return false;
             }
             var playerContainer = player.inventory.containerMain;
@@ -712,12 +788,12 @@ namespace Hunt.RPG
                 ChatMessage(player, String.Format("In order to research an item you must have it on your inventory"));
                 return false;
             }
-            if (!ResearchTable.ContainsKey(definition.category))
+            if (!ResearchTable.ContainsKey(itemInfo.ItemCategory))
             {
                 ChatMessage(player, "You can research itens of this type");
                 return false;
             }
-            var requiredSkillPoints = ResearchTable[definition.category];
+            var requiredSkillPoints = ResearchTable[itemInfo.ItemCategory];
             if (playerResearchPoints < requiredSkillPoints)
             {
                 ChatMessage(player, String.Format("Your research skills are not hight enought. Required {0}", requiredSkillPoints));
@@ -802,11 +878,25 @@ namespace Hunt.RPG
                 if (SkillTable.ContainsKey(skillKey))
                 {
                     var skill = SkillTable[skillKey];
+                    if (!skill.Enabled)
+                    {
+                        pointsSpent.AddRange(MessagesTable.GetMessage(HMK.SkillDisabled));
+                        continue;
+                    }
                     string reason;
                     var pointsAdded = rpgInfo.AddSkill(skill, points, out reason);
                     if (pointsAdded > 0)
+                    {
                         pointsSpent.Add(String.Format("<color={0}>{1}: +{2}</color>", "purple", skillKey,
                             pointsAdded));
+                        if (!skill.Name.Equals(HRK.Tamer)) continue;
+                        var tamerSkill = rpgInfo.Skills[HRK.Tamer];
+                        PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), HPK.CanTame);
+                        PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), HPK.CanTameWolf);
+                        if (tamerSkill > 1)
+                            PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), HPK.CanTameBear);
+                    }
+                        
                     else
                     {
                         pointsSpent.AddRange(MessagesTable.GetMessage(reason));
@@ -850,7 +940,6 @@ namespace Hunt.RPG
                         case "str":
                             if (rpgInfo.AddStr(points))
                             {
-                                SetMaxHealth(player);
                                 pointsSpent.Add(String.Format("<color={0}>Str: +{1}</color>", "red", points));
                             }
                             else
@@ -932,6 +1021,15 @@ namespace Hunt.RPG
 
         public void ResetRPG()
         {
+            foreach (var rpgInfoPair in RPGConfig)
+            {
+                var rpgInfo = rpgInfoPair.Value;
+                if (!rpgInfo.Skills.ContainsKey(HRK.Tamer))
+                    continue;
+                PluginInstance.RevokeTamePermission(rpgInfoPair.Key, HPK.CanTame);
+                PluginInstance.RevokeTamePermission(rpgInfoPair.Key, HPK.CanTameWolf);
+                PluginInstance.RevokeTamePermission(rpgInfoPair.Key, HPK.CanTameBear);
+            }
             RPGConfig.Clear();
             PlayersFurnaces.Clear();
             PluginInstance.SaveRPG(RPGConfig, PlayersFurnaces);
@@ -957,18 +1055,10 @@ namespace Hunt.RPG
         {
             if(dataWasUpdated)
                 ChatMessage(player, MessagesTable.GetMessage(HMK.DataUpdated));
-            SetMaxHealth(player);
             DisplayProfile(player);
             var steamId = RPGHelper.SteamId(player);
             if(!PlayerLastPercentChange.ContainsKey(steamId))
                 PlayerLastPercentChange.Add(steamId, CurrentPercent(RPGInfo(player)));
-        }
-
-        private void SetMaxHealth(BasePlayer player)
-        {
-            var typeOf = typeof (BaseCombatEntity);
-            var myFieldInfo = typeOf.GetField("_maxHealth", BindingFlags.NonPublic | BindingFlags.Instance);
-            myFieldInfo?.SetValue(player, RPGHelper.GetMaxHealth(RPGInfo(player)));
         }
 
         public void OnBuildingBlockUpgrade(BasePlayer player, BuildingBlock buildingBlock, BuildingGrade.Enum grade)
@@ -1030,6 +1120,9 @@ namespace Hunt.RPG
         public bool OnPlayerAttack(BasePlayer player, HitInfo hitInfo)
         {
             var weapon = hitInfo.Weapon.GetOwnerItemDefinition().displayName.translated.ToLower();
+            if (SkillTable.ContainsKey(HRK.BlinkArrow))
+                if (!SkillTable[HRK.BlinkArrow].Enabled)
+                    return false;
             if (!weapon.Equals("hunting bow"))
                 return false;
             var steamId = RPGHelper.SteamId(player);
@@ -1061,6 +1154,13 @@ namespace Hunt.RPG
                 rpgInfo.Preferences.UseBlinkArrow = false;
             return false;
         }
+
+        //public void OnItemAddedToContainer(ItemContainer itemContainer, Item item)
+        //{
+        //    var player = itemContainer.playerOwner;
+        //    if(player == null) return;
+        //    item.info.displayDescription
+        //}
     }
 
     public static class HuntTablesGenerator
@@ -1127,7 +1227,9 @@ namespace Hunt.RPG
             messagesConfig.AddMessage(HMK.NotEnoughAgility, RPGHelper.WrapInColor("You dont have enough agility to learn this skill!"));
             messagesConfig.AddMessage(HMK.NotEnoughIntelligence, RPGHelper.WrapInColor("You dont have enough intelligence to learn this skill!"));
             messagesConfig.AddMessage(HMK.InvalidSkillName, RPGHelper.WrapInColor("There is no such skill! Type \"/hunt skilllist\" to see the available skills"));
+            messagesConfig.AddMessage(HMK.SkillDisabled, RPGHelper.WrapInColor("This skill is blocked in this server."));
             messagesConfig.AddMessage(HMK.ItemNotFound, RPGHelper.WrapInColor("Item {0} not found."));
+            messagesConfig.AddMessage(HMK.ResearchBlocked, RPGHelper.WrapInColor("Item {0} research is blocked by in this server."));
             messagesConfig.AddMessage(HMK.SkillNotLearned, RPGHelper.WrapInColor("You havent learned this skill yet."));
             messagesConfig.AddMessage(HMK.AlreadyAtMaxLevel, RPGHelper.WrapInColor("You have mastered this skill already!"));
             return messagesConfig;
@@ -1177,12 +1279,16 @@ namespace Hunt.RPG
             blacksmith.SkillpointsPerLevel = 7;
             blacksmith.AddRequiredStat("str", (int)Math.Floor(blacksmith.RequiredLevel * 2.5d));
             skillTable.Add(HRK.Blacksmith, blacksmith);
-            var blinkarrow = new Skill(HRK.BlinkArrow, "This skill allows you to blink to your arrow destination from time to time. Each level deacreases the cooldown in 2 minutes.", 70, 5);
+            var blinkarrow = new Skill(HRK.BlinkArrow, "This skill allows you to blink to your arrow destination from time to time. Each level deacreases the cooldown in 2 minutes.", 150, 5);
             blinkarrow.Usage = "Just shoot an Arrow at desired blink location. To toogle this skill type \"/h ba\" . To change the auto toggle for this skill type \"/h aba\"";
             blinkarrow.AddModifier(HRK.CooldownModifier, new Modifier(HRK.CooldownModifier, new List<object>() {9, 2}));
             blinkarrow.SkillpointsPerLevel = 10;
             blinkarrow.AddRequiredStat("agi", (int)Math.Floor(blinkarrow.RequiredLevel * 2.5d));
+            blinkarrow.Enabled = false;
             skillTable.Add(HRK.BlinkArrow, blinkarrow);
+            var tamer = new Skill(HRK.Tamer, "This skill allows you to tame a animal as your pet. Level 1 allows wolf, level 2 allows bear.", 50, 2);
+            tamer.Usage = "Type \"/pet \" to toggle taming. To tame get close to the animal and press your USE button(E). After tamed press USE looking at something, if its terrain he will move, if its a player or other animal it he will attack. If looking at him it will start following you. To set the pet free type \"/pet free\".";
+            skillTable.Add(HRK.Tamer, tamer);
             return skillTable;
         }
 
@@ -1192,7 +1298,7 @@ namespace Hunt.RPG
             var itemsDefinition = ItemManager.GetItemDefinitions();
             foreach (var itemDefinition in itemsDefinition)
             {
-                var newInfo = new ItemInfo {Shortname = itemDefinition.shortname};
+                var newInfo = new ItemInfo {Shortname = itemDefinition.shortname, CanResearch = true, ItemId = itemDefinition.itemid, ItemCategory = itemDefinition.category.ToString()};
                 var blueprint = ItemManager.FindBlueprint(itemDefinition);
                 if (blueprint != null)
                     newInfo.BlueprintTime = blueprint.time;
@@ -1201,17 +1307,17 @@ namespace Hunt.RPG
             return itemDict;
         }
 
-        public static Dictionary<ItemCategory, int> GenerateResearchTable()
+        public static Dictionary<string, int> GenerateResearchTable()
         {
-            var researchTable = new Dictionary<ItemCategory, int>
+            var researchTable = new Dictionary<string, int>
             {
-                {ItemCategory.Tool, 1},
-                {ItemCategory.Attire, 2},
-                {ItemCategory.Construction, 3},
-                {ItemCategory.Resources, 3},
-                {ItemCategory.Medical, 4},
-                {ItemCategory.Ammunition, 4},
-                {ItemCategory.Weapon, 5}
+                {"Tool", 1},
+                {"Attire", 2},
+                {"Construction", 3},
+                {"Resources", 3},
+                {"Medical", 4},
+                {"Ammunition", 4},
+                {"Weapon", 5}
             };
             return researchTable;
         }
@@ -1226,13 +1332,25 @@ namespace Hunt.RPG
             upgradeBuildingTable.Add(BuildingGrade.Enum.TopTier, 3f);
             return upgradeBuildingTable;
         }
+
+        public static Dictionary<string, float> GenerateMaxStatsTable()
+        {
+            var maxStatsTable = new Dictionary<string, float>();
+            maxStatsTable.Add(HRK.StrBlockGain, 0.00095f);
+            maxStatsTable.Add(HRK.AgiEvasionGain, 0.000625f);
+            maxStatsTable.Add(HRK.IntCraftingReducer, 0.001f);
+            return maxStatsTable;
+        }
     }
 
 
     public class ItemInfo
     {
+        public int ItemId { get; set; }
         public string Shortname { get; set; }
         public float BlueprintTime { get; set; }
+        public bool CanResearch { get; set; }
+        public string ItemCategory { get; set; }
     }
 
     public class PluginMessagesConfig
@@ -1278,7 +1396,7 @@ namespace Hunt.RPG
     {
         public ProfilePreferences()
         {
-            ShowXPMessagePercent = 0.01f;
+            ShowXPMessagePercent = 0.25f;
             ShowCraftMessage = true;
             UseBlinkArrow = true;
             AutoToggleBlinkArrow = true;
@@ -1299,6 +1417,7 @@ namespace Hunt.RPG
 
         public static void SkillInfo(StringBuilder sb, Skill skill)
         {
+            if (!skill.Enabled) return;
             sb.AppendLine(String.Format("{0} - Required Level: {1}", RPGHelper.WrapInColor(skill.Name, OC.LightBlue), skill.RequiredLevel));
             if (skill.SkillpointsPerLevel > 1)
                 sb.AppendLine(String.Format("Each skill level costs {0} skillpoints",
@@ -1322,22 +1441,19 @@ namespace Hunt.RPG
             return String.Format("<color={1}>{0}</color>", msg, color);
         }
 
-        public static float GetEvasion(RPGInfo rpgInfo)
+        public static float GetEvasion(RPGInfo rpgInfo, float pointMultiplier)
         {
-            var evasion = (float) (rpgInfo.Agility/HRK.MaxEvasion);
-            return evasion;
+            return rpgInfo.Agility * pointMultiplier;
         }
 
-        public static float GetMaxHealth(RPGInfo rpgInfo)
+        public static float GetBlock(RPGInfo rpgInfo, float pointMultiplier)
         {
-            var healthMultiplier = (float) (rpgInfo.Strength/HRK.MaxHealth);
-            var extraHealht = rpgInfo.Strength * healthMultiplier;
-            return 100 + extraHealht;
+            return rpgInfo.Strength * pointMultiplier;
         }
 
-        public static float GetCraftingReducer(RPGInfo rpgInfo)
+        public static float GetCraftingReducer(RPGInfo rpgInfo, float pointMultiplier)
         {
-            return rpgInfo.Intelligence /HRK.MaxCraftingTimeReducer;
+            return rpgInfo.Intelligence * pointMultiplier;
         }
 
         public static string TimeLeft(float availableAt, float time)
@@ -1521,6 +1637,7 @@ namespace Hunt.RPG
         public Skill(string name, string description, int requiredLevel, int maxPoints)
         {
             Name = name;
+            Enabled = true;
             Description = description;
             RequiredLevel = requiredLevel;
             MaxPoints = maxPoints;
@@ -1549,6 +1666,7 @@ namespace Hunt.RPG
         }
 
         public string Name { get; set; }
+        public bool Enabled { get; set; }
         public string Description { get; set; }
         public string Usage { get; set; }
         public int RequiredLevel { get; set; }
@@ -1601,13 +1719,17 @@ namespace Hunt.RPG.Keys
     static class HK
     {
         public const string ConfigVersion = "VERSION";
+        public const string DataVersion = "DATA_VERSION";
         public const string DataFileName = "Hunt_Data";
         public const string Profile = "PROFILE";
         public const string Furnaces = "FURNACES";
         public const string MessagesTable = "MESSAGESTABLE";
         public const string XPTable = "XPTABLE";
+        public const string MaxStatsTable = "MAXSTATSTABLE";
         public const string SkillTable = "SKILLTABLE";
         public const string ItemTable = "ITEMTABLE";
+        public const string ResearchSkillTable = "RESEARCHSKILLTABLE";
+        public const string UpgradeBuildTable = "UPGRADEBUILDTABLE";
         public const int MaxLevel = 200;
         public const int BaseXP = 383;
         public const float LevelMultiplier = 1.105f;
@@ -1617,6 +1739,8 @@ namespace Hunt.RPG.Keys
     }
     static class HMK
     {
+        public const string SkillDisabled = "skill_disabled";
+        public const string ResearchBlocked = "research_blocked";
         public const string ProfilePreferences = "preferences";
         public const string Help = "help";
         public const string Shortcuts = "hunt_shortcuts";
@@ -1634,8 +1758,16 @@ namespace Hunt.RPG.Keys
         public const string NotEnoughtPoints = "not_enought_points";
         public const string InvalidSkillName = "invalid_skill_name";
     }
+
+    public static class HPK
+    {
+        public const string CanTame = "cannpc";
+        public const string CanTameWolf = "canwolf";
+        public const string CanTameBear = "canbear";
+    }
     static class HRK
     {
+        public const string Tamer = "tamer";
         public const string BlinkArrow = "blinkarrow";
         public const string Blacksmith = "blacksmith";
         public const string Researcher = "researcher";
@@ -1644,9 +1776,9 @@ namespace Hunt.RPG.Keys
         public const string Hunter = "hunter";
         public const string GatherModifier = "gather";
         public const string CooldownModifier = "cooldown";
-        public const float MaxCraftingTimeReducer = HK.MaxLevel * 5;
-        public const float MaxEvasion = HK.MaxLevel * 8;
-        public const float MaxHealth = HK.MaxLevel * 8;
+        public const string IntCraftingReducer = "int_crafting_reducer_percent";
+        public const string AgiEvasionGain = "agi_evasion_percent_gain";
+        public const string StrBlockGain = "str_block_percent_gain";
     }
     public static class OC
     {

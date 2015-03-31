@@ -38,7 +38,7 @@ using Oxide.Core.Libraries;
 
 namespace Oxide.Plugins
 {
-    [Info("Polling Plugin", "Feramor", "1.0.10", ResourceId = 793)]
+    [Info("Polling Plugin", "Feramor", "1.0.11", ResourceId = 793)]
     public class Polling : RustPlugin
     {
         #region Other Classes
@@ -82,8 +82,8 @@ namespace Oxide.Plugins
         private static Logger logger = Interface.GetMod().RootLogger;
         public Core.Configuration.DynamicConfigFile mydata;
         Dictionary<string, object> Language = new Dictionary<string, object>();
-
-        Oxide.Unity.Libraries.Timer.TimerInstance CurrentPollTimer = null;
+        Dictionary<string, object> NewConfig = new Dictionary<string, object>();
+        Oxide.Core.Libraries.Timer.TimerInstance CurrentPollTimer = null;
         [ChatCommand("poll")]
         private void cmdChatPoll(BasePlayer Player, string Command, string[] Args)
         {
@@ -640,6 +640,11 @@ namespace Oxide.Plugins
                 Language = (Dictionary<string, object>)Config["Language"];
 
             }
+            if (Config["NewConfig"] != null)
+            {
+                NewConfig = (Dictionary<string, object>)Config["NewConfig"];
+
+            }
             LoadDefaultLang();
         }
         void LoadDefaultLang()
@@ -689,7 +694,13 @@ namespace Oxide.Plugins
             //Tag
             AddLanguage("ChatTag", "Polling");
 
+            //New Config
+            AddConfig("EventCmd", "event.run");
+            AddConfig("SkipNight", false);
+            AddConfig("SkipTime", "20:00");
+
             Config["Language"] = Language;
+            Config["NewConfig"] = NewConfig;
             SaveConfig();
         }
         void AddLanguage(string Key, string Value)
@@ -697,6 +708,14 @@ namespace Oxide.Plugins
             try
             {
                 Language.Add(Key, Value);
+            }
+            catch { }
+        }
+        void AddConfig(string Key, object Value)
+        {
+            try
+            {
+                NewConfig.Add(Key, Value);
             }
             catch { }
         }
@@ -874,7 +893,7 @@ namespace Oxide.Plugins
                                 myPrintToChat(ActiveUser, "{0}  :  {1}({2}%)", CurrentAnswer.AnswerText, CurrentAnswer.VoteCount, percent.ToString("00.00"));
                             }
                         }
-                        ConsoleSystem.Run.Server.Quiet("event.run", null);
+                        ConsoleSystem.Run.Server.Quiet(NewConfig["EventCmd"].ToString(), null);
                     }
                     break;
                 #endregion
@@ -917,12 +936,57 @@ namespace Oxide.Plugins
                             float Diff = Convert.ToSingle(Current.Timer - CurrentTimer);
                             if (Diff <= 0)
                                 Diff = 1;
-                            CurrentPollTimer = Interface.GetMod().GetLibrary<Oxide.Unity.Libraries.Timer>("Timer").Once(Diff, () => EndVote(), this);
+                            CurrentPollTimer = Interface.GetMod().GetLibrary<Oxide.Core.Libraries.Timer>("Timer").Once(Diff, () => EndVote(), this);
 
                             logger.Write(LogType.Info, "Polling : Poll started {0} for {1}", Current.Question,Diff);
                         }
                     }
                 }
+            }
+            else
+            {
+                if ((bool)NewConfig["SkipNight"] == true)
+                {
+                    TOD_Sky CurrentTime = TOD_Sky.Instance;
+                    if (CurrentTime.Cycle.DateTime.ToString("HH:mm") == ((string)NewConfig["SkipTime"].ToString()))
+                    {
+                        if (Current == null)
+                        {
+                            logger.Write(LogType.Warning, "Auto skip poll running");
+                            Current = new PollingMainDataObject();
+                            Current.Answers = new List<PollingAnswerDataObject>();
+                            Current.ID = History.Count + 1;
+                            Current.Timer = Convert.ToInt32((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds) + 60;
+                            Current.Question = string.Format(Language["QestionTime"].ToString(), "DAY");
+                            Current.Target = "DAY";
+                            Current.Type = "TIME";
+                            Current.UserList = new List<string>();
+                            PollingAnswerDataObject newAnswer = new PollingAnswerDataObject();
+                            newAnswer.AnswerText = Language["Yes"].ToString();
+                            newAnswer.VoteCount = 0;
+                            Current.Answers.Add(newAnswer);
+                            newAnswer = new PollingAnswerDataObject();
+                            newAnswer.AnswerText = Language["No"].ToString();
+                            newAnswer.VoteCount = 0;
+                            Current.Answers.Add(newAnswer);
+                            //Current.Answers.Sort(delegate(PollingAnswerDataObject p1, PollingAnswerDataObject p2) { return p1.AnswerText.CompareTo(p2.AnswerText); });
+                            Current.isActive = 1;
+                            History.Add(Current);
+                            SaveHistory(History);
+                            foreach (var ActiveUser in BasePlayer.activePlayerList)
+                            {
+                                myPrintToChat(ActiveUser, Language["PollStarted"].ToString(), Current.Question);
+                                int i = 1;
+                                foreach (PollingAnswerDataObject CurrentAns in Current.Answers)
+                                {
+                                    myPrintToChat(ActiveUser, "{0}){1}", i++.ToString(), CurrentAns.AnswerText.ToString());
+                                }
+                                myPrintToChat(ActiveUser, Language["HowToVote"].ToString(), "1", Current.Answers.Count.ToString());
+                            }
+                        }
+                    }
+                }
+
             }
         }
         [HookMethod("LoadDefaultConfig")]

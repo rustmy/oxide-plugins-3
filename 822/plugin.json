@@ -5,13 +5,13 @@
   "name": "Fly",
   "category": "Fun",
   "type": "cs",
-  "version": "0.2.0",
+  "version": "0.5.0",
   "author": "Bombardir",
   "rating": 5,
   "downloads": 1,
-  "updated": "2015-02-17T19:55:00.000Z",
+  "updated": "2015-03-27T22:15:39.000Z",
   "description": "Fly mode for admins and moderators",
-  "iconUrl": "data/resource_icons/0/822.jpg?1424099118",
-  "downloadUrl": "resources/fly.822/download?version=3823",
+  "iconUrl": "data/resource_icons/0/822.jpg?1427473137",
+  "downloadUrl": "resources/fly.822/download?version=4184",
   "filename": "Fly.cs"
 }

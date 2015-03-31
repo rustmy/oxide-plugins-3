@@ -1,6 +1,6 @@
 PLUGIN.Name = "r-Zones"
 PLUGIN.Title = "r-Zones"
-PLUGIN.Version = V(1, 2, 5)
+PLUGIN.Version = V(1, 2, 6)
 PLUGIN.Description = "Manage zones"
 PLUGIN.Author = "Reneb"
 PLUGIN.HasConfig = true
@@ -56,6 +56,7 @@ function PLUGIN:OnServerInitialized()
 	emptyDamageType = new( Rust.DamageTypeList._type, nil)
     nulVector3 = new( UnityEngine.Vector3._type, nil )
     opDiv = UnityEngine.Vector3._type:GetMethod("op_Division")
+	getmask = UnityEngine.LayerMask._type:GetMethod("GetMask")
     self:InitZones()
 end
 ------------------------------------------------------------------------
@@ -473,7 +474,7 @@ function PLUGIN:OnEntityBuilt(helditem,gameobject)
 	if(hasFlag(helditem.ownerPlayer,"-nobuild")) then
 		if(not self.Config.AdminsCanForceBuild or helditem.ownerPlayer:GetComponent("BaseNetworkable").net.connection.authLevel <= self.Config.Settings.authLevel) then
 			rust.SendChatMessage(helditem.ownerPlayer,"SERVER","You are not allowed to build here")
-			gameobject:GetComponent("BaseEntity"):Kill(ProtoBuf["EntityDestroy+Mode"].None,0,0,nulVector3)
+			gameobject:GetComponent("BaseEntity"):KillMessage()
 		end
 	end
 end
@@ -640,7 +641,7 @@ local function newTriggerBase(x,y,z,rad,radiation)
 		newgameobj:GetComponentInParent(global.TriggerRadiation._type).RadiationAmount = radiation
 	else
 		newgameobj:AddComponent(global.TriggerBase._type)
-	end	
+	end
 	newgameobj:GetComponentInParent(global.TriggerBase._type).interestLayers = trigger[trigger.Length-1]:GetComponent(global.TriggerBase._type).interestLayers
 	return newgameobj:GetComponentInParent(global.TriggerBase._type)
 end 

@@ -1,0 +1,17 @@
+{
+  "id": 863,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "Easy Broadcast",
+  "category": "Chat-Related",
+  "type": "lua",
+  "version": "1.0.1",
+  "author": "LaserHydra",
+  "rating": 0,
+  "downloads": 42,
+  "updated": "2015-03-29T04:29:27.000Z",
+  "description": "Easy Broadcasting of messages",
+  "iconUrl": "data/resource_icons/0/863.jpg?1427598927",
+  "downloadUrl": "resources/easy-broadcast.863/download?version=4209",
+  "filename": "broadcaster.lua"
+}

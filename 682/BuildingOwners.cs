@@ -9,7 +9,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Building Owners", "Reneb", 2.1)]
+    [Info("Building Owners", "Reneb", "2.1.2")]
     class BuildingOwners : RustPlugin
     {
     	private static DateTime epoch;
@@ -71,6 +71,7 @@ namespace Oxide.Plugins
             if (serverInitialized)
             {
                 var buildingblock = gameobject.GetComponent<BuildingBlock>();
+                if (buildingblock == null) return;
                 float posy = buildingblock.transform.position.y;
                 if (!(OwnersData.ContainsKey(posy)))
                 {

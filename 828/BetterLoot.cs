@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterLoot", "playrust.io / dcode", "1.7.2", ResourceId = 828)]
+    [Info("BetterLoot", "playrust.io / dcode", "1.8.3", ResourceId = 828)]
     public class BetterLoot : RustPlugin
     {
 
@@ -25,7 +25,7 @@ namespace Oxide.Plugins
         private int           defaultMinItemsPerCrate     = 3;
         private int           defaultMaxItemsPerCrate     = 6;
         private double        defaultBaseItemRarity       = 2;
-        private double        defaultBaseBlueprintRarity  = 2.5;
+        private double        defaultBaseBlueprintRarity  = 2;
         private int           defaultRefreshMinutes       = 15;
         private bool          defaultEnforceBlacklist     = false;
         private bool          defaultDropWeaponsWithAmmo  = true;
@@ -91,7 +91,7 @@ namespace Oxide.Plugins
             // Building
             "lock.key", "cupboard.tool", "building_planner", "door_key",
             // Items
-            "campfire", "box_wooden", "sleepingbag", "furnace",
+            "campfire", "box_wooden", "sleepingbag", "furnace", "sign.wooden.small",
             // Resources
             "paper", "lowgradefuel", "gunpowder",
             // Attire
@@ -128,6 +128,47 @@ namespace Oxide.Plugins
             { "rifle_bolt", "ammo_rifle" },
             { "rifle_ak", "ammo_rifle" }
         };
+
+        // Translations
+        private List<string> texts = new List<string>() {
+            "A barrel drops up to %N% items, a chest up to %M% items.",
+            "Base item rarity is %N% and base blueprint rarity is %M%.",
+            "There is a <color=#aef45b>%N%%</color> chance that any drop is a blueprint.",
+            "There is a <color=#f4e75b>%P%%</color> chance to get one of %N% %RARITY% items.",
+            "There is a <color=#5bbcf4>%P%%</color> chance to get one of %N% %RARITY% blueprints.",
+
+            "Usage: /droplimit \"ITEMNAME\" [LIMIT]",
+            "You are not authorized to modify drop limits",
+            "No such item:",
+            "Drop limit of '%NAME%' is %LIMIT%",
+            "Drop limit of '%NAME%' has been changed from %LIMIT% to %NEWLIMIT%",
+
+            "Usage: /blacklist [additem|deleteitem|addbp|deletebp] \"ITEMNAME\"",
+            "There are no blacklisted items",
+            "Blacklisted items:",
+            "There are no blacklisted blueprints",
+            "Blacklisted blueprints:",
+            "You are not authorized to modify the blacklist",
+            "Not a valid item:",
+            "The item '%NAME%' is now blacklisted",
+            "The item '%NAME%' is already blacklisted",
+            "Not a valid blueprint:",
+            "The blueprint '%NAME%' is now blacklisted",
+            "The blueprint '{0}' is already blacklisted",
+            "The item '%NAME%' is now no longer blacklisted",
+            "The item '%NAME%' is not blacklisted",
+            "The blueprint '%NAME%' is now no longer blacklisted",
+            "The blueprint '%NAME' is not blacklisted",
+
+            "<color=\"#ffd479\">/loot</color> - Displays the details on loot tables",
+            "<color=\"#ffd479\">/blacklist</color> - Displays which items are blacklisted",
+
+            "common",
+            "uncommon",
+            "rare",
+            "very rare"
+        };
+        private Dictionary<string, string> messages = new Dictionary<string, string>();
 
         // Regular expressions defining what to override
         private Regex barrelEx = new Regex("loot_barrel|loot_trash");
@@ -178,6 +219,15 @@ namespace Oxide.Plugins
             Config["enforceBlacklist"]     = defaultEnforceBlacklist;
             Config["dropWeaponsWithAmmo"]  = defaultDropWeaponsWithAmmo;
             Config["dropLimits"]           = defaultDropLimits;
+
+            var messages = new Dictionary<string, object>();
+            foreach (var text in texts) {
+                if (messages.ContainsKey(text))
+                    Puts("{0}: {1}", Title, "Duplicate translation string: " + text);
+                else
+                    messages.Add(text, text);
+            }
+            Config["messages"] = messages;
         }
 
         // Gets a configuration value of a specific type
@@ -484,7 +534,7 @@ namespace Oxide.Plugins
                     }
                 }
             }
-            Log("Populating " + ContainerName(container) + " with " + sb.ToString());
+            // Log("Populating " + ContainerName(container) + " with " + sb.ToString());
             foreach (var item in items)
                 item.MoveToContainer(container.inventory, -1, false);
             container.inventory.MarkDirty();
@@ -506,33 +556,58 @@ namespace Oxide.Plugins
             }
         }
 
+        [HookMethod("SendHelpText")]
+        private void SendHelpText(BasePlayer player) {
+            var sb = new StringBuilder()
+               .Append("<size=18>BetterLoot</size> by <color=#ce422b>http://playrust.io</color>\n")
+               .Append("  ").Append(_("<color=\"#ffd479\">/loot</color> - Displays the details on loot tables")).Append("\n")
+               .Append("  ").Append(_("<color=\"#ffd479\">/blacklist</color> - Displays which items are blacklisted"));
+            player.ChatMessage(sb.ToString());
+        }
+
         [ChatCommand("loot")]
         private void cmdChatLoot(BasePlayer player, string command, string[] args) {
             if (!initialized)
                 return;
             var sb = new StringBuilder();
-            sb.Append("<size=22>BetterLoot</size> by <color=#ce422b>http://playrust.io</color>\n");
-            sb.Append(string.Format("A barrel drops up to {0} items, a chest up to {1} items.\n", maxItemsPerBarrel, maxItemsPerCrate));
-            sb.Append(string.Format("Base item rarity is {0:0.00} and base blueprint rarity is {1:0.00}.\n", baseItemRarity, baseBlueprintRarity));
-            sb.Append(string.Format("There is a <color=#aef45b>{0:0.0}%</color> chance that any drop is a blueprint.\n", 100 * blueprintProbability));
+            sb.Append("<size=22>BetterLoot</size> "+Version+" by <color=#ce422b>http://playrust.io</color>\n");
+            sb.Append(_("A barrel drops up to %N% items, a chest up to %M% items.", new Dictionary<string,string>() {
+                { "N", maxItemsPerBarrel.ToString() },
+                { "M", maxItemsPerCrate.ToString() }
+            })).Append("\n");
+            sb.Append(_("Base item rarity is %N% and base blueprint rarity is %M%.", new Dictionary<string, string>() {
+                { "N", string.Format("{0:0.00}", baseItemRarity) },
+                { "M", string.Format("{0:0.00}", baseBlueprintRarity) }
+            })).Append("\n");
+            sb.Append(_("There is a <color=#aef45b>%P%%</color> chance that any drop is a blueprint.", new Dictionary<string, string>() {
+                { "P", string.Format("{0:0.0}", 100 * blueprintProbability) }
+            })).Append("\n");
             for (var i = 0; i < 4; ++i) {
                 double prob = (1 - blueprintProbability) * 100d * itemWeights[i] / totalItemWeight;
-                sb.Append(string.Format("There is a <color=#f4e75b>{0:0.000}%</color> chance to get one of {1} " + RarityName(i) + " items.\n", prob, items[i].Count));
+                sb.Append(_("There is a <color=#f4e75b>%P%%</color> chance to get one of %N% %RARITY% items.", new Dictionary<string, string>() {
+                    { "P", string.Format("{0:0.000}", prob) },
+                    { "N", items[i].Count.ToString() },
+                    { "RARITY", _(RarityName(i)) }
+                })).Append("\n");
             }
             for (var i = 0; i < 4; ++i) {
                 double prob = blueprintProbability * 100d * blueprintWeights[i] / totalBlueprintWeight;
-                sb.Append(string.Format("There is a <color=#5bbcf4>{0:0.000}%</color> chance to get one of {1} " + RarityName(i) + " blueprints.\n", prob, blueprints[i].Count));
+                sb.Append(_("There is a <color=#5bbcf4>%P%%</color> chance to get one of %N% %RARITY% blueprints.", new Dictionary<string, string>() {
+                    { "P", string.Format("{0:0.000}", prob) },
+                    { "N", blueprints[i].Count.ToString() },
+                    { "RARITY", _(RarityName(i)) }
+                })).Append("\n");
             }
-            SendReply(player, sb.ToString());
+            SendReply(player, sb.ToString().TrimEnd());
         }
 
         [ChatCommand("droplimit")]
         private void cmdChatDroplimit(BasePlayer player, string command, string[] args) {
-            var usage = "Usage: /droplimit \"ITEMNAME\" [LIMIT]";
+            var usage = _("Usage: /droplimit \"ITEMNAME\" [LIMIT]");
             if (!initialized)
                 return;
             if (!ServerUsers.Is(player.userID, ServerUsers.UserGroup.Owner)) {
-                SendReply(player, "You are not authorized to modify drop limits");
+                SendReply(player, _("You are not authorized to modify drop limits"));
                 return;
             }
             if (args.Length < 1) {
@@ -542,27 +617,34 @@ namespace Oxide.Plugins
             string name = args[0];
             int currentLimit;
             if (!dropLimits.TryGetValue(name, out currentLimit)) {
-                SendReply(player, "No such item: "+name);
+                SendReply(player, _("No such item:")+" "+name);
                 return;
             }
             if (args.Length == 1) {
-                SendReply(player, "Drop limit of '" + name + "' is " + currentLimit);
+                SendReply(player, _("Drop limit of '%NAME%' is %LIMIT%", new Dictionary<string, string>() {
+                    { "ITEM", name },
+                    { "LIMIT", currentLimit.ToString() }
+                }));
                 return;
             }
             int limit = Convert.ToInt32(args[1]);
             dropLimits[name] = limit;
             SaveConfig();
-            SendReply(player, "Drop limit of '" + name + "' has been changed from "+currentLimit+" to " + limit);
+            SendReply(player, "Drop limit of '%NAME%' has been changed from %LIMIT% to %NEWLIMIT%", new Dictionary<string, string>() {
+                { "NAME", name },
+                { "LIMIT", currentLimit.ToString() },
+                { "NEWLIMIT", limit.ToString() }
+            });
         }
 
         [ChatCommand("blacklist")]
         private void cmdChatBlacklist(BasePlayer player, string command, string[] args) {
-            var usage = "Usage: /blacklist [additem|deleteitem|addbp|deletebp] \"ITEMNAME\"";
+            var usage = _("Usage: /blacklist [additem|deleteitem|addbp|deletebp] \"ITEMNAME\"");
             if (!initialized)
                 return;
             if (args.Length == 0) {
                 if (itemBlacklist.Count == 0) {
-                    SendReply(player, "There are no blacklisted items");
+                    SendReply(player, _("There are no blacklisted items"));
                 } else {
                     var sb = new StringBuilder();
                     foreach (var item in itemBlacklist) {
@@ -570,10 +652,10 @@ namespace Oxide.Plugins
                             sb.Append(", ");
                         sb.Append(item);
                     }
-                    SendReply(player, "Blacklisted items: {0}", sb.ToString());
+                    SendReply(player, _("Blacklisted items:")+" "+sb.ToString());
                 }
                 if (blueprintBlacklist.Count == 0) {
-                    SendReply(player, "There are no blacklisted blueprints");
+                    SendReply(player, _("There are no blacklisted blueprints"));
                 } else {
                     var sb = new StringBuilder();
                     foreach (var item in blueprintBlacklist) {
@@ -581,12 +663,12 @@ namespace Oxide.Plugins
                             sb.Append(", ");
                         sb.Append(item);
                     }
-                    SendReply(player, "Blacklisted blueprints: {0}", sb.ToString());
+                    SendReply(player, _("Blacklisted blueprints:")+" "+sb.ToString());
                 }
                 return;
             }
             if (!ServerUsers.Is(player.userID, ServerUsers.UserGroup.Owner)) {
-                SendReply(player, "You are not authorized to modify the blacklist");
+                SendReply(player, _("You are not authorized to modify the blacklist"));
                 return;
             }
             if (args.Length != 2) {
@@ -595,62 +677,78 @@ namespace Oxide.Plugins
             }
             if (args[0] == "additem") {
                 if (!ItemExists(args[1])) {
-                    SendReply(player, "Not a valid item: {0}", args[1]);
+                    SendReply(player, _("Not a valid item:")+" "+args[1]);
                     return;
                 }
                 if (!itemBlacklist.Contains(args[1])) {
                     itemBlacklist.Add(args[1]);
                     UpdateInternals(false);
-                    SendReply(player, "The item '{0}' is now blacklisted", args[1]);
+                    SendReply(player, _("The item '%NAME%' is now blacklisted", new Dictionary<string,string>() {
+                        { "NAME", args[1] }
+                    }));
                     SaveConfig();
                     return;
                 } else {
-                    SendReply(player, "The item '{0}' is already blacklisted", args[1]);
+                    SendReply(player, _("The item '%NAME%' is already blacklisted", new Dictionary<string, string>() {
+                        { "NAME", args[1] }
+                    }));
                     return;
                 }
             } else if (args[0] == "addbp") {
                 if (!BlueprintExists(args[1])) {
-                    SendReply(player, "Not a valid blueprint: {0}", args[1]);
+                    SendReply(player, _("Not a valid blueprint:") + " " + args[1]);
                     return;
                 }
                 if (!blueprintBlacklist.Contains(args[1])) {
                     blueprintBlacklist.Add(args[1]);
                     UpdateInternals(false);
-                    SendReply(player, "The blueprint '{0}' is now blacklisted", args[1]);
+                    SendReply(player, _("The blueprint '%NAME%' is now blacklisted", new Dictionary<string, string>() {
+                        { "NAME", args[1] }
+                    }));
                     SaveConfig();
                     return;
                 } else {
-                    SendReply(player, "The blueprint '{0}' is already blacklisted", args[1]);
+                    SendReply(player, _("The blueprint '%NAME%' is already blacklisted", new Dictionary<string, string>() {
+                        { "NAME", args[1] }
+                    }));
                     return;
                 }
             } else if (args[0] == "deleteitem") {
                 if (!ItemExists(args[1])) {
-                    SendReply(player, "Not a valid item: {0}", args[1]);
+                    SendReply(player, _("Not a valid item:")+" "+args[1]);
                     return;
                 }
                 if (itemBlacklist.Contains(args[1])) {
                     itemBlacklist.Remove(args[1]);
                     UpdateInternals(false);
-                    SendReply(player, "The item '{0}' is now no longer blacklisted", args[1]);
+                    SendReply(player, _("The item '%NAME%' is now no longer blacklisted", new Dictionary<string,string>() {
+                        { "NAME", args[1] }
+                    }));
                     SaveConfig();
                     return;
                 } else {
-                    SendReply(player, "The item '{0}' is not blacklisted", args[1]);
+                    SendReply(player, _("The item '%NAME%' is not blacklisted", new Dictionary<string, string>() {
+                        { "NAME", args[1] }
+                    }));
                     return;
                 }
             } else if (args[0] == "deletebp") {
                 if (!BlueprintExists(args[1])) {
-                    SendReply(player, "Not a valid blueprint: {0}", args[1]);
+                    SendReply(player, _("Not a valid blueprint:")+" "+args[1]);
                     return;
                 }
                 if (blueprintBlacklist.Contains(args[1])) {
                     blueprintBlacklist.Remove(args[1]);
                     UpdateInternals(false);
-                    SendReply(player, "The blueprint '{0}' is now no longer blacklisted", args[1]);
+                    SendReply(player, _("The blueprint '%NAME%' is now no longer blacklisted", new Dictionary<string, string>() {
+                        { "NAME", args[1] }
+                    }));
                     SaveConfig();
                     return;
                 } else {
-                    SendReply(player, "The blueprint '{0}' is not blacklisted", args[1]);
+                    SendReply(player, _("The blueprint '%NAME' is not blacklisted", new Dictionary<string, string>() {
+                        { "NAME", args[1] }
+                    }));
                     return;
                 }
             } else {
@@ -658,6 +756,10 @@ namespace Oxide.Plugins
                 return;
             }
         }
+
+        /* [HookMethod("OnItemCraft")]
+        private void OnItemCraft(ItemCraftTask item) {
+        } */
 
         [HookMethod("OnItemAddedToContainer")]
         private void OnItemAddedToContainer(ItemContainer container, Item item) {
@@ -699,22 +801,26 @@ namespace Oxide.Plugins
                     lastRefresh = now;
                     int n = 0;
                     int m = 0;
-                    while (refreshList.Count > 0) {
-                        var ctr = refreshList[0];
+                    var all = refreshList.ToArray();
+                    refreshList.Clear();
+                    foreach (var ctr in all) {
                         if (ctr.time < now) {
-                            if (ctr.container.IsOpen())
-                                continue; // Do not refresh while occupied
-                            refreshList.RemoveAt(0);
-                            if (!ctr.container.isDestroyed) {
-                                try {
-                                    PopulateContainer(ctr.container);
-                                    ++n;
-                                } catch (Exception ex) {
-                                    Error("Failed to refresh container: " + ContainerName(ctr.container) + ": " + ex.Message + "\n" + ex.StackTrace);
-                                }
-                            } else ++m;
+                            if (ctr.container.isDestroyed) { // Discard destroyed containers
+                                ++m;
+                                continue;
+                            }
+                            if (ctr.container.IsOpen()) {
+                                refreshList.Add(ctr); // Re-add for later if occupied
+                                continue;
+                            }
+                            try {
+                                PopulateContainer(ctr.container); // Will re-add
+                                ++n;
+                            } catch (Exception ex) {
+                                Error("Failed to refresh container: " + ContainerName(ctr.container) + ": " + ex.Message + "\n" + ex.StackTrace);
+                            }
                         } else
-                            break;
+                            refreshList.Add(ctr); // Re-add for later
                     }
                     if (n > 0 || m > 0)
                         Log("Refreshed " + n + " containers (" + m + " destroyed)");
@@ -809,6 +915,16 @@ namespace Oxide.Plugins
 
         private int ItemWeight(double baseRarity, int index) {
             return (int)(Math.Pow(baseRarity, 3 - index) * 1000); // Round to 3 decimals
+        }
+
+        // Translates a string
+        private string _(string text, Dictionary<string, string> replacements = null) {
+            if (messages.ContainsKey(text) && messages[text] != null)
+                text = messages[text];
+            if (replacements != null)
+                foreach (var replacement in replacements)
+                    text = text.Replace("%" + replacement.Key + "%", replacement.Value);
+            return text;
         }
 
         #endregion

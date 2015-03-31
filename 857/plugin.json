@@ -1,0 +1,17 @@
+{
+  "id": 857,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "TwigsDecay",
+  "category": "Mechanics",
+  "type": "cs",
+  "version": "1.2.2",
+  "author": "dcode",
+  "rating": 5,
+  "downloads": 126,
+  "updated": "2015-03-28T12:58:21.000Z",
+  "description": "Steadily decays buildings made of twigs. Works for other tiers, too, if configured to do so.",
+  "iconUrl": "data/resource_icons/0/857.jpg?1427307873",
+  "downloadUrl": "resources/twigsdecay.857/download?version=4196",
+  "filename": "TwigsDecay.cs"
+}

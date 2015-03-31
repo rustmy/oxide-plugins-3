@@ -22,10 +22,10 @@ using JSONValueType = JSON.ValueType;
 
 namespace Oxide.Plugins
 {
-    [Info("ItemConfig", "Nogrod", "1.0.8", ResourceId = 806)]
+    [Info("ItemConfig", "Nogrod", "1.0.9", ResourceId = 806)]
     class ItemConfig : RustPlugin
     {
-        private static readonly FieldInfo ComponentList = typeof(Construction.Library).GetField("componentList", BindingFlags.NonPublic | BindingFlags.Static);
+        //private static readonly FieldInfo ComponentList = typeof(Construction.Library).GetField("componentList", BindingFlags.NonPublic | BindingFlags.Static);
 
         private string _configpath = "";
 
@@ -146,7 +146,7 @@ namespace Oxide.Plugins
                 }
             }
             Config["Blueprints"] = JsonObjectToObject(bps);
-            var constructions = new Dictionary<string, object>();
+            /*var constructions = new Dictionary<string, object>();
             Config["Constructions"] = constructions;
             var protectionProperties = new HashSet<ProtectionProperties>();
             var constructionSkinArray = Resources.LoadAll<ConstructionSkin>("Prefabs/build/skins");
@@ -187,7 +187,7 @@ namespace Oxide.Plugins
                     damageProtection[Enum.GetName(typeof(DamageType), i)] = protectionProperty.amounts[i];
                 }
                 protections[protectionProperty.name] = damageProtection;
-            }
+            }*/
             try
             {
                 Config.Save(_configpath);
@@ -234,7 +234,7 @@ namespace Oxide.Plugins
             CheckConfig();
             UpdateItems();
             UpdateBlueprints();
-            UpdateConstructions();
+            //UpdateConstructions();
         }
 
         private void UpdateItems()
@@ -314,7 +314,7 @@ namespace Oxide.Plugins
             }
         }
 
-        private void UpdateConstructions()
+        /*private void UpdateConstructions()
         {
             var constructions = Config["Constructions"] as Dictionary<string, object>;
             if (constructions == null)
@@ -340,7 +340,7 @@ namespace Oxide.Plugins
                     if (common.grades[g] == null) common.grades[g] = new Construction.Grade();
                     var grade = common.grades[g];
                     var newGrade = grades.GetObject(gradeType.ToString());
-                    grade.maxHealth = newGrade.GetFloat("maxHealth", 0);
+                    UpdateConstructionHealth(grade, newGrade.GetFloat("maxHealth", 0));
                     grade.costToBuild.Clear();
                     var costToBuild = newGrade.GetArray("costToBuild");
                     foreach (var cost in costToBuild)
@@ -369,6 +369,17 @@ namespace Oxide.Plugins
                 }
             }
         }
+
+        private void UpdateConstructionHealth(Construction.Grade grade, float newHealth)
+        {
+            if (grade.maxHealth == newHealth) return;
+            grade.maxHealth = newHealth;
+            var bb = UnityEngine.Object.FindObjectsOfType<BuildingBlock>().Where(b => b.currentGrade == grade);
+            foreach (var buildingBlock in bb)
+            {
+                buildingBlock.SetHealthToMax();
+            }
+        }*/
 
         private static void UpdateItem(ItemDefinition definition, JSONObject item)
         {
@@ -576,7 +587,7 @@ namespace Oxide.Plugins
             CheckConfig();
             UpdateItems();
             UpdateBlueprints();
-            UpdateConstructions();
+            //UpdateConstructions();
             LocalPuts("Item config reloaded.");
         }
 
@@ -587,7 +598,7 @@ namespace Oxide.Plugins
                 return;
             UpdateItems();
             UpdateBlueprints();
-            UpdateConstructions();
+            //UpdateConstructions();
         }
 
         class DynamicContractResolver : DefaultContractResolver

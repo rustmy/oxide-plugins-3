@@ -2,19 +2,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
+using UnityEngine;
 
 namespace Oxide.Plugins
 {
 
-    [Info("Demolish Limiter", "Mughisi", "1.0.0")]
+    [Info("Demolish Limiter", "Mughisi", "1.0.1")]
     class DemolishLimiter : RustPlugin
     {
 
         #region Configuration Data
-        // Do not modify these values, to configure this plugin edit
-        // 'DemolishLimiter.json' in your server's config folder.
-        // <drive>:\...\server\<server identity>\oxide\config\
 
         private bool configChanged = false;
 
@@ -83,7 +81,7 @@ namespace Oxide.Plugins
             }
 
             if (logToConsole)
-                Log($"{player.displayName} has demolished a {block.blockDefinition.name} at location {block.transform.position.ToString()}.");
+                Log($"{player.displayName} has demolished a {block.blockDefinition.hierachyName} at location {block.transform.position.ToString()}.");
 
             return null;
         }

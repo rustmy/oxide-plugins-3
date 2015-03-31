@@ -5,13 +5,13 @@
   "name": "Poll System",
   "category": "Admin-Tools",
   "type": "cs",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "author": "Feramor",
-  "rating": 4.75,
-  "downloads": 236,
-  "updated": "2015-03-20T15:30:05.000Z",
+  "rating": 5,
+  "downloads": 250,
+  "updated": "2015-03-30T08:50:30.000Z",
   "description": "Admins can run polls in their servers",
   "iconUrl": "data/resource_icons/0/793.jpg?1422487093",
-  "downloadUrl": "resources/poll-system.793/download?version=4090",
+  "downloadUrl": "resources/poll-system.793/download?version=4226",
   "filename": "Polling.cs"
 }

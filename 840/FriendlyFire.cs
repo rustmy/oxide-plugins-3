@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Rust:IO FriendlyFire", "playrust.io / dcode", "1.1.0", ResourceId = 840)]
+    [Info("FriendlyFire", "playrust.io / dcode", "1.3.2", ResourceId = 840)]
     public class FriendlyFire : RustPlugin
     {
 
@@ -55,12 +55,23 @@ namespace Oxide.Plugins
 
         #endregion
 
+        private List<ulong> manuallyEnabledBy = new List<ulong>();
         private List<string> texts = new List<string>() {
-            "%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map.",
-            "Usage: /ff or /friendlyfire",
-            "Friendly fire is disabled for your friends:",
+            "%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map or type: <color=\"#ffd479\">/ff on</color>",
+
+            "Usage: <color=\"#ffd479\">/ff [on|off]</color>",
+            "Friendly fire is <color=#cd422b>enabled</color> for your friends:",
+            "Friendly fire is <color=#8acd2b>disabled</color> for your friends:",
             "You do not have any friends currently.",
-            "You may add or delete friends using the live map."
+            "You may add or delete friends using the live map.",
+            "To toggle friendly fire on or off, type: <color=\"#ffd479\">/ff on|off</color>",
+            "Friendly fire for your friends is already <color=#cd422b>enabled</color>. Take care!",
+            "You have <color=#cd422b>enabled</color> friendly fire for your friends. Take care!",
+            "Friendly fire for your friends is already <color=#8acd2b>disabled</color>. They are safe!",
+            "You have <color=#8acd2b>disabled</color> friendly fire for your friends. They are safe!",
+
+            "<color=\"#ffd479\">/ff</color> - Displays your friendly fire status",
+            "<color=\"#ffd479\">/ff on|off</color> - Toggles friendly fire <color=#cd422b>on</color> or <color=#8acd2b>off</color>"
         };
         private Dictionary<string, string> messages = new Dictionary<string, string>();
         private Dictionary<string, DateTime> notificationTimes = new Dictionary<string, DateTime>();
@@ -109,21 +120,35 @@ namespace Oxide.Plugins
             }
         }
 
+        private void RestoreDefaults(BasePlayer player) {
+            manuallyEnabledBy.Remove(player.userID);
+        }
+
+        [HookMethod("OnPlayerInit")]
+        void OnPlayerInit(BasePlayer player) {
+            RestoreDefaults(player);
+        }
+
+        [HookMethod("OnPlayerDisconnected")]
+        void OnPlayerDisconnected(BasePlayer player) {
+            RestoreDefaults(player);
+        }
+
         [HookMethod("OnEntityAttacked")]
         object OnEntityAttacked(MonoBehaviour entity, HitInfo hit) {
             try {
-                if (lib == null || !(entity is BasePlayer) || !(hit.Initiator is BasePlayer))
+                if (lib == null || !(entity is BasePlayer) || !(hit.Initiator is BasePlayer) || (entity == hit.Initiator))
                     return null;
                 var victim = entity as BasePlayer;
                 var victimId = victim.userID.ToString();
                 var attacker = hit.Initiator as BasePlayer;
                 var attackerId = attacker.userID.ToString();
                 var key = attackerId + "-" + victimId;
-                if (HasFriend(attackerId, victimId)) {
+                if (!manuallyEnabledBy.Contains(attacker.userID) && HasFriend(attackerId, victimId)) {
                     DateTime now = DateTime.UtcNow;
                     DateTime time;
                     if (!notificationTimes.TryGetValue(key, out time) || time < now.AddSeconds(-10)) {
-                        attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map.", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
+                        attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map or type: <color=\"#ffd479\">/ff on</color>", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
                         notificationTimes[key] = now;
                     }
                     return false;
@@ -134,50 +159,83 @@ namespace Oxide.Plugins
             return null;
         }
 
-        private void cmdChatFriendlyfireImpl(BasePlayer player, string command, string[] args) {
-            if (!IsInstalled())
-                return;
-            if (args.Length != 0) {
-                SendReply(player, _("Usage: /ff or /friendlyfire"));
-                return;
-            }
-            int n = 0;
-            var sb = new StringBuilder();
-            sb.Append("<size=22>FriendlyFire</size> by <color=#ce422b>http://playrust.io</color>\n");
-            sb.Append(_("Friendly fire is disabled for your friends:")).Append("\n");
-            var playerId = player.userID.ToString();
-            foreach (var p in BasePlayer.activePlayerList) {
-                var pId = p.userID.ToString();
-                if (HasFriend(playerId, pId)) {
-                    if (n > 0)
-                        sb.Append(", ");
-                    sb.Append(p.displayName);
-                    ++n;
-                }
-            }
-            foreach (var p in BasePlayer.sleepingPlayerList) {
-                var pId = p.userID.ToString();
-                if (HasFriend(playerId, pId)) {
-                    if (n > 0)
-                        sb.Append(", ");
-                    sb.Append(p.displayName);
-                    ++n;
-                }
-            }
-            if (n == 0)
-                sb.Append(_("You do not have any friends currently."));
-            sb.Append("\n").Append(_("You may add or delete friends using the live map."));
-            SendReply(player, sb.ToString());
-        }
-
         [ChatCommand("ff")]
         private void cmdChatFF(BasePlayer player, string command, string[] args) {
-            cmdChatFriendlyfireImpl(player, command, args);
+            if (!IsInstalled())
+                return;
+            if (args.Length > 1) {
+                SendReply(player, _("Usage: <color=\"#ffd479\">/ff [on|off]</color>"));
+                return;
+            }
+            if (args.Length == 0) {
+                var sb = new StringBuilder();
+                int n = 0;
+                sb.Append("<size=22>FriendlyFire</size> "+Version+" by <color=#ce422b>http://playrust.io</color>\n");
+                if (manuallyEnabledBy.Contains(player.userID))
+                    sb.Append(_("Friendly fire is <color=#cd422b>enabled</color> for your friends:")).Append("\n");
+                else
+                    sb.Append(_("Friendly fire is <color=#8acd2b>disabled</color> for your friends:")).Append("\n");
+                var playerId = player.userID.ToString();
+                foreach (var p in BasePlayer.activePlayerList) {
+                    var pId = p.userID.ToString();
+                    if (HasFriend(playerId, pId)) {
+                        if (n > 0)
+                            sb.Append(", ");
+                        sb.Append(p.displayName);
+                        ++n;
+                    }
+                }
+                foreach (var p in BasePlayer.sleepingPlayerList) {
+                    var pId = p.userID.ToString();
+                    if (HasFriend(playerId, pId)) {
+                        if (n > 0)
+                            sb.Append(", ");
+                        sb.Append(p.displayName);
+                        ++n;
+                    }
+                }
+                if (n == 0)
+                    sb.Append(_("You do not have any friends currently."));
+                sb.Append("\n").Append(_("You may add or delete friends using the live map."));
+                sb.Append("\n").Append(_("To toggle friendly fire on or off, type: <color=\"#ffd479\">/ff on|off</color>"));
+                SendReply(player, sb.ToString());
+            } else if (args.Length == 1) {
+                switch (args[0]) {
+                    case "on":
+                        if (manuallyEnabledBy.Contains(player.userID)) {
+                            SendReply(player, _("Friendly fire for your friends is already <color=#cd422b>enabled</color>. Take care!"));
+                        } else {
+                            manuallyEnabledBy.Add(player.userID);
+                            SendReply(player, _("You have <color=#cd422b>enabled</color> friendly fire for your friends. Take care!"));
+                        }
+                        break;
+                    case "off":
+                        if (!manuallyEnabledBy.Contains(player.userID)) {
+                            SendReply(player, _("Friendly fire for your friends is already <color=#8acd2b>disabled</color>. They are safe!"));
+                        } else {
+                            manuallyEnabledBy.Remove(player.userID);
+                            SendReply(player, _("You have <color=#8acd2b>disabled</color> friendly fire for your friends. They are safe!"));
+                        }
+                        break;
+                    default:
+                        SendReply(player, _("Usage: <color=\"#ffd479\">/ff [on|off]</color>"));
+                        return;
+                }
+            }
         }
 
-        [ChatCommand("friendlyfire")]
-        private void cmdChatFriendlyfire(BasePlayer player, string command, string[] args) {
-            cmdChatFriendlyfireImpl(player, command, args);
+        [HookMethod("SendHelpText")]
+        private void SendHelpText(BasePlayer player) {
+            var sb = new StringBuilder()
+               .Append("<size=18>FriendlyFire</size> by <color=#ce422b>http://playrust.io</color>\n")
+               .Append("  ").Append(_("<color=\"#ffd479\">/ff</color> - Displays your friendly fire status")).Append("\n")
+               .Append("  ").Append(_("<color=\"#ffd479\">/ff on|off</color> - Toggles friendly fire <color=#cd422b>on</color> or <color=#8acd2b>off</color>"));
+            player.ChatMessage(sb.ToString());
+        }
+
+        [HookMethod("BuildServerTags")]
+        private void BuildServerTags(IList<string> taglist) {
+            taglist.Add("friendlyfire");
         }
 
         #region Utility Methods

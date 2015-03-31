@@ -5,13 +5,13 @@
   "name": "Building Owners",
   "category": "Admin-Tools",
   "type": "cs",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": "Reneb",
   "rating": 5,
   "downloads": 1,
-  "updated": "2015-02-20T11:41:00.000Z",
+  "updated": "2015-03-27T15:11:13.000Z",
   "description": "Sets owners of houses when someone builds a house part",
   "iconUrl": "data/resource_icons/0/682.jpg?1423672179",
-  "downloadUrl": "resources/building-owners.682/download?version=3847",
+  "downloadUrl": "resources/building-owners.682/download?version=4177",
   "filename": "BuildingOwners.cs"
 }

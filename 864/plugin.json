@@ -1,0 +1,17 @@
+{
+  "id": 864,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "Twig Remover",
+  "category": "Admin-Tools",
+  "type": "cs",
+  "version": "0.2.0",
+  "author": "bawNg",
+  "rating": 5,
+  "downloads": 48,
+  "updated": "2015-03-29T15:45:27.000Z",
+  "description": "Allows admins to count and remove twig building blocks outside of cupboard range",
+  "iconUrl": "data/resource_icons/0/864.jpg?1427624380",
+  "downloadUrl": "resources/twig-remover.864/download?version=4211",
+  "filename": "TwigRemover.cs"
+}

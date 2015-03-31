@@ -5,13 +5,13 @@
   "name": "Copy-Paste",
   "category": "Developer-Tools",
   "type": "cs",
-  "version": "2.2.0",
+  "version": "2.2.3",
   "author": "Mughisi",
   "rating": 5,
-  "downloads": 549,
-  "updated": "2015-03-19T22:30:37.000Z",
+  "downloads": 594,
+  "updated": "2015-03-29T16:19:51.000Z",
   "description": "Copy Paste Buildings",
   "iconUrl": "data/resource_icons/0/716.jpg?1415899839",
-  "downloadUrl": "resources/copy-paste.716/download?version=4079",
+  "downloadUrl": "resources/copy-paste.716/download?version=4214",
   "filename": "CopyPaste.cs"
 }

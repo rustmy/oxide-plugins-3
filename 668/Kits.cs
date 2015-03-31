@@ -1,5 +1,3 @@
-// Reference: Oxide.Ext.Rust
-// Reference: NLua
 
 using System.Collections.Generic;
 using System;
@@ -13,7 +11,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("Kits", "Reneb", 2.0)]
+    [Info("Kits", "Reneb", "2.0.4")]
     class Kits : RustPlugin
     {
         private string noAccess;
@@ -36,11 +34,11 @@ namespace Oxide.Plugins
             epoch = new System.DateTime(1970, 1, 1);
             displaynameToShortname = new Dictionary<string, string>();
             LoadVariables();
+            InitializeKits();
         }
         void OnServerInitialized()
         {
             InitializeTable();
-            InitializeKits();
         }
         double CurrentTime()
         {

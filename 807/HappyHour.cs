@@ -39,14 +39,14 @@ using Newtonsoft.Json;
 namespace Oxide.Plugins
 {
 
-    [Info("Happy Hour Plugin", "Feramor", "1.0.3", ResourceId = 807)]
+    [Info("Happy Hour Plugin", "Feramor", "1.0.4", ResourceId = 807)]
     public class HappyHour : RustPlugin
     {
         public Core.Configuration.DynamicConfigFile mySave;
         Dictionary<string, object> Users = new Dictionary<string, object>();
-        static List<Oxide.Unity.Libraries.Timer.TimerInstance> Timers = new List<Oxide.Unity.Libraries.Timer.TimerInstance>();
+        static List<Oxide.Core.Libraries.Timer.TimerInstance> Timers = new List<Oxide.Core.Libraries.Timer.TimerInstance>();
         Time MainTime;
-        Oxide.Unity.Libraries.Timer MainTimer;
+        Oxide.Core.Libraries.Timer MainTimer;
         void Init()
         {
             LoadConfig();
@@ -55,7 +55,7 @@ namespace Oxide.Plugins
                 if (((Dictionary<string, object>)mySave["Users"]).Count != 0)
                     Users = (Dictionary<string, object>)mySave["Users"];
             mySaveData();
-            MainTimer = Interface.GetMod().GetLibrary<Oxide.Unity.Libraries.Timer>("Timer");
+            MainTimer = Interface.GetMod().GetLibrary<Oxide.Core.Libraries.Timer>("Timer");
             MainTime = Interface.GetMod().GetLibrary<Time>("Time");
         }
 
@@ -95,7 +95,7 @@ namespace Oxide.Plugins
                             CurrentItem["ID"] = SearchItem.shortname.ToString();
                     }
                 }
-                Oxide.Unity.Libraries.Timer.TimerInstance newTimer = MainTimer.Once(EventTime - CurrentTime, () => HappyHours(this, pair), this);
+                Oxide.Core.Libraries.Timer.TimerInstance newTimer = MainTimer.Once(EventTime - CurrentTime, () => HappyHours(this, pair), this);
                 Timers.Add(newTimer);
                 WriteConsole(string.Format("Happy Hour : Added happy hour @ UTC {0} : Next occurrence with server timezone {1}.", pair.Key.ToString(), EventTimeData.ToLocalTime().ToString()));
             }
@@ -138,7 +138,7 @@ namespace Oxide.Plugins
                     }
                 }
                 myPlugin.mySaveData();
-                Oxide.Unity.Libraries.Timer.TimerInstance newTimer = MainTimer.Once(1, () => HappyHours(sender, PairObj), (Plugin)sender);
+                Oxide.Core.Libraries.Timer.TimerInstance newTimer = MainTimer.Once(1, () => HappyHours(sender, PairObj), (Plugin)sender);
                 Timers.Add(newTimer);
             }
             else
@@ -157,7 +157,7 @@ namespace Oxide.Plugins
                 myPlugin.WriteConsole(string.Format("Happy Hour : Same event will occur again @ {0}", EventTimeData.ToLocalTime().ToString()));
                 myPlugin.Users.Clear();
                 myPlugin.mySaveData();
-                Oxide.Unity.Libraries.Timer.TimerInstance newTimer = MainTimer.Once((EventTime - CurrentTime), () => HappyHours(sender, PairObj), (Plugin)sender);
+                Oxide.Core.Libraries.Timer.TimerInstance newTimer = MainTimer.Once((EventTime - CurrentTime), () => HappyHours(sender, PairObj), (Plugin)sender);
                 Timers.Add(newTimer);
             }
         }
@@ -198,7 +198,7 @@ namespace Oxide.Plugins
         }
         void EndTimers()
         {
-            foreach (Oxide.Unity.Libraries.Timer.TimerInstance CurrentTimer in Timers)
+            foreach (Oxide.Core.Libraries.Timer.TimerInstance CurrentTimer in Timers)
             {
                 if (CurrentTimer != null)
                     if (CurrentTimer.Destroyed == false)

@@ -9,9 +9,9 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Build", "Reneb", "1.0.3")]
+    [Info("Build", "Reneb", "1.0.5")]
     class Build : RustPlugin
-    {
+    { 
         class BuildPlayer : MonoBehaviour
         {
             
@@ -328,11 +328,9 @@ namespace Oxide.Plugins
         /////////////////////////////////////////////////////
         void InitializeBlocks()
         {
-            ConstructionSkin[] allSkins = UnityEngine.Resources.FindObjectsOfTypeAll<ConstructionSkin>();
-            foreach (Construction construction in UnityEngine.Resources.FindObjectsOfTypeAll<Construction>())
+            foreach (Construction construction in PrefabAttribute.server.GetAll<Construction>())
             {
-                    Construction.Common item = new Construction.Common(construction, allSkins);
-                    if (construction.name == "foundation.triangle")
+                    /*if (construction.name == "foundation.triangle")
                     {
                         Construction.Socket[] socketArray = item.sockets;
 
@@ -342,9 +340,9 @@ namespace Oxide.Plugins
                             Puts(string.Format("{0} {1} {2} {3} {4}", socket.name, socket.type.ToString(), socket.position.x.ToString(), socket.position.y.ToString(), socket.position.z.ToString()));
                         }
                         Puts("================");
-                    }
-                    nameToBlockPrefab.Add(item.name, item.fullname);
-            }
+                    }*/
+                nameToBlockPrefab.Add(construction.hierachyName, construction.fullName);
+            } 
         }
 
         /////////////////////////////////////////////////////
@@ -460,7 +458,7 @@ namespace Oxide.Plugins
             block.transform.position = pos;
             block.transform.rotation = angles;
             block.gameObject.SetActive(true);
-            block.blockDefinition = Construction.Library.FindByPrefabID(block.prefabID);
+            block.blockDefinition = PrefabAttribute.server.Find<Construction>(block.prefabID);
             block.Spawn(true);
             block.SetGrade(grade);
             if(health < 0f)
@@ -474,7 +472,7 @@ namespace Oxide.Plugins
         ///  SpawnDeployable()
         ///  Function to spawn a resource (tree, barrel, ores)
         /////////////////////////////////////////////////////
-        private static void SpawnResource(string prefab, Vector3 pos, Quaternion angles)
+        private static void SpawnResource(string prefab, Vector3 pos, Quaternion angles) 
         {
             UnityEngine.GameObject newPrefab = GameManager.server.FindPrefab(prefab);
             if (newPrefab == null)
@@ -497,7 +495,7 @@ namespace Oxide.Plugins
             {
                 if (collider.GetComponentInParent<BuildingBlock>())
                 {
-                        if(collider.GetComponentInParent<BuildingBlock>().blockDefinition.fullname == name)
+                    if (collider.GetComponentInParent<BuildingBlock>().blockDefinition.fullName == name)
                             if (Vector3.Distance(collider.transform.position, position) < 0.6f)
                                 return true;
                 }
@@ -750,9 +748,9 @@ namespace Oxide.Plugins
             newRot = new Quaternion(0f, 0f, 0f, 0f);
             ///  Checks if this building has a socket hooked to it self
             ///  If not ... well it won't be able to be built via AI
-            if (nameToSockets.ContainsKey(fbuildingblock.blockDefinition.fullname))
+            if (nameToSockets.ContainsKey(fbuildingblock.blockDefinition.fullName))
             {
-                sourcesocket = (SocketType)nameToSockets[fbuildingblock.blockDefinition.fullname];
+                sourcesocket = (SocketType)nameToSockets[fbuildingblock.blockDefinition.fullName];
                 // Gets all Sockets that can be connected to the source building
                 if (TypeToType.ContainsKey(sourcesocket))
                 {
@@ -866,7 +864,7 @@ namespace Oxide.Plugins
                 return true;
             }
             return false;
-        }
+        } 
 
         /////////////////////////////////////////////////////
         ///  GetBuildPlayer(BasePlayer player)

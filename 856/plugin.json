@@ -1,0 +1,17 @@
+{
+  "id": 856,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "Human NPC - Core",
+  "category": "Fun",
+  "type": "cs",
+  "version": "0.0.12",
+  "author": "Reneb",
+  "rating": 4.90909,
+  "downloads": 282,
+  "updated": "2015-03-29T19:03:47.000Z",
+  "description": "Add Interactive Human NPC Ingame, can be modded by other plugins",
+  "iconUrl": "data/resource_icons/0/856.jpg?1427388695",
+  "downloadUrl": "resources/human-npc-core.856/download?version=4216",
+  "filename": "HumanNPC.cs"
+}

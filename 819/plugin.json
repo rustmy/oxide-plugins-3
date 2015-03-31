@@ -5,13 +5,13 @@
   "name": "Death Notes",
   "category": "Informational",
   "type": "py",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "author": "SkinN õ.Õ&#039;.|.",
-  "rating": 5,
+  "rating": 4.9,
   "downloads": 1,
-  "updated": "2015-03-01T01:20:00.000Z",
+  "updated": "2015-03-31T14:10:16.000Z",
   "description": "Broadcasts players deaths to chat.",
-  "iconUrl": "data/resource_icons/0/819.jpg?1425133486",
-  "downloadUrl": "resources/death-notes.819/download?version=3925",
+  "iconUrl": "data/resource_icons/0/819.jpg?1427671610",
+  "downloadUrl": "resources/death-notes.819/download?version=4235",
   "filename": "deathnotes.py"
 }

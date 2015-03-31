@@ -5,12 +5,12 @@
   "name": "Zones Manager",
   "category": "Fun",
   "type": "lua",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "author": "Reneb",
-  "rating": 4.625,
-  "downloads": 500,
-  "updated": "2015-02-13T17:14:00.000Z",
+  "rating": 4.6,
+  "downloads": 540,
+  "updated": "2015-03-27T13:13:16.000Z",
   "description": "Zones Manager",
-  "downloadUrl": "resources/zones-manager.739/download?version=3766",
+  "downloadUrl": "resources/zones-manager.739/download?version=4173",
   "filename": "r-Zones.lua"
 }

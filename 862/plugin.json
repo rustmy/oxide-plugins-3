@@ -1,0 +1,17 @@
+{
+  "id": 862,
+  "compat": "2.0",
+  "game": "rust",
+  "name": "BetterStability",
+  "category": "Mechanics",
+  "type": "cs",
+  "version": "0.7.1",
+  "author": "dcode",
+  "rating": 5,
+  "downloads": 116,
+  "updated": "2015-03-30T00:43:09.000Z",
+  "description": "A complete re-implementation of the stability system.",
+  "iconUrl": "data/resource_icons/0/862.jpg?1427505517",
+  "downloadUrl": "resources/betterstability.862/download?version=4223",
+  "filename": "BetterStability.cs"
+}

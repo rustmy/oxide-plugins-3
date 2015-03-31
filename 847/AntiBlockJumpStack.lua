@@ -1,31 +1,22 @@
 
 PLUGIN.Title       = "AntiBlockJumpStack"
 PLUGIN.Description = "Stop players from building while jumping and placing objects on their own location."
-PLUGIN.Version     = V( 1, 1, 1 )
+PLUGIN.Version     = V( 1, 1, 3 )
 PLUGIN.HasConfig   = false
 PLUGIN.Author      = "Mughisi"
 
 local BasePlayerModelState = global.BasePlayer._type:GetField("modelState", rust.PrivateBindingFlag())
 
 function PLUGIN:OnEntityBuilt(planner, gameObject)
+	if not planner then return end
 	local player = planner.ownerPlayer
 	local buildingBlock = gameObject:GetComponent("BuildingBlock")
 	local position = player.transform.position
 	local buildingCost = nil
 
 	if player.net.connection.authLevel > 0 then return end
-	
+
 	if buildingBlock then
-		if buildingBlock.blockDefinition then
-			if buildingBlock.blockDefinition.grades then
-				if buildingBlock.blockDefinition.grades[0] then
-					if buildingBlock.blockDefinition.grades[0].costToBuild then
-						buildingCost = buildingBlock.blockDefinition.grades[0].costToBuild
-					end
-				end
-			end
-		end
-		
 		local modelState = BasePlayerModelState:GetValue(player)
 		if not modelState.onground then
 			self:SendMessage(player, "You aren't allowed to build while jumping or falling.")

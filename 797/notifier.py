@@ -7,7 +7,7 @@ from System import Action, Int32, String
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.3
+LATEST_CFG = 3.4
 LINE = '-' * 50
 
 class notifier:
@@ -19,7 +19,7 @@ class notifier:
 
         # PLUGIN INFO
         self.Title = 'Notifier'
-        self.Version = V(2, 5, 1)
+        self.Version = V(2, 5, 2)
         self.Author = 'SkinN'
         self.Description = 'Broadcasts chat messages as notifications and advertising.'
         self.HasConfig = True
@@ -64,6 +64,7 @@ class notifier:
                 'CHECK CONSOLE NOTE': 'Check the console (press F1) for more info.',
                 'PLAYERS COUNT': 'There are {count} survivors online.',
                 'NO RULES': 'No rules have been found! Contact the Admins.',
+                'NO LANG': 'Language not found in the rules list.',
                 'ADMINS LIST TITLE': 'ADMINS ONLINE',
                 'PLUGINS LIST TITLE': 'SERVER PLUGINS',
                 'PLAYERS LIST TITLE': 'PLAYERS ONLINE',
@@ -75,14 +76,14 @@ class notifier:
                 'SEED DESC': '/seed - Prints the current server seed on the chat. (Unless it is Random)'
             },
             'WELCOME MESSAGE': (
-                'Welcome :cyan:{username}:/end:, to our server!',
+                'Welcome <cyan>{username}<end>, to our server!',
                 'Type /help for all available commands.',
-                'SERVER IP: :cyan:{ip}:{port}:/end:'
+                'SERVER IP: <cyan>{ip}:{port}<end>'
             ),
             'ADVERTS': (
-                ':lime:Want to know the available commands?:/end: Type /help.',
-                'Respect the server :red:/rules:/end:.',
-                'This server is running :orange:Oxide 2:/end:.',
+                '<lime>Want to know the available commands?<end> Type /help.',
+                'Respect the server <red>/rules<end>.',
+                'This server is running <orange>Oxide 2<end>.',
                 'Cheating is strictly prohibited.'
             ),
             'COLORS': {
@@ -195,9 +196,7 @@ class notifier:
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
             # NEW CHANGES
-            if 'SIZE' in self.Config:
-
-                del self.Config['SIZE']
+            self.Config['MESSAGES']['NO LANG'] = 'Language not found in the rules list.'
 
         # SAVE CHANGES
         self.SaveConfig()
@@ -227,10 +226,7 @@ class notifier:
         self.countries = {}
         self.lastadvert = 0
 
-        # GET CONNECTED PLAYERS COUNTRIES
-        for player in self.player_list():
-
-            self.get_country(self.get_player(player), False)
+        self.console('Checking players countries and Admin tags')
 
         # IS ADVERTS ENABLED?
         if PLUGIN['ENABLE ADVERTS']:
@@ -266,7 +262,7 @@ class notifier:
                 command.AddChatCommand(self.Config['COMMANDS'][cmd], self.Plugin, '%s_CMD' % cmd.replace(' ', '_').lower())
 
         n = '%s' % self.Title.lower()
-        command.AddChatCommand(n, self.Plugin, '%s_CMD' % n)
+        command.AddChatCommand(n, self.Plugin, 'plugin_CMD')
 
         self.console('Enabled commands:')
 
@@ -280,6 +276,13 @@ class notifier:
 
             self.console('- No commands enabled')
 
+        # GET CONNECTED PLAYERS COUNTRIES
+        for player in self.player_list():
+
+            self.check_tag(player)
+
+            self.get_country(self.get_player(player), False)
+
         self.console(LINE)
         self.console('Loading Complete')
 
@@ -292,6 +295,13 @@ class notifier:
             self.adverts_loop.Destroy()
 
             self.console('Stopping Adverts loop')
+
+        # REMOVE ADMIN TAGS
+        for player in self.player_list():
+
+            self.check_tag(player, True)
+
+        self.console('Removing Admin tags')
 
         self.console('Unload complete')
 
@@ -317,13 +327,13 @@ class notifier:
 
         if self.prefix and force:
 
-            string = '%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, self._format(text))
+            string = self._format('%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, text))
 
             rust.BroadcastChat(string, None, str(userid))
 
         else:
 
-            rust.BroadcastChat('<color=%s>%s</color>' % (color, self._format(text)), None, str(userid))
+            rust.BroadcastChat(self._format('<color=%s>%s</color>' % (color, text)), None, str(userid))
 
         self.console(self._format(text, True))
 
@@ -333,38 +343,28 @@ class notifier:
 
         if self.prefix and force:
 
-            rust.SendChatMessage(player, '%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, self._format(text)), None, str(userid))
+            rust.SendChatMessage(player, self._format('%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, text)), None, str(userid))
 
         else:
 
-            rust.SendChatMessage(player, '<color=%s>%s</color>' % (color, self._format(text)), None, str(userid))
+            rust.SendChatMessage(player, self._format('<color=%s>%s</color>' % (color, text)), None, str(userid))
 
     # --------------------------------------------------------------------------
     def _format(self, text, con=False):
+        ''' Formats color name, hex codes and ending to HTML code '''
+
+        name = r'\<(\w+)\>'
+        hexcode = r'\<(#\w+)\>'
+        end = '<end>'
 
         if con:
-
-            for x in (r'\:(\w+)\:', r'\:#(\w+)\:'):
-
+            for x in (end, name, hexcode):
                 text = re.sub(x, '', text)
-
-            text = text.replace(':/end:', '')
-
         else:
-
-            # REPLACE COLOR NAMES
-            for x in re.findall(r'\:(\w+)\:', text):
-
-                text = text.replace(':%s:' % x, '<color=%s>' % x)
-
-            # REPLACE HEX CODES
-            for x in re.findall(r'\:#(\w+)\:', text):
-
-                text = text.replace(':#%s:' % x, '<color=#%s>' % x)
-
-            # REPLACE COLOR ENDINGS
-            text = text.replace(':/end:', '</color>')
-
+            text = text.replace(end, '</color>')
+            for f in (name, hexcode):
+                for c in re.findall(f, text):
+                    text = text.replace('<%s>' % c, '<color=%s>' % c)
         return text
 
     # ==========================================================================
@@ -410,9 +410,12 @@ class notifier:
     # --------------------------------------------------------------------------
     def OnPlayerDisconnected(self, player):
 
-        target = self.get_player(player)
+        # REMOVE ADMIN TAGS
+        self.check_tag(player, True)
 
         # CHECK IF PLAYER IS IN CONNECTED LIST
+        target = self.get_player(player)
+        
         if target['steamid'] in self.countries:
 
             # DISCONNECTED MESSAGE / SHOW CONNECTED MESSAGES?
@@ -451,7 +454,7 @@ class notifier:
 
                 self.lastadvert = index
 
-            line = l[index].format(ip=str(server.port), port=str(server.ip), seed=str(server.seed) if server.seed else 'Random')
+            line = l[index].format(ip=str(server.ip), port=str(server.port), seed=str(server.seed) if server.seed else 'Random')
 
             self.say(line, COLOR['ADVERTS'])
 
@@ -462,7 +465,7 @@ class notifier:
             self.adverts_loop.Destroy()
 
     # ==========================================================================
-    # <>> OTHER FUNTIONS
+    # <>> COMMANDS
     # ==========================================================================
     def seed_CMD(self, player, cmd, args):
 
@@ -475,7 +478,7 @@ class notifier:
     def admins_list_CMD(self, player, cmd, args):
 
         sort = ['<color=cyan>%s</color>' % i.displayName for i in player.activePlayerList if i.IsAdmin()]
-        sort = [sort[i:i + 5] for i in range(0, len(sort), 6)]
+        sort = [sort[x:x+3] for x in xrange(0, len(sort), 3)]
 
         if sort:
 
@@ -519,7 +522,7 @@ class notifier:
         if chat:
 
             names = ['<color=lime>%s</color>' % x.displayName for x in l]
-            names = [names[i:i + 4] for i in range(0, len(names), 6)]
+            names = [names[x:x+3] for x in xrange(0, len(names), 3)]
 
             self.tell(player, title, force=False)
             self.tell(player, LINE, force=False)
@@ -559,7 +562,7 @@ class notifier:
     # --------------------------------------------------------------------------
     def rules_CMD(self, player, cmd, args):
 
-        lang = self.get_lang(player)
+        lang = self.get_lang(player, args[0].upper() if args else None)
         l = self.Config['RULES'][lang]
 
         if l:
@@ -582,7 +585,7 @@ class notifier:
             self.tell(player, MSG['NO RULES'], 'yellow')
 
     # --------------------------------------------------------------------------
-    def notifier_CMD(self, player, cmd, args):
+    def plugin_CMD(self, player, cmd, args):
 
         self.tell(player, LINE, force=False)
         self.tell(player, '<color=lime>%s v%s</color> by <color=lime>SkinN</color>' % (self.title, self.Version), force=False)
@@ -649,12 +652,19 @@ class notifier:
         webrequests.EnqueueGet('http://ipinfo.io/%s/country' % ip, Action[Int32,String](response_handler), self.Plugin)
 
     # --------------------------------------------------------------------------
-    def get_lang(self, player):
+    def get_lang(self, player, force=None):
         ''' Filter for rule's languages '''
 
         default = PLUGIN['RULES LANGUAGE']
 
-        if default == 'AUTO':
+        if force:
+            if force in self.Config['RULES']:
+                return force
+            else:
+                self.tell(player, MSG['NO LANG'], 'yellow')
+                return 'EN'
+
+        elif default == 'AUTO':
 
             steamid = rust.UserIDFromPlayer(player)
             lang = self.countries[steamid] if steamid in self.countries else 'EN'
@@ -671,6 +681,33 @@ class notifier:
         else:
 
             return default if default in self.Config['RULES'] else 'EN'
+
+    # --------------------------------------------------------------------------
+    def check_tag(self, player, remove=False):
+
+        name = player.displayName
+        auth = player.net.connection.authLevel
+
+        # ADMINS TAGS / SHOULD USE ADMIN TAGS?
+        if PLUGIN['ENABLE ADMIN TAGS']:
+
+            if auth == 1 and not PLUGIN['MODERATOR TAG'] in name:
+
+                player.displayName = '%s %s' % (PLUGIN['MODERATOR TAG'], name)
+
+            elif auth == 2 and not PLUGIN['OWNER TAG'] in name:
+
+                player.displayName = '%s %s' % (PLUGIN['OWNER TAG'], name)
+
+        if not PLUGIN['ENABLE ADMIN TAGS'] or remove:
+
+            if auth == 1 and PLUGIN['MODERATOR TAG'] in name:
+
+                player.displayName = name.replace('%s ' % PLUGIN['MODERATOR TAG'], '')
+
+            elif auth == 2 and PLUGIN['OWNER TAG'] in name:
+
+                player.displayName = name.replace('%s ' % PLUGIN['OWNER TAG'], '')
 
     # ==========================================================================
     # <>> HELP TEXT
