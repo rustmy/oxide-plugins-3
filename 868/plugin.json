@@ -5,13 +5,13 @@
   "name": "PathFinding",
   "category": "Mechanics",
   "type": "cs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 38,
-  "updated": "2015-03-31T22:08:38.000Z",
+  "downloads": 40,
+  "updated": "2015-04-01T15:32:56.000Z",
   "description": "PathFinding plugin, used by other plugins only.",
   "iconUrl": "data/resource_icons/0/868.jpg?1427893078",
-  "downloadUrl": "resources/pathfinding.868/download?version=4238",
+  "downloadUrl": "resources/pathfinding.868/download?version=4242",
   "filename": "PathFinding.cs"
 }

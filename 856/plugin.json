@@ -5,13 +5,13 @@
   "name": "Human NPC - Core",
   "category": "Fun",
   "type": "cs",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "author": "Reneb",
   "rating": 4.91667,
-  "downloads": 298,
-  "updated": "2015-03-31T22:13:33.000Z",
+  "downloads": 301,
+  "updated": "2015-04-01T15:33:57.000Z",
   "description": "Add Interactive Human NPC Ingame, can be modded by other plugins",
   "iconUrl": "data/resource_icons/0/856.jpg?1427388695",
-  "downloadUrl": "resources/human-npc-core.856/download?version=4239",
+  "downloadUrl": "resources/human-npc-core.856/download?version=4243",
   "filename": "HumanNPC.cs"
 }
