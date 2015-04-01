@@ -5,13 +5,13 @@
   "name": "Finder",
   "category": "Developer-Tools",
   "type": "lua",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 688,
-  "updated": "2015-02-07T22:46:00.000Z",
+  "downloads": 690,
+  "updated": "2015-04-01T11:52:02.000Z",
   "description": "Find Players, SleepingBags, Doors, Sleepers, and teleport to them",
   "iconUrl": "data/resource_icons/0/692.jpg?1415900175",
-  "downloadUrl": "resources/finder.692/download?version=3628",
+  "downloadUrl": "resources/finder.692/download?version=4240",
   "filename": "finder.lua"
 }
