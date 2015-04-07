@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Realistic Fall Damage",
-  "category": "Mechanics",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.1",
   "author": "M@CH!N3",
   "rating": 0,
-  "downloads": 68,
+  "downloads": 83,
   "updated": "2015-03-24T23:02:00.000Z",
   "description": "Makes falling death height more realistic",
   "iconUrl": "data/resource_icons/0/855.jpg?1427234085",
-  "downloadUrl": "resources/realistic-fall-damage.855/download?version=4135",
+  "downloadUrl": "plugins/realistic-fall-damage.855/download?version=4135",
   "filename": "RealFall.lua"
 }

@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Stats, Top and Rewards",
-  "category": "Fun",
+  "category": "Rust-Experimental",
   "type": "zip",
   "version": "0.0.4",
   "author": "LEO318x",
   "rating": 0,
-  "downloads": 121,
+  "downloads": 132,
   "updated": "2015-02-07T20:09:00.000Z",
   "description": "Show the stats, tops of the players and exchange the money for weapons, etc",
-  "downloadUrl": "resources/stats-top-and-rewards.810/download?version=3625",
+  "downloadUrl": "plugins/stats-top-and-rewards.810/download?version=3625",
   "filename": "MK_Stats_Top_Reward(Shopping).zip"
 }

@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "RotAG-RadEvent",
-  "category": "Fun",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.0",
   "author": "TheRotAG",
   "rating": 5,
-  "downloads": 131,
+  "downloads": 139,
   "updated": "2015-02-07T00:05:00.000Z",
   "description": "RadTowns Event plugin for Oxide 2.0",
   "iconUrl": "data/resource_icons/0/808.jpg?1423191493",
-  "downloadUrl": "resources/rotag-radevent.808/download?version=3590",
+  "downloadUrl": "plugins/rotag-radevent.808/download?version=3590",
   "filename": "RotAG-RadEvent.lua"
 }

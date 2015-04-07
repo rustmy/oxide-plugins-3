@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Spawns Database",
-  "category": "Mechanics",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.4",
   "author": "Reneb",
   "rating": 0,
-  "downloads": 392,
+  "downloads": 410,
   "updated": "2015-02-07T22:55:00.000Z",
   "description": "Spawns database plugin for external plugins",
-  "downloadUrl": "resources/spawns-database.720/download?version=3641",
+  "downloadUrl": "plugins/spawns-database.720/download?version=3641",
   "filename": "spawns.lua"
 }

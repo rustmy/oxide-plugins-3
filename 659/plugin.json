@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Private Messaging",
-  "category": "Chat-Related",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.2.3",
   "author": "Domestos",
   "rating": 5,
-  "downloads": 946,
+  "downloads": 993,
   "updated": "2015-03-08T15:49:00.000Z",
   "description": "Allows users to chat privately with each other",
   "iconUrl": "data/resource_icons/0/659.jpg?1427202327",
-  "downloadUrl": "resources/private-messaging.659/download?version=3969",
+  "downloadUrl": "plugins/private-messaging.659/download?version=3969",
   "filename": "privatemessage.lua"
 }

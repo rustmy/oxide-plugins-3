@@ -1,37 +1,37 @@
-// Reference: Oxide.Ext.Rust
 using UnityEngine;
 using System;
-using System.Collections.Generic;
 
 namespace Oxide.Plugins
 {
-    [Info("BuildBlocker", "Bombardir", "1.1.0" )]
+    [Info("BuildBlocker", "Bombardir", "1.2.1" )]
     class BuildBlocker : RustPlugin
     {
         #region Config
 
-        private bool OnRock = false;
-        private bool InRock = true;
-        private bool InCave = false;
-        private bool InWarehouse = true;
-        private bool InMetalBuilding = true;
-        private bool InHangar = true;
-        private bool InBase = true;
-        private bool UnTerrain = true;
-        private bool UnBridge = false;
-        private bool UnRadio = false;
-        private bool BlockStructuresHeight = false;
-        private bool BlockDeployablesHeight = false;
-        private int MaxHeight = 100;
-        private bool BlockStructuresWater = false;
-        private bool BlockDeployablesWater = false;
-        private int MaxWater = -2;
-        private int AuthLVL = 2;
-        private string Msg = "Hey! You can't build here!";
-        private string MsgHeight = "You can't build here! (Height limit 100m)";
-        private string MsgWater = "You can't build here! (Water limit -2m)";
+        private static bool OnRock = false;
+        private static bool InRock = true;
+        private static bool InCave = false;
+        private static bool InWarehouse = true;
+        private static bool InMetalBuilding = true;
+        private static bool InHangar = true;
+        private static bool InBase = true;
+        private static bool UnTerrain = true;
+        private static bool UnBridge = false;
+        private static bool UnRadio = false;
+        private static bool BlockHorizontalSigns = true;
+        private static bool BlockStructuresHeight = false;
+        private static bool BlockDeployablesHeight = false;
+        private static int MaxHeight = 100;
+        private static bool BlockStructuresWater = false;
+        private static bool BlockDeployablesWater = false;
+        private static int MaxWater = -2;
+        private static int AuthLVL = 2;
+        private static string Msg = "Hey! You can't build here!";
+        private static string MsgHeight = "You can't build here! (Height limit 100m)";
+        private static string MsgSign = "You can't build horizontal sign on other sign!";
+        private static string MsgWater = "You can't build here! (Water limit -2m)";
 
-        void LoadDefaultConfig() {}  
+        void LoadDefaultConfig() { }
 
         private void CheckCfg<T>(string Key, ref T var)
         {
@@ -51,8 +51,9 @@ namespace Oxide.Plugins
             CheckCfg<bool>("Block In Metal Building", ref InMetalBuilding);
             CheckCfg<bool>("Block In Hangar", ref InHangar);
             CheckCfg<bool>("Block Under Terrain", ref UnTerrain);
-            CheckCfg<bool>("Block Under Bridge", ref UnBridge);
-            CheckCfg<bool>("Block Under Radar", ref UnRadio);
+            CheckCfg<bool>("Block Under|On Bridge", ref UnBridge);
+            CheckCfg<bool>("Block Under|On Radar", ref UnRadio);
+            CheckCfg<bool>("Block Horizontal Signs on other Signs", ref BlockHorizontalSigns);
             CheckCfg<int>("Max Height Limit", ref MaxHeight);
             CheckCfg<bool>("Block Structures above the max height", ref BlockStructuresHeight);
             CheckCfg<bool>("Block Deployables above the max height", ref BlockDeployablesHeight);
@@ -61,6 +62,7 @@ namespace Oxide.Plugins
             CheckCfg<bool>("Block Deployables under water", ref BlockDeployablesWater);
             CheckCfg<string>("Block Water Message", ref MsgWater);
             CheckCfg<string>("Block Height Message", ref MsgHeight);
+            CheckCfg<string>("Block Sign Message", ref MsgSign);
             CheckCfg<string>("Block Message", ref Msg); 
             CheckCfg<int>("Ignore Auth Lvl", ref AuthLVL);
             SaveConfig(); 
@@ -71,40 +73,63 @@ namespace Oxide.Plugins
         {
             if (StartBlock && sender.net.connection.authLevel < AuthLVL && !StartBlock.isDestroyed)
             {
+
                 Vector3 Pos = StartBlock.transform.position;
-                float height = TerrainMeta.HeightMap.GetHeight(Pos);
-                if (CheckHeight && Pos.y - height > MaxHeight)
+                if (StartBlock.name == "foundation.steps(Clone)")
+                    Pos.y += 1.3f;
+
+                if (CheckHeight || CheckWater)
                 {
-                    SendReply(sender, MsgHeight);
-                    StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
-                }
-                else if (CheckWater && height < 0 && height < MaxWater && Pos.y < 2.8 )
-                {
-                    SendReply(sender, MsgWater);
-                    StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
-                }
-                else
-                {
-                    if (StartBlock.name == "foundation.steps(Clone)")
-                        Pos.y++;
-                    Pos.y = Pos.y + 100;
-                    RaycastHit[] hits = Physics.RaycastAll(Pos, Vector3.down, 102.8f);
-                    Pos.y = Pos.y - 100;
-                    for (int i = 0; i < hits.Length; i++)
+                   float height = TerrainMeta.HeightMap.GetHeight(Pos);
+                    if (CheckHeight && Pos.y - height > MaxHeight)
                     {
-                        RaycastHit hit = hits[i];
-                        if (hit.collider)
+                        SendReply(sender, MsgHeight);
+                        StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
+                        return;
+                    }
+                    else if (CheckWater && height < 0 && height < MaxWater && Pos.y < 2.8 )
+                    {
+                        SendReply(sender, MsgWater);
+                        StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
+                        return;
+                    }
+                }
+
+                if (BlockHorizontalSigns && StartBlock.GetComponent<Signage>())
+                {
+                    Vector3 euler = StartBlock.transform.rotation.eulerAngles;
+                    if (euler.y == 0 && euler.z == 0)
+                    {
+                        SendReply(sender, MsgSign);
+                        StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
+                        return;
+                    }
+                }
+
+                Pos.y = Pos.y + 100;
+                RaycastHit[] hits = Physics.RaycastAll(Pos, Vector3.down, 102.8f);
+                Pos.y = Pos.y - 100;
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    RaycastHit hit = hits[i];
+                    if (hit.collider)
+                    {
+                        string ColName = hit.collider.name;
+                        if (UnTerrain && ColName == "Terrain" && hit.point.y > Pos.y || 
+                            InBase && ColName.StartsWith("base", StringComparison.CurrentCultureIgnoreCase) || 
+                            InMetalBuilding && ColName == "Metal_building_COL" || 
+                            UnBridge && ColName == "Bridge_top" || 
+                            UnRadio && ColName.StartsWith("dish") || 
+                            InWarehouse && ColName.StartsWith("Warehouse") || 
+                            InHangar && ColName.StartsWith("Hangar") || 
+                            ColName.StartsWith("rock") && (hit.point.y < Pos.y ? OnRock : hit.collider.bounds.Contains(Pos) ? InRock : InCave))
                         {
-                            string ColName = hit.collider.name;
-                            if ( (UnTerrain && ColName == "Terrain" || InMetalBuilding && ColName == "Metal_building_COL" || UnBridge && ColName == "Bridge_top" || InBase && ColName.StartsWith("base", StringComparison.CurrentCultureIgnoreCase) || UnRadio && ColName.StartsWith("dish")) && hit.point.y > Pos.y || (InWarehouse && ColName.StartsWith("Warehouse") || InHangar && ColName.StartsWith("Hangar")) && hit.point.y + 3 > Pos.y || ColName.StartsWith("rock") && (hit.point.y < Pos.y ? OnRock : hit.collider.bounds.Contains(Pos) ? InRock : InCave))
-                            {
-                                SendReply(sender, Msg);
-                                StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
-                                break;
-                            }
-                            if (ColName == "Terrain")
-                                break;
+                            SendReply(sender, Msg);
+                            StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
+                            break;
                         }
+                        if (ColName == "Terrain")
+                            break;
                     }
                 }
             }
@@ -118,7 +143,7 @@ namespace Oxide.Plugins
         void OnItemDeployed(Deployer deployer, BaseEntity deployedentity)
         {
             if (!(deployedentity is BaseLock))
-                CheckBlock(deployedentity.GetComponent<BaseNetworkable>(), deployer.ownerPlayer, BlockDeployablesHeight, BlockDeployablesWater);
+                CheckBlock((BaseNetworkable) deployedentity, deployer.ownerPlayer, BlockDeployablesHeight, BlockDeployablesWater);
         }
     }
 }

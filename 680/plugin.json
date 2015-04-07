@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Metabolism Control",
-  "category": "Mechanics",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.1.1",
   "author": "Wulfspider",
   "rating": 5,
-  "downloads": 279,
+  "downloads": 293,
   "updated": "2015-02-27T05:27:00.000Z",
   "description": "Allows control of player metabolism stats and rates",
   "iconUrl": "data/resource_icons/0/680.jpg?1414921457",
-  "downloadUrl": "resources/metabolism-control.680/download?version=3909",
+  "downloadUrl": "plugins/metabolism-control.680/download?version=3909",
   "filename": "metabolismcontrol.lua"
 }

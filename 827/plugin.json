@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Server Rules",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "js",
   "version": "1.5.0",
   "author": "KillParadise",
   "rating": 5,
-  "downloads": 443,
+  "downloads": 493,
   "updated": "2015-03-11T19:34:00.000Z",
   "description": "Gives users rules command and admins ability to add or remove rules",
   "iconUrl": "data/resource_icons/0/827.jpg?1424658542",
-  "downloadUrl": "resources/server-rules.827/download?version=3994",
+  "downloadUrl": "plugins/server-rules.827/download?version=3994",
   "filename": "rules.js"
 }

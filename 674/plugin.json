@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Reserved",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.1.6",
   "author": "Wulfspider",
   "rating": 5,
-  "downloads": 231,
+  "downloads": 236,
   "updated": "2015-02-07T23:04:00.000Z",
   "description": "Reserves a number of slots so that reserved players can connect",
   "iconUrl": "data/resource_icons/0/674.jpg?1414087540",
-  "downloadUrl": "resources/reserved.674/download?version=3645",
+  "downloadUrl": "plugins/reserved.674/download?version=3645",
   "filename": "reserved.lua"
 }

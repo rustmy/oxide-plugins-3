@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Player Location",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.2.0",
   "author": "Domestos",
   "rating": 4.88889,
-  "downloads": 1759,
+  "downloads": 1842,
   "updated": "2015-01-23T12:08:00.000Z",
   "description": "Allows users to see their current coordinates",
   "iconUrl": "data/resource_icons/0/663.jpg?1427202990",
-  "downloadUrl": "resources/player-location.663/download?version=3412",
+  "downloadUrl": "plugins/player-location.663/download?version=3412",
   "filename": "playerlocation.lua"
 }

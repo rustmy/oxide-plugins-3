@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Voter Reward",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.4.0",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 278,
+  "downloads": 300,
   "updated": "2015-02-20T15:20:00.000Z",
   "description": "Rewards players voted for your server on TopRustServers.com, Rust-Servers.net, etc",
   "iconUrl": "data/resource_icons/0/752.jpg?1420500249",
-  "downloadUrl": "resources/voter-reward.752/download?version=3850",
+  "downloadUrl": "plugins/voter-reward.752/download?version=3850",
   "filename": "voter.lua"
 }

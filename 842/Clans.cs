@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("Clans", "playrust.io / dcode", "1.4.1", ResourceId = 842)]
+    [Info("Clans", "playrust.io / dcode", "1.4.2", ResourceId = 842)]
     public class Clans : RustPlugin
     {
 
@@ -59,7 +59,6 @@ namespace Oxide.Plugins
         private Dictionary<string, string> originalNames = new Dictionary<string, string>();
         private Regex tagRe = new Regex("^[a-zA-Z0-9]{2,6}$");
         private Dictionary<string, string> messages = new Dictionary<string, string>();
-        private static char nbsp = Convert.ToChar(160);
 
         // Loads the data file
         private void LoadData() {
@@ -277,10 +276,7 @@ namespace Oxide.Plugins
         private string StripTag(string name, Clan clan) {
             if (clan == null)
                 return name;
-            var p = name.LastIndexOf("]"+nbsp);
-            if (p >= 0)
-                return name.Substring(p + 2);
-            var re = new Regex("^\\["+clan.tag+"\\]\\s");
+            var re = new Regex(@"^\["+clan.tag+@"\]\s");
             while (re.IsMatch(name))
                 name = name.Substring(clan.tag.Length+3);
             return name;
@@ -301,7 +297,7 @@ namespace Oxide.Plugins
             if (clan == null) {
                 player.displayName = originalName;
             } else {
-                var tag = "[" + clan.tag + "]"+nbsp;
+                var tag = "[" + clan.tag + "]"+" ";
                 if (!player.displayName.StartsWith(tag))
                     player.displayName = tag + originalName;
             }
@@ -345,11 +341,15 @@ namespace Oxide.Plugins
 
         [HookMethod("OnUserApprove")]
         void OnUserApprove(Network.Connection connection) {
+            // Override whatever there is
             originalNames[connection.userid.ToString()] = connection.username;
         }
 
         [HookMethod("OnPlayerInit")]
         void OnPlayerInit(BasePlayer player) {
+            string originalName;
+            if (originalNames.TryGetValue(player.userID.ToString(), out originalName))
+                player.displayName = originalName;
             try {
                 SetupPlayer(player);
                 var clan = FindClanByUser(player.userID.ToString());

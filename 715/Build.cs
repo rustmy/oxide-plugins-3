@@ -9,7 +9,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Build", "Reneb", "1.0.5")]
+    [Info("Build", "Reneb", "1.0.6")]
     class Build : RustPlugin
     { 
         class BuildPlayer : MonoBehaviour
@@ -461,10 +461,12 @@ namespace Oxide.Plugins
             block.blockDefinition = PrefabAttribute.server.Find<Construction>(block.prefabID);
             block.Spawn(true);
             block.SetGrade(grade);
-            if(health < 0f)
+            if(health <= 0f)
                 block.health = block.MaxHealth();
             else
                 block.health = health;
+            Debug.Log(block.MaxHealth().ToString());
+            block.SendNetworkUpdate(BasePlayer.NetworkQueue.Update);
             
         }
 
@@ -509,6 +511,7 @@ namespace Oxide.Plugins
         private static void SetGrade(BuildingBlock block, BuildingGrade.Enum level)
         {
             block.SetGrade(level);
+            block.health = block.MaxHealth();
             block.SendNetworkUpdate(BasePlayer.NetworkQueue.Update);
         }
 

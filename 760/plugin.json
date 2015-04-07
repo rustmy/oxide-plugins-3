@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Warp System",
-  "category": "Teleportation",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.0.9",
   "author": "NexusBR",
   "rating": 5,
-  "downloads": 461,
+  "downloads": 484,
   "updated": "2015-03-01T17:20:00.000Z",
   "description": "Create warp points for players",
   "iconUrl": "data/resource_icons/0/760.jpg?1425152162",
-  "downloadUrl": "resources/warp-system.760/download?version=3935",
+  "downloadUrl": "plugins/warp-system.760/download?version=3935",
   "filename": "warp-system.lua"
 }

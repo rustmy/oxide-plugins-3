@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Door Unlock/Lock",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.1.0",
   "author": "Reneb",
   "rating": 0,
-  "downloads": 408,
+  "downloads": 414,
   "updated": "2014-11-01T19:07:00.000Z",
   "description": "Unlock and lock doors, for admins and/or players",
-  "downloadUrl": "resources/door-unlock-lock.691/download?version=2892",
+  "downloadUrl": "plugins/door-unlock-lock.691/download?version=2892",
   "filename": "lock-unlock.lua"
 }

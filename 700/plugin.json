@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Rust Ban Saver",
-  "category": "Fixes",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.1",
   "author": "Mughisi",
   "rating": 0,
-  "downloads": 160,
+  "downloads": 164,
   "updated": "2014-10-31T14:59:00.000Z",
   "description": "Solves the problem with banid commands not being saved to the banlist",
-  "downloadUrl": "resources/rust-ban-saver.700/download?version=2861",
+  "downloadUrl": "plugins/rust-ban-saver.700/download?version=2861",
   "filename": "m-RustBanSaver.lua"
 }

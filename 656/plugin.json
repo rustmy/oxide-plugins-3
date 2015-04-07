@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Ping",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.2.6",
   "author": "Wulfspider",
   "rating": 5,
-  "downloads": 732,
+  "downloads": 757,
   "updated": "2015-03-09T14:37:00.000Z",
   "description": "Player ping checking and optional high ping rejection on join",
   "iconUrl": "data/resource_icons/0/656.jpg?1425618720",
-  "downloadUrl": "resources/ping.656/download?version=3979",
+  "downloadUrl": "plugins/ping.656/download?version=3979",
   "filename": "ping.lua"
 }

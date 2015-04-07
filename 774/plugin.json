@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Auto Commands",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.2.4",
   "author": "Wulfspider",
   "rating": 5,
-  "downloads": 378,
+  "downloads": 403,
   "updated": "2015-02-09T20:24:00.000Z",
   "description": "Automatically executes configured commands on server startup",
   "iconUrl": "data/resource_icons/0/774.jpg?1421168820",
-  "downloadUrl": "resources/auto-commands.774/download?version=3701",
+  "downloadUrl": "plugins/auto-commands.774/download?version=3701",
   "filename": "autocommands.lua"
 }

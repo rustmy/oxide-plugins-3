@@ -7,7 +7,7 @@ from System import Action, Int32, String
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.4
+LATEST_CFG = 3.5
 LINE = '-' * 50
 
 class notifier:
@@ -19,7 +19,7 @@ class notifier:
 
         # PLUGIN INFO
         self.Title = 'Notifier'
-        self.Version = V(2, 5, 2)
+        self.Version = V(2, 6, 0)
         self.Author = 'SkinN'
         self.Description = 'Broadcasts chat messages as notifications and advertising.'
         self.HasConfig = True
@@ -34,7 +34,7 @@ class notifier:
         self.Config = {
             'CONFIG_VERSION': LATEST_CFG,
             'SETTINGS': {
-                'PREFIX': 'NOTIFIER',
+                'PREFIX': self.Title.upper(),
                 'BROADCAST TO CONSOLE': True,
                 'OWNER TAG': '[OWNER]',
                 'MODERATOR TAG': '[MOD]',
@@ -53,54 +53,57 @@ class notifier:
                 'ENABLE PLAYERS LIST CMD': True,
                 'ENABLE ADMINS LIST CMD': False,
                 'ENABLE PLUGINS LIST CMD': False,
-                'ENABLE RULES CMD': True
+                'ENABLE RULES CMD': True,
+                'ENABLE SERVER MAP CMD': True,
             },
             'MESSAGES': {
-                'CONNECTED': '{username} connected from {country}.',
-                'DISCONNECTED': '{username} disconnected.',
-                'SERVER SEED': 'The server seed is: {seed}',
-                'NO ADMINS ONLINE': 'There are no Admins currently online.',
+                'CONNECTED': '<lime>{username}<end> joined the server, from <lime>{country}<end>.',
+                'DISCONNECTED': '<lime>{username}<end> left the server.',
+                'SERVER SEED': 'The server seed is {seed}',
+                'NO ADMINS ONLINE': 'There are no <cyan>Admins<end> currently online.',
                 'ONLY PLAYER': 'You are the only survivor online.',
                 'CHECK CONSOLE NOTE': 'Check the console (press F1) for more info.',
-                'PLAYERS COUNT': 'There are {count} survivors online.',
-                'NO RULES': 'No rules have been found! Contact the Admins.',
-                'NO LANG': 'Language not found in the rules list.',
+                'PLAYERS COUNT': 'There are <lime>{count}<end> survivors online.',
+                'NO RULES': 'No rules have been found!.',
+                'NO LANG': 'Language not found in rules list.',
                 'ADMINS LIST TITLE': 'ADMINS ONLINE',
                 'PLUGINS LIST TITLE': 'SERVER PLUGINS',
                 'PLAYERS LIST TITLE': 'PLAYERS ONLINE',
                 'RULES TITLE': 'SERVER RULES',
-                'PLAYERS LIST DESC': '/players - Lists all the players either on the chat or console.',
-                'ADMINS LIST DESC': '/admins - Lists all the Admins currently online in the chat.',
-                'PLUGINS LIST DESC': '/plugins - Lists all the server plugins in the chat.',
-                'RULES DESC': '/rules - Lists the server rules on the chat.',
-                'SEED DESC': '/seed - Prints the current server seed on the chat. (Unless it is Random)'
+                'SERVER MAP': 'SERVER MAP: <lime>{ip}:{port}<end>',
+                'PLAYERS LIST DESC': '<white>/players -<end> Lists all the players. (Chat/Console)',
+                'ADMINS LIST DESC': '<white>/admins -<end> Lists all the Admins currently online.',
+                'PLUGINS LIST DESC': '<white>/plugins -<end> Lists all the server plugins.',
+                'RULES DESC': '<white>/rules -<end> Lists the server rules.',
+                'SEED DESC': '<white>/seed -<end> Shows current server seed. (Unless it is Random)',
+                'SERVER MAP DESC': '<white>/map -<end> Shows the server map link.'
             },
             'WELCOME MESSAGE': (
-                'Welcome <cyan>{username}<end>, to our server!',
-                'Type /help for all available commands.',
+                'Welcome <lime>{username}<end>, to the server!',
+                'Type <red>/help<end> for all available commands.',
                 'SERVER IP: <cyan>{ip}:{port}<end>'
             ),
             'ADVERTS': (
-                '<lime>Want to know the available commands?<end> Type /help.',
+                'Want to know the available commands? Type <red>/help<end>.',
                 'Respect the server <red>/rules<end>.',
                 'This server is running <orange>Oxide 2<end>.',
-                'Cheating is strictly prohibited.'
+                'Cheating is strictly prohibited.',
+                'Type <red>/map<end> for the server map link.'
             ),
             'COLORS': {
                 'PREFIX': 'red',
-                'CONNECTED MESSAGE': 'lime',
-                'DISCONNECTED MESSAGE': 'lime',
-                'WELCOME MESSAGE': '#0099FF',
-                'ADVERTS': 'white',
-                'OWNER NAME': 'white',
-                'MODERATOR NAME': 'white'
+                'CONNECTED MESSAGE': '#CECECE',
+                'DISCONNECTED MESSAGE': '#CECECE',
+                'WELCOME MESSAGE': '#CECECE',
+                'ADVERTS': '#CECECE'
             },
             'COMMANDS': {
                 'PLAYERS LIST': 'players',
-                'RULES': 'rules',
+                'RULES': ('rules',),
                 'PLUGINS LIST': 'plugins',
                 'SEED': 'seed',
-                'ADMINS LIST': 'admins'
+                'ADMINS LIST': 'admins',
+                'SERVER MAP': 'map'
             },
             'RULES': {
                 'EN': (
@@ -196,7 +199,16 @@ class notifier:
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
             # NEW CHANGES
-            self.Config['MESSAGES']['NO LANG'] = 'Language not found in the rules list.'
+            self.Config['SETTINGS']['ENABLE SERVER MAP CMD'] = True
+            self.Config['MESSAGES']['SERVER MAP'] = 'SERVER MAP: <lime>{ip}:{port}<end>'
+            self.Config['MESSAGES']['SERVER MAP DESC'] = '<white>/map -<end> Shows the server map link.'
+            self.Config['COMMANDS']['SERVER MAP'] = 'map'
+            self.Config['COMMANDS']['RULES'] = ('rules',)
+
+            if 'OWNER NAME' in self.Config['COLORS']:
+                del self.Config['COLORS']['OWNER NAME']
+            if 'MODERATOR NAME' in self.Config['COLORS']:
+                del self.Config['COLORS']['MODERATOR NAME']
 
         # SAVE CHANGES
         self.SaveConfig()
@@ -252,7 +264,17 @@ class notifier:
         # COMMANDS
         self.cmds = []
 
-        for cmd in ('PLAYERS LIST', 'RULES', 'ADMINS LIST', 'PLUGINS LIST', 'SEED'):
+        self.console('Enabled commands:')
+
+        if PLUGIN['ENABLE RULES CMD']:
+
+            self.console('- Server Rules: /%s' % ' /'.join(self.Config['COMMANDS']['RULES']))
+            
+            for cmd in self.Config['COMMANDS']['RULES']:
+
+                command.AddChatCommand(cmd, self.Plugin, 'rules_CMD')
+
+        for cmd in ('PLAYERS LIST', 'ADMINS LIST', 'PLUGINS LIST', 'SEED', 'SERVER MAP'):
 
             # IS COMMAND ENABLED?
             if PLUGIN['ENABLE %s CMD' % cmd]:
@@ -263,8 +285,6 @@ class notifier:
 
         n = '%s' % self.Title.lower()
         command.AddChatCommand(n, self.Plugin, 'plugin_CMD')
-
-        self.console('Enabled commands:')
 
         if self.cmds:
 
@@ -397,7 +417,7 @@ class notifier:
 
                 for line in l:
 
-                    line = line.format(ip=str(server.port), port=str(server.ip), seed=str(server.seed) if server.seed else 'Random', username=player.displayName)
+                    line = line.format(ip=str(server.ip), port=str(server.port), seed=str(server.seed) if server.seed else 'Random', username=player.displayName)
 
                     self.tell(player, line, COLOR['WELCOME MESSAGE'])
 
@@ -553,7 +573,7 @@ class notifier:
 
             for num, ply in enumerate(l):
 
-                self.pconsole(player, '<color=orange>{num}.</color> {country} | {steamid} | <color=lime>{username}</color>'.format(num='%03d' % (num + 1), **self.get_player(ply)))
+                self.pconsole(player, '<color=orange>{num}</color> | {steamid} | {country} | <color=lime>{username}</color>'.format(num='%03d' % (num + 1), **self.get_player(ply)))
 
             self.pconsole(player, LINE)
             self.pconsole(player, count_msg, 'yellow')
@@ -583,6 +603,11 @@ class notifier:
         else:
 
             self.tell(player, MSG['NO RULES'], 'yellow')
+
+    # --------------------------------------------------------------------------
+    def server_map_CMD(self, player, cmd, args):
+
+        self.tell(player, MSG['SERVER MAP'].format(ip=str(server.ip), port=str(server.port)), 'yellow')
 
     # --------------------------------------------------------------------------
     def plugin_CMD(self, player, cmd, args):
@@ -719,6 +744,6 @@ class notifier:
 
             for cmd in self.cmds:
 
-                self.tell(player, MSG['%s DESC' % cmd], 'lime')
+                self.tell(player, MSG['%s DESC' % cmd], 'yellow', force=False)
 
 # ==============================================================================

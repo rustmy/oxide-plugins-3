@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Rust:IO Template",
-  "category": "Developer-Tools",
+  "category": "Rust-Experimental",
   "type": "cs",
   "version": "1.0.0",
   "author": "dcode",
   "rating": 5,
-  "downloads": 62,
+  "downloads": 75,
   "updated": "2015-03-17T13:29:00.000Z",
   "description": "A template to help you get started to develop plugins using the Rust:IO API.",
   "iconUrl": "data/resource_icons/0/845.jpg?1427126017",
-  "downloadUrl": "resources/rust-io-template.845/download?version=4044",
+  "downloadUrl": "plugins/rust-io-template.845/download?version=4044",
   "filename": "RustIOTemplate.cs"
 }

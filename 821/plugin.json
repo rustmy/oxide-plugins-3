@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Player Titles",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "js",
   "version": "0.1.1",
   "author": "KillParadise",
   "rating": 5,
-  "downloads": 241,
+  "downloads": 260,
   "updated": "2015-02-16T06:16:00.000Z",
   "description": "Provides Titles for Players, Mods, Admins in chat",
-  "downloadUrl": "resources/player-titles.821/download?version=3806",
+  "downloadUrl": "plugins/player-titles.821/download?version=3806",
   "filename": "titles.js"
 }

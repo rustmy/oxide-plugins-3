@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Spectate Handler",
-  "category": "Fixes",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.3",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 321,
+  "downloads": 335,
   "updated": "2015-02-07T22:56:00.000Z",
   "description": "Temporary plugin that lets you choose who to spectate",
-  "downloadUrl": "resources/spectate-handler.783/download?version=3643",
+  "downloadUrl": "plugins/spectate-handler.783/download?version=3643",
   "filename": "spectatePlayer.lua"
 }

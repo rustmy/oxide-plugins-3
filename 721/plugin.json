@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Shop",
-  "category": "Economy",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.1.0",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 1021,
+  "downloads": 1054,
   "updated": "2015-02-17T21:34:00.000Z",
   "description": "Automatic calculation of price, buying, selling and more...",
   "iconUrl": "data/resource_icons/0/721.jpg?1416153172",
-  "downloadUrl": "resources/shop.721/download?version=3825",
+  "downloadUrl": "plugins/shop.721/download?version=3825",
   "filename": "Shop.lua"
 }

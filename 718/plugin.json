@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "SpectateMgr",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.0.1",
   "author": "Oh_G",
   "rating": 5,
-  "downloads": 123,
+  "downloads": 124,
   "updated": "2014-11-10T21:20:00.000Z",
   "description": "Manage and log spectate requests.",
-  "downloadUrl": "resources/spectatemgr.718/download?version=2960",
+  "downloadUrl": "plugins/spectatemgr.718/download?version=2960",
   "filename": "spectateMgr.lua"
 }

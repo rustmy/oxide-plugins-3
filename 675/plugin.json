@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Increased Gather Rate",
-  "category": "Mechanics",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.1.2",
   "author": "Mughisi",
   "rating": 5,
-  "downloads": 2375,
+  "downloads": 2493,
   "updated": "2015-02-10T06:18:00.000Z",
   "description": "Basic plugin to increase the amount of items gained from gathering resources.",
-  "downloadUrl": "resources/increased-gather-rate.675/download?version=3721",
+  "downloadUrl": "plugins/increased-gather-rate.675/download?version=3721",
   "filename": "m-GatherRate.lua"
 }

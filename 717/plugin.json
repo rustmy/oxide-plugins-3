@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Economics",
-  "category": "Economy",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.6.0",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 960,
+  "downloads": 995,
   "updated": "2015-02-27T16:03:00.000Z",
   "description": "Basic Economy + Economy API",
   "iconUrl": "data/resource_icons/0/717.jpg?1415649440",
-  "downloadUrl": "resources/economics.717/download?version=3912",
+  "downloadUrl": "plugins/economics.717/download?version=3912",
   "filename": "00-Economics.lua"
 }

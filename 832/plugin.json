@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Timed Explosives Modifier",
-  "category": "Mechanics",
+  "category": "Rust-Experimental",
   "type": "cs",
   "version": "1.0.0",
   "author": "Mughisi",
   "rating": 5,
-  "downloads": 265,
+  "downloads": 295,
   "updated": "2015-03-06T14:25:00.000Z",
   "description": "Allows you to modify the damage a timed explosive deals.",
   "iconUrl": "data/resource_icons/0/832.jpg?1425638230",
-  "downloadUrl": "resources/timed-explosives-modifier.832/download?version=3956",
+  "downloadUrl": "plugins/timed-explosives-modifier.832/download?version=3956",
   "filename": "TimedExplosivesModifier.cs"
 }

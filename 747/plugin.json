@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Raid [Temporary]",
-  "category": "Fixes",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.6",
   "author": "SPooCK",
   "rating": 5,
-  "downloads": 372,
+  "downloads": 377,
   "updated": "2015-01-23T19:27:00.000Z",
   "description": "A temporary plugin which will make bases raidable",
   "iconUrl": "data/resource_icons/0/747.jpg?1419700103",
-  "downloadUrl": "resources/raid-temporary.747/download?version=3418",
+  "downloadUrl": "plugins/raid-temporary.747/download?version=3418",
   "filename": "raid[T].lua"
 }

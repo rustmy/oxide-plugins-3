@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Zones Manager",
-  "category": "Fun",
-  "type": "lua",
-  "version": "1.2.6",
+  "category": "Rust-Experimental",
+  "type": "cs",
+  "version": "2.0.8",
   "author": "Reneb",
-  "rating": 4.6,
-  "downloads": 542,
-  "updated": "2015-03-27T13:13:16.000Z",
-  "description": "Zones Manager",
-  "downloadUrl": "resources/zones-manager.739/download?version=4173",
-  "filename": "r-Zones.lua"
+  "rating": 5,
+  "downloads": 614,
+  "updated": "2015-04-06T18:45:05.000Z",
+  "description": "Advanced zone manager for creating in-game zones",
+  "downloadUrl": "plugins/zones-manager.739/download?version=4361",
+  "filename": "ZoneManager.cs"
 }

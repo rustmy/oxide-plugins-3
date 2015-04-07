@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("LimitedSuicide", "playrust.io / dcode", "1.0.0")]
+    [Info("LimitedSuicide", "playrust.io / dcode", "1.0.1", ResourceId = 835)]
     public class LimitedSuicide : RustPlugin
     {
         // Default configuration: Once per 300 seconds
@@ -68,7 +68,7 @@ namespace Oxide.Plugins
                     }
                 }
                 if (n >= limit) {
-                    player.SendConsoleCommand("chat.add", "Server", "You may only suicide " + (limit == 1 ? "once" : limit + " times") + " per " + timespan + " seconds.");
+                    player.ChatMessage("You may only suicide " + (limit == 1 ? "once" : limit + " times") + " per " + timespan + " seconds.");
                     return true;
                 }
                 times.Add(now);

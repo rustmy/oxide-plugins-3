@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Immediate Demolish Limiter",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "cs",
   "version": "1.0.1",
   "author": "Mughisi",
   "rating": 0,
-  "downloads": 30,
-  "updated": "2015-03-27T20:01:19.000Z",
+  "downloads": 39,
+  "updated": "2015-04-03T19:27:35.000Z",
   "description": "Block the usage of immediate demolish per AuthLevel",
-  "downloadUrl": "resources/immediate-demolish-limiter.848/download?version=4182",
+  "downloadUrl": "plugins/immediate-demolish-limiter.848/download?version=4292",
   "filename": "DemolishLimiter.cs"
 }

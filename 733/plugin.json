@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Glue",
-  "category": "Fun",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.1",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 97,
+  "downloads": 103,
   "updated": "2015-02-07T19:02:00.000Z",
   "description": "Allows you to attach entities to each other",
   "iconUrl": "data/resource_icons/0/733.jpg?1418226826",
-  "downloadUrl": "resources/glue.733/download?version=3620",
+  "downloadUrl": "plugins/glue.733/download?version=3620",
   "filename": "glue.lua"
 }

@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Building Privileges Viewer",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "cs",
   "version": "1.0.0",
   "author": "Reneb",
   "rating": 0,
-  "downloads": 70,
+  "downloads": 79,
   "updated": "2015-02-06T14:55:00.000Z",
   "description": "View building privileges & locations of tool cupboards around you",
-  "downloadUrl": "resources/building-privileges-viewer.809/download?version=3573",
+  "downloadUrl": "plugins/building-privileges-viewer.809/download?version=3573",
   "filename": "BuildingPrivileges.cs"
 }

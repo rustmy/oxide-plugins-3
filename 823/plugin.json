@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Telekinesis",
-  "category": "Fun",
+  "category": "Rust-Experimental",
   "type": "cs",
   "version": "0.4.0",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 273,
+  "downloads": 288,
   "updated": "2015-02-17T20:41:00.000Z",
   "description": "Move objects by thought!",
   "iconUrl": "data/resource_icons/0/823.jpg?1424098830",
-  "downloadUrl": "resources/telekinesis.823/download?version=3824",
+  "downloadUrl": "plugins/telekinesis.823/download?version=3824",
   "filename": "Telekinesis.cs"
 }

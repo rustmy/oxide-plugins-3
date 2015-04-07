@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Logger",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.2.8",
   "author": "Wulfspider",
   "rating": 5,
-  "downloads": 415,
+  "downloads": 427,
   "updated": "2015-02-07T17:14:00.000Z",
   "description": "Logs all chat commands used by players with auth level to the server log and/or chat",
   "iconUrl": "data/resource_icons/0/670.jpg?1413954291",
-  "downloadUrl": "resources/logger.670/download?version=3696",
+  "downloadUrl": "plugins/logger.670/download?version=3696",
   "filename": "0-logger.lua"
 }

@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Running Man",
-  "category": "Fun",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.0",
   "author": "Мизантроп",
   "rating": 5,
-  "downloads": 416,
+  "downloads": 436,
   "updated": "2015-02-09T17:57:00.000Z",
   "description": "Plugin Runnung Man",
   "iconUrl": "data/resource_icons/0/777.jpg?1423379941",
-  "downloadUrl": "resources/running-man.777/download?version=3693",
+  "downloadUrl": "plugins/running-man.777/download?version=3693",
   "filename": "event.lua"
 }

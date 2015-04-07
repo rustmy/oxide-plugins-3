@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Chat Handler",
-  "category": "Chat-Related",
+  "category": "Rust-Experimental",
   "type": "zip",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "author": "Domestos",
   "rating": 5,
-  "downloads": 1029,
-  "updated": "2015-03-22T12:36:00.000Z",
+  "downloads": 1076,
+  "updated": "2015-04-06T14:24:02.000Z",
   "description": "Many features to help moderate the chat",
   "iconUrl": "data/resource_icons/0/707.jpg?1427202218",
-  "downloadUrl": "resources/chat-handler.707/download?version=4109",
-  "filename": "chathandler252.zip"
+  "downloadUrl": "plugins/chat-handler.707/download?version=4351",
+  "filename": "chathandler253.zip"
 }

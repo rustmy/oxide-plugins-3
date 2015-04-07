@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Email API",
-  "category": "Developer-Tools",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.1.3",
   "author": "Wulfspider",
   "rating": 0,
-  "downloads": 42,
+  "downloads": 45,
   "updated": "2015-02-07T17:14:00.000Z",
   "description": "API for sending email messages via supported transactional email services",
   "iconUrl": "data/resource_icons/0/712.jpg?1414955448",
-  "downloadUrl": "resources/email-api.712/download?version=3606",
+  "downloadUrl": "plugins/email-api.712/download?version=3606",
   "filename": "email.lua"
 }

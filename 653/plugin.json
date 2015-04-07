@@ -3,14 +3,14 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Suicide & Kill",
-  "category": "Admin-Tools",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "0.1.2",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 851,
+  "downloads": 877,
   "updated": "2015-02-07T22:55:00.000Z",
   "description": "Suicide chat command & Admin commands to kill a player",
-  "downloadUrl": "resources/suicide-kill.653/download?version=3642",
+  "downloadUrl": "plugins/suicide-kill.653/download?version=3642",
   "filename": "suicide.lua"
 }

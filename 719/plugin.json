@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "Simple Compass",
-  "category": "Informational",
+  "category": "Rust-Experimental",
   "type": "lua",
   "version": "1.0.0",
   "author": "Mughisi",
   "rating": 5,
-  "downloads": 1106,
+  "downloads": 1152,
   "updated": "2014-11-12T19:58:00.000Z",
   "description": "Adds an in-game command to check the direction you're facing.",
   "iconUrl": "data/resource_icons/0/719.jpg?1415821239",
-  "downloadUrl": "resources/simple-compass.719/download?version=2966",
+  "downloadUrl": "plugins/simple-compass.719/download?version=2966",
   "filename": "m-Compass.lua"
 }

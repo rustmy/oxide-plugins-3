@@ -3,15 +3,15 @@
   "compat": "2.0",
   "game": "rust",
   "name": "BlueprintManager",
-  "category": "Mechanics",
+  "category": "Rust-Experimental",
   "type": "cs",
   "version": "1.0.4",
   "author": "Ðie wilde Betty",
   "rating": 5,
-  "downloads": 322,
+  "downloads": 379,
   "updated": "2015-03-22T01:41:00.000Z",
   "description": "Add, AddAll, Reset learned Blueprints",
   "iconUrl": "data/resource_icons/0/833.jpg?1425936359",
-  "downloadUrl": "resources/blueprintmanager.833/download?version=4103",
+  "downloadUrl": "plugins/blueprintmanager.833/download?version=4103",
   "filename": "BlueprintManager.cs"
 }
