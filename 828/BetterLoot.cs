@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterLoot", "playrust.io / dcode", "1.8.3", ResourceId = 828)]
+    [Info("BetterLoot", "playrust.io / dcode", "1.8.4", ResourceId = 828)]
     public class BetterLoot : RustPlugin
     {
 
@@ -89,9 +89,9 @@ namespace Oxide.Plugins
         // Stuff that will never drop as a blueprint (default craftable)
         private List<string> defaultBlueprints = new List<string>() {
             // Building
-            "lock.key", "cupboard.tool", "building_planner", "door_key",
+            "lock.key", "cupboard.tool", "building_planner", "door_key", "sign.wooden.small",
             // Items
-            "campfire", "box_wooden", "sleepingbag", "furnace", "sign.wooden.small",
+            "campfire", "box_wooden", "sleepingbag", "furnace",
             // Resources
             "paper", "lowgradefuel", "gunpowder",
             // Attire
@@ -100,8 +100,6 @@ namespace Oxide.Plugins
             "urban_pants", "urban_boots",
             // Tools
             "hammer", "torch", "stonehatchet", "stone_pickaxe", "box_repair_bench",
-            // Medical
-            "bandage",
             // Weapons
             "spear_wooden", "knife_bone", "bow_hunting", "pistol_eoka",
             // Ammunition
@@ -542,8 +540,8 @@ namespace Oxide.Plugins
                 refreshList.Add(new ContainerToRefresh() { container = container, time = DateTime.UtcNow.AddMinutes(refreshMinutes) });
         }
 
-        [HookMethod("OnEntitySpawn")]
-        private void OnEntitySpawn(BaseNetworkable entity) {
+        [HookMethod("OnEntitySpawned")]
+        private void OnEntitySpawned(BaseNetworkable entity) {
             if (!initialized)
                 return;
             try {
@@ -552,7 +550,7 @@ namespace Oxide.Plugins
                     return;
                 PopulateContainer(container);
             } catch (Exception ex) {
-                Error("OnEntitySpawn failed: " + ex.Message);
+                Error("OnEntitySpawned failed: " + ex.Message);
             }
         }
 

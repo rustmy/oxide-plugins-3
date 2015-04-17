@@ -12,7 +12,7 @@ using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("HumanNPC", "Reneb", "0.1.5", ResourceId = 856)]
+    [Info("HumanNPC", "Reneb", "0.1.7", ResourceId = 856)]
     class HumanNPC : RustPlugin
     {
          
@@ -271,7 +271,6 @@ namespace Oxide.Plugins
                 damageInterval = float.Parse(npc.info.damageInterval);
                 damageAmount = float.Parse(npc.info.damageAmount);
                 speed = float.Parse(npc.info.speed);
-                if (cachedWaypoints == null || cachedWaypoints.Count == 0) enabled = false;
             }
             void FixedUpdate()
             {
@@ -281,7 +280,7 @@ namespace Oxide.Plugins
             {
                 if (npc.player.IsWounded()) return;
                 if(attackEntity != null) MoveOrAttack(attackEntity);
-                else if(secondsTaken == 0f) GetNextPath();
+                else if (secondsTaken == 0f) GetNextPath();
                 if (StartPos != EndPos) Execute_Move();
                 if (waypointDone >= 1f) secondsTaken = 0f;
             }
@@ -299,12 +298,11 @@ namespace Oxide.Plugins
                 if (npc == null) npc = GetComponent<HumanPlayer>();
                 LastPos = Vector3.zero;
                 shouldMove = true;
-                if (cachedWaypoints == null) { enabled = false; return; }
+                if (cachedWaypoints == null) { shouldMove = false; return; }
                 Interface.CallHook("OnNPCPosition", npc.player, npc.player.transform.position); 
                 if (currentWaypoint +1 >= cachedWaypoints.Count)
                     currentWaypoint = -1;
                 currentWaypoint++;
-               
                 SetMovementPoint(npc.player.transform.position, cachedWaypoints[currentWaypoint].GetPosition(), cachedWaypoints[currentWaypoint].GetSpeed());
                 if (npc.player.transform.position == cachedWaypoints[currentWaypoint].GetPosition()) { npc.DisableMove(); npc.Invoke("AllowMove", cachedWaypoints[currentWaypoint].GetSpeed()); return; }
             } 
@@ -320,6 +318,7 @@ namespace Oxide.Plugins
             }
             void MoveOrAttack(BaseEntity entity)
             {
+                
                 c_attackDistance = Vector3.Distance(entity.transform.position, npc.player.transform.position);
                 shouldMove = false;
                 if (((BaseCombatEntity)entity).IsAlive() && c_attackDistance < attackDistance && Vector3.Distance(LastPos, npc.player.transform.position) < maxDistance && noPath < 5)
@@ -343,16 +342,16 @@ namespace Oxide.Plugins
             }
             public void PathFinding()
             {
-                var curtime = Time.realtimeSinceStartup;
                 if (IsInvoking("PathFinding")) { CancelInvoke("PathFinding");}
+                
                 temppathFinding = (List<Vector3>)Interface.CallHook("FindBestPath", npc.player.transform.position, attackEntity.transform.position);
+                
                 if (temppathFinding == null)
                 {
                     if (pathFinding == null || pathFinding.Count == 0)
                         noPath++;
                     else noPath = 0;
-                    Debug.Log(noPath.ToString());
-                    Invoke("PathFinding", 1);
+                    Invoke("PathFinding", 2);
                 }
                 else
                 {
@@ -361,7 +360,6 @@ namespace Oxide.Plugins
                     waypointDone = 0f;
                     Invoke("PathFinding", pathFinding.Count/speed);
                 }
-                Debug.Log((Time.realtimeSinceStartup - curtime).ToString());
             }  
             
             public void GetBackToLastPos()
@@ -441,7 +439,7 @@ namespace Oxide.Plugins
                 if (locomotion.IsInvoking("PathFinding")) locomotion.CancelInvoke("PathFinding");
                 locomotion.noPath = 0;
                 locomotion.shouldMove = true;
-                
+                Debug.Log("end");
                 Interface.CallHook("OnNPCStopTarget", player, locomotion.attackEntity);
                 locomotion.attackEntity = null;
                 player.health = float.Parse(info.health);
@@ -449,14 +447,18 @@ namespace Oxide.Plugins
             }
             public void StartAttackingEntity(BaseEntity entity)
             {
+                
                 if (Interface.CallHook("OnNPCStartTarget", player, entity) == null)
                 {
+                    
                     locomotion.attackEntity = entity;
                     locomotion.pathFinding = null;
                     locomotion.temppathFinding = null;
+                    
                     if (locomotion.LastPos == Vector3.zero) locomotion.LastPos = player.transform.position;
                     if(IsInvoking("AllowMove")) { CancelInvoke("AllowMove"); AllowMove(); }
                     locomotion.Invoke("PathFinding", 0);
+                    
                 }
             }
             void OnDestroy()
@@ -705,8 +707,10 @@ namespace Oxide.Plugins
         //////////////////////////////////////////////////////
         void OnEntityAttacked(BaseCombatEntity entity, HitInfo hitinfo)
         {
+            
             if (entity.GetComponent<HumanPlayer>() != null)
             {
+                
                 Interface.CallHook("OnHitNPC", entity.GetComponent<BaseCombatEntity>(), hitinfo);
                 if (entity.GetComponent<HumanPlayer>().invulnerability)
                 {
@@ -1223,7 +1227,9 @@ namespace Oxide.Plugins
             if (!TryGetPlayerView(player, out currentRot)) return;
             if (!TryGetClosestRayPoint(player.transform.position, currentRot, out closestEnt, out closestHitpoint)) return;
             var npceditor = player.GetComponent<NPCEditor>();
-            Interface.CallHook("FindAndFollowPath", npceditor.targetNPC.player, npceditor.targetNPC.player.transform.position, closestHitpoint);
+            var curtime = Time.realtimeSinceStartup;
+            List<Vector3> vector3list = (List<Vector3>)Interface.CallHook("FindBestPath", npceditor.targetNPC.player.transform.position, closestHitpoint);
+            Debug.Log((Time.realtimeSinceStartup - curtime).ToString());
         }
         [ChatCommand("npc_remove")]
         void cmdChatNPCRemove(BasePlayer player, string command, string[] args)
@@ -1375,6 +1381,7 @@ namespace Oxide.Plugins
         //////////////////////////////////////////////////////
         void OnHitNPC(BasePlayer npc, HitInfo hinfo)
         {
+            
             npc.GetComponent<HumanPlayer>().StartAttackingEntity(hinfo.Initiator);
             if (npc.GetComponent<HumanPlayer>().info.message_hurt != null && npc.GetComponent<HumanPlayer>().info.message_hurt.Count != 0)
                 if (hinfo.Initiator != null)

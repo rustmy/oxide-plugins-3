@@ -226,7 +226,7 @@ namespace Oxide.Plugins
             }
             RemoveListNUM.Clear();
         }
-        void OnEntitySpawn(BaseEntity entity)
+        void OnEntitySpawned(BaseEntity entity)
         {
             if(entity != null)
             {
@@ -268,7 +268,7 @@ namespace Oxide.Plugins
         {
             if (arg.connection != null)
             {
-                if (arg.connection.authLevel < 1)
+                if (arg.connection.authLevel < 2)
                 {
                     SendReply(arg, "You are not allowed to use this command");
                     return;
@@ -314,7 +314,7 @@ namespace Oxide.Plugins
                 SendReply(arg, "You must give coordinates of destination ex: airdrop.topos 124 200 -453");
                 return;
             }
-            AllowNextDrop();
+            AllowNextDrop(); 
             BaseEntity entity = GameManager.server.CreateEntity("events/cargo_plane", new Vector3(), new Quaternion());
             if (entity != null)
             {
@@ -332,7 +332,7 @@ namespace Oxide.Plugins
         {
             if (arg.connection != null)
             {
-                if (arg.connection.authLevel < 1)
+                if (arg.connection.authLevel < 2)
                 {
                     SendReply(arg, "You are not allowed to use this command");
                     return;

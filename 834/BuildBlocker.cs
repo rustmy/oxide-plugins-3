@@ -3,7 +3,7 @@ using System;
 
 namespace Oxide.Plugins
 {
-    [Info("BuildBlocker", "Bombardir", "1.2.1" )]
+    [Info("BuildBlocker", "Bombardir", "1.2.5" )]
     class BuildBlocker : RustPlugin
     {
         #region Config
@@ -14,6 +14,7 @@ namespace Oxide.Plugins
         private static bool InWarehouse = true;
         private static bool InMetalBuilding = true;
         private static bool InHangar = true;
+        private static bool InTank = true;
         private static bool InBase = true;
         private static bool UnTerrain = true;
         private static bool UnBridge = false;
@@ -51,6 +52,7 @@ namespace Oxide.Plugins
             CheckCfg<bool>("Block In Metal Building", ref InMetalBuilding);
             CheckCfg<bool>("Block In Hangar", ref InHangar);
             CheckCfg<bool>("Block Under Terrain", ref UnTerrain);
+            CheckCfg<bool>("Block Under|On Metal Sphere", ref InTank);
             CheckCfg<bool>("Block Under|On Bridge", ref UnBridge);
             CheckCfg<bool>("Block Under|On Radar", ref UnRadio);
             CheckCfg<bool>("Block Horizontal Signs on other Signs", ref BlockHorizontalSigns);
@@ -73,7 +75,6 @@ namespace Oxide.Plugins
         {
             if (StartBlock && sender.net.connection.authLevel < AuthLVL && !StartBlock.isDestroyed)
             {
-
                 Vector3 Pos = StartBlock.transform.position;
                 if (StartBlock.name == "foundation.steps(Clone)")
                     Pos.y += 1.3f;
@@ -98,7 +99,7 @@ namespace Oxide.Plugins
                 if (BlockHorizontalSigns && StartBlock.GetComponent<Signage>())
                 {
                     Vector3 euler = StartBlock.transform.rotation.eulerAngles;
-                    if (euler.y == 0 && euler.z == 0)
+                    if (euler.z == 0)
                     {
                         SendReply(sender, MsgSign);
                         StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);
@@ -121,8 +122,9 @@ namespace Oxide.Plugins
                             UnBridge && ColName == "Bridge_top" || 
                             UnRadio && ColName.StartsWith("dish") || 
                             InWarehouse && ColName.StartsWith("Warehouse") || 
-                            InHangar && ColName.StartsWith("Hangar") || 
-                            ColName.StartsWith("rock") && (hit.point.y < Pos.y ? OnRock : hit.collider.bounds.Contains(Pos) ? InRock : InCave))
+                            InHangar && ColName.StartsWith("Hangar") ||
+                            InTank && ColName == "howie_spheretank_blockin" ||
+                            ColName == "COL" && (hit.point.y < Pos.y ? OnRock : hit.collider.bounds.Contains(Pos) ? InRock : InCave))
                         {
                             SendReply(sender, Msg);
                             StartBlock.Kill(BaseNetworkable.DestroyMode.Gib);

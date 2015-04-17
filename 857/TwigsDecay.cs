@@ -6,10 +6,11 @@ using Oxide.Core.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("TwigsDecay", "playrust.io / dcode", "1.2.2", ResourceId = 857)]
+    [Info("TwigsDecay", "playrust.io / dcode", "1.3.0", ResourceId = 857)]
     public class TwigsDecay : RustPlugin
     {
         private Dictionary<string, int> damage = new Dictionary<string, int>();
@@ -31,30 +32,32 @@ namespace Oxide.Plugins
         private Dictionary<string, string> messages = new Dictionary<string, string>();
 
         protected override void LoadDefaultConfig() {
-            var damage = new Dictionary<string, object>();
-            damage.Add("Twigs", 1);
-            damage.Add("Wood", 0);
-            damage.Add("Stone", 0);
-            damage.Add("Metal", 0);
-            damage.Add("TopTier", 0);
+            var damage = new Dictionary<string, object>() {
+                {"Twigs", 1},
+                {"Wood", 0},
+                {"Stone", 0},
+                {"Metal", 0},
+                {"TopTier", 0}
+            };
             Config["damage"] = damage;
             Config["timespan"] = 288;
-            var blocks = new List<object>();
-            blocks.Add("block.halfheight");
-            blocks.Add("block.halfheight.slanted"); // stairs
-            blocks.Add("floor");
-            blocks.Add("floor.triangle");
-            blocks.Add("foundation");
-            blocks.Add("foundation.steps");
-            blocks.Add("foundation.triangle");
-            // blocks.Add("pillar");
-            blocks.Add("roof");
-            blocks.Add("wall");
-            blocks.Add("wall.doorway");
-            // blocks.Add("door.hinged");
-            blocks.Add("wall.low");
-            blocks.Add("wall.window");
-            blocks.Add("wall.window.bars");
+            var blocks = new List<object>() {
+                "block.halfheight",
+                /* stairs */ "block.halfheight.slanted",
+                "floor",
+                "floor.triangle",
+                "foundation",
+                "foundation.steps",
+                "foundation.triangle",
+                // "pillar",
+                "roof",
+                "wall",
+                "wall.doorway",
+                // "door.hinged",
+                "wall.low",
+                "wall.window",
+                "wall.window.bars"
+            };
             Config["blocks"] = blocks;
             var messages = new Dictionary<string, object>();
             foreach (var text in texts) {
@@ -96,35 +99,46 @@ namespace Oxide.Plugins
             if (!initialized)
                 return;
             var now = DateTime.Now;
-            if (lastUpdate < now.AddMinutes(-timespan)) {
-                lastUpdate = now;
-                int n = 0;
-                int m = 0;
-                var allBlocks = UnityEngine.Object.FindObjectsOfType<BuildingBlock>();
-                foreach (var block in allBlocks) {
-                    string grade;
-                    string name;
-                    try {
-                        grade = block.grade.ToString();
-                        name = block.blockDefinition.fullName.Substring(6); // "build/foundation"
-                    } catch (Exception) {
-                        continue;
-                    }
-                    if (!blocks.Contains(name))
-                        continue;
-                    int amount;
-                    if (damage.TryGetValue(grade, out amount) && amount > 0) {
-                        if (block.health <= amount) {
-                            block.Kill(BaseNetworkable.DestroyMode.Gib);
-                            ++n;
-                        } else {
-                            block.health -= amount;
-                            ++m;
-                        }
+            if (lastUpdate > now.AddMinutes(-timespan))
+                return;
+            lastUpdate = now;
+            int n = 0;
+            int m = 0;
+            var allBlocks = UnityEngine.Object.FindObjectsOfType<BuildingBlock>();
+            foreach (var block in allBlocks) {
+                string grade;
+                string name;
+                try {
+                    grade = block.grade.ToString();
+                    name = block.blockDefinition.fullName.Substring(6); // "build/foundation"
+                } catch (Exception) {
+                    continue;
+                }
+                if (!blocks.Contains(name))
+                    continue;
+                int amount;
+                if (damage.TryGetValue(grade, out amount) && amount > 0) {
+                    if (block.health <= amount) {
+                        block.Kill(BaseNetworkable.DestroyMode.Gib);
+                        ++n;
+                    } else {
+                        block.health -= amount;
+                        ++m;
                     }
                 }
-                Puts("{0}: {1}", Title, "Decayed " + m + " blocks, destroyed " + n + " blocks");
             }
+            Puts("{0}: {1}", Title, "Decayed " + m + " blocks, destroyed " + n + " blocks");
+        }
+
+        // Disable default decay
+        [HookMethod("OnBaseCombatEntityHurt")]
+        private object OnBaseCombatEntityHurt(BaseCombatEntity entity, HitInfo info) {
+            if (!(entity is BuildingBlock))
+                return null;
+            if (!info.damageTypes.Has(DamageType.Decay))
+                return null;
+            info.damageTypes.types = new float[0];
+            return false;
         }
 
         [HookMethod("SendHelpText")]
@@ -146,20 +160,6 @@ namespace Oxide.Plugins
             player.ChatMessage(sb.ToString().TrimEnd());
         }
 
-        /* [ChatCommand("updatestability")]
-        private void cmdChatUpdateStability(BasePlayer player, string command, string[] args) {
-            if (!ServerUsers.Is(player.userID, ServerUsers.UserGroup.Owner))
-                return;
-            var allBlocks = UnityEngine.Object.FindObjectsOfType<BuildingBlock>();
-            foreach (var block in allBlocks) {
-                block.UpdateSupports(true);
-            }
-            foreach (var block in allBlocks) {
-                block.StabilityCheck();
-            }
-            SendReply(player, "Updated stability");
-        } */
-
         // Translates a string
         private string _(string text, Dictionary<string, string> replacements = null) {
             if (messages.ContainsKey(text) && messages[text] != null)
@@ -169,5 +169,6 @@ namespace Oxide.Plugins
                     text = text.Replace("%" + replacement.Key + "%", replacement.Value);
             return text;
         }
+
     }
 }

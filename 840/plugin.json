@@ -5,13 +5,13 @@
   "name": "Rust:IO FriendlyFire",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "author": "dcode",
   "rating": 5,
-  "downloads": 296,
-  "updated": "2015-03-30T15:27:00.000Z",
+  "downloads": 357,
+  "updated": "2015-04-11T13:02:01.000Z",
   "description": "Disables friendly fire for Rust:IO friends",
   "iconUrl": "data/resource_icons/0/840.jpg?1427124405",
-  "downloadUrl": "plugins/rust-io-friendlyfire.840/download?version=4234",
+  "downloadUrl": "plugins/rust-io-friendlyfire.840/download?version=4440",
   "filename": "FriendlyFire.cs"
 }

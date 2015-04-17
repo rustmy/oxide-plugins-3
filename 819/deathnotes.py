@@ -2,17 +2,20 @@
 # CAUSES
 # ==============================================================================
 # STAB      = KNIFES / SPEARS / PICKAXES / ARROW / ICEPICK / BEAR TRAP
-# SLASH     = SALVAGE AXE / HATCHETS
+# SLASH     = SALVAGE AXE / HATCHETS / BARRICADES
 # BLUNT     = TORCH / ROCK / SALVAGE HAMMER
 # BITE      = ANIMALS
 # BULLET    = GUNS
-# EXPLOSION = C4
+# EXPLOSION = C4 / GRENADES
 # ==============================================================================
 # METABOLISM
 # ==============================================================================
-# FALL   | DROWNED | POISON
-# COLD   | HEAT    | RADIATION LEVEL/POISON
-# HUNGER | THIRST  | BLEEDING
+# FALL   | DROWNED | POISON | COLD   | HEAT    | RADIATION LEVEL/POISON
+# HUNGER | THIRST  | BLEEDING |
+# ==============================================================================
+# ANIMALS
+# ==============================================================================
+# HORSE | WOLF | BEAR | BOAR | STAG (Deer) | CHICKEN
 # ==============================================================================
 
 import re
@@ -24,7 +27,7 @@ from UnityEngine import Vector3
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.0
+LATEST_CFG = 3.2
 LINE = '-' * 50
 
 class deathnotes:
@@ -37,9 +40,8 @@ class deathnotes:
         # PLUGIN INFO
         self.Title = 'Death Notes'
         self.Author = 'SkinN'
-        self.Description = 'Broadcasts players deaths to chat.'
-        self.Version = V(2, 3, 0)
-        self.HasConfig = True
+        self.Description = 'Broadcasts players and animals deaths to chat'
+        self.Version = V(2, 4, 3)
         self.ResourceId = 819
 
     # ==========================================================================
@@ -57,6 +59,7 @@ class deathnotes:
                 'SHOW METABOLISM DEATH': True,
                 'SHOW EXPLOSION DEATH': True,
                 'SHOW TRAP DEATH': True,
+                'SHOW BARRICADE DEATH': True,
                 'SHOW ANIMAL DEATH': True,
                 'SHOW PLAYER KILL': True,
                 'SHOW ANIMAL KILL': True,
@@ -82,10 +85,11 @@ class deathnotes:
                 'HEAT': ('{victim} burned to death.','{victim} turned into a human torch.'),
                 'FALL': ('{victim} died from a big fall.','{victim} believed he could fly, he believed he could touch the sky!'),
                 'BLEEDING': ('{victim} bled to death.','{victim} emptied in blood.'),
-                'EXPLOSION': ('{victim} blown up by C4.','{victim} exploded.'),
+                'EXPLOSION': ('{victim} exploded into a million little pieces.','{victim} was a sexy bomb, died from a sexy explosion.'),
                 'POISON': ('{victim} died poisoned.','{victim} eat the wrong meat and died poisoned.'),
                 'SUICIDE': ('{victim} committed suicide.','{victim} has put an end to his life.'),
                 'TRAP': ('{victim} stepped on a snap trap.','{victim} did not watch his steps, died on a trap.'),
+                'BARRICADE': ('{victim} died stuck in a barricade.','{victim} trapped into a barricade.'),
                 'STAB': ('{attacker} stabbed {victim} to death. (With {weapon}, in the {bodypart})','{attacker} stabbed a {weapon} in {victim}\'s {bodypart}.'),
                 'STAB SLEEP': ('{attacker} stabbed {victim} to death, while sleeping. (With {weapon}, in the {bodypart})','{attacker} stabbed {victim}, while sleeping. You sneaky little bastard.'),
                 'SLASH': ('{attacker} slashed {victim} into pieces. (With {weapon}, in the {bodypart})','{attacker} has sliced {victim} into a million little pieces.'),
@@ -98,7 +102,7 @@ class deathnotes:
                 'ARROW SLEEP': ('{attacker} killed {victim} with an arrow on the {bodypart}, while {victim} was asleep.','{attacker} killed {victim} with a {weapon}, while sleeping.'),
                 'ANIMAL KILL': ('{victim} killed by a {animal}.','{victim} wasn\'t fast enough and a {animal} caught him.'),
                 'ANIMAL KILL SLEEP': ('{victim} killed by a {animal}, while sleeping.','{animal} caught {victim}, while sleeping.'),
-                'ANIMAL DEATH': ('{attacker} killed a {animal}. (In the {bodypart} with {weapon}, from {distance}m)')
+                'ANIMAL DEATH': ('{attacker} killed a {animal}. (In the {bodypart} with {weapon}, from {distance}m)',)
             },
             'BODYPARTS': {
                 'SPINE': 'Spine',
@@ -141,7 +145,7 @@ class deathnotes:
                 'ROCK': 'Rock',
                 'HATCHET': 'Hatchet',
                 'PICKAXE': 'Pickaxe',
-                'BOLT': 'Bolt Rifle',
+                'BOLTRIFLE': 'Bolt Rifle',
                 'SALVAGED HAMMER': 'Salvaged Hammer',
                 'SAWNOFFSHOTGUN': 'Sawn-off Shotgun',
                 'SALVAGED AXE': 'Salvaged Axe',
@@ -159,7 +163,8 @@ class deathnotes:
                 'CHICKEN': 'Chicken',
                 'WOLF': 'Wolf',
                 'BEAR': 'Bear',
-                'BOAR': 'Boar'
+                'BOAR': 'Boar',
+                'HORSE': 'Horse'
             }
         }
 
@@ -181,12 +186,13 @@ class deathnotes:
 
         else:
 
-            self.console('Applying changes of the new configuration file version', True)
+            self.console('Applying new changes to the configuration file (Version: %s)' % LATEST_CFG, True)
 
             # NEW VERSION VALUE
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
             # NEW CHANGES
+            self.Config['ANIMALS']['HORSE'] = 'Horse'
 
         # SAVE CHANGES
         self.SaveConfig()
@@ -210,7 +216,8 @@ class deathnotes:
         # PLUGIN SPECIFIC
         self.prefix = '<color=%s>%s</color>' % (COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
         self.title = '<color=red>%s</color>' % self.Title.upper()
-        self.metabolism = ('DROWNED','HEAT','COLD','THIRST','POISON','HUNGER','RADIATION','BLEEDING','FALL','GENERIC')
+        self.metabolism = ('DROWNED','HEAT','COLD','THIRST','POISON','HUNGER','RADIATION','BLEEDING','FALL')
+        self.fallcache = []
 
         # COMMANDS
         command.AddChatCommand(self.Title.replace(' ', '').lower(), self.Plugin, 'plugin_CMD')
@@ -279,14 +286,25 @@ class deathnotes:
     # ==========================================================================
     # <>> MAIN HOOKS
     # ==========================================================================
+    def OnEntityTakeDamage(self, victim, hitinfo):
+
+        if victim.ToPlayer() and str(victim.lastDamage).upper() == 'FALL':
+
+            sid = rust.UserIDFromPlayer(victim)
+
+            if sid not in self.fallcache:
+
+                self.fallcache.append(sid)
+
+    # --------------------------------------------------------------------------
     def OnEntityDeath(self, victim, hitinfo):
 
         if any(x in str(victim) for x in ('BasePlayer','BaseNPC')):
 
             # DEATH INFO
             text = None
-            death = str(victim.lastDamage).upper()
             attacker = hitinfo.Initiator
+            death = str(victim.lastDamage).upper()
 
             # VICTIM AND ATTACKER POS
             vpos = victim.transform.position
@@ -303,7 +321,7 @@ class deathnotes:
 
             # WEAPON USED
             if hitinfo.Weapon:
-                x = hitinfo.Weapon.LookupShortPrefabName().replace('_wm', '').replace('_', ' ').upper()
+                x = str(hitinfo.Weapon.LookupShortPrefabName()).upper().replace('.WEAPON', '').replace('_', ' ')
                 weapon = self.Config['WEAPONS'][x] if x in self.Config['WEAPONS'] else 'None'
             else:
                 weapon = 'None'
@@ -318,44 +336,63 @@ class deathnotes:
                           'eye', 'group', 'head', 'clavicle'):
                     if x in part:
                         part = x
-                part = part.replace('_', ' ').upper()
+                part = part.replace('_', ' ').title()
             else: part = None
             bodypart = self.Config['BODYPARTS'][part] if part in self.Config['BODYPARTS'] else part
+
+            #self.console(LINE)
+            #self.console('TYPE: %s' % death)
+            #self.console('VICTIM: %s' % victim)
+            #self.console('ATTACKER: %s' % attacker)
+            #self.console('ANIMAL: %s' % animal)
+            #self.console('WEAPON: %s' % weapon)
+            #self.console('BODY PART: %s' % bodypart)
+            #self.console(LINE)
 
             # DEATH TYPE MESSAGE
             if 'Player' in str(victim):
 
-                if victim == attacker:
+                # CHECK IF FALL
+                sid = rust.UserIDFromPlayer(victim)
 
-                    if (death == 'SUICIDE' and PLUGIN['SHOW SUICIDES']) or (death in self.metabolism and PLUGIN['SHOW METABOLISM DEATH']):
+                if death == 'BLEEDING' and sid in self.fallcache:
 
-                        text = death
+                    self.fallcache.remove(sid)
 
-                else:
+                    death = 'FALL'
 
-                    sleep = victim.IsSleeping()
+                # IS PLAYER SLEEPING?
+                sleep = victim.IsSleeping()
 
-                    if death == 'BITE' and PLUGIN['SHOW ANIMAL KILL']:
+                if (death == 'SUICIDE' and PLUGIN['SHOW SUICIDES']) or (death in self.metabolism and PLUGIN['SHOW METABOLISM DEATH']):
 
-                        text = 'ANIMAL KILL' if not sleep else 'ANIMAL KILL SLEEP'
+                    text = death
 
-                    if death == 'EXPLOSION' and PLUGIN['SHOW EXPLOSION DEATH']:
+                if death == 'BITE' and PLUGIN['SHOW ANIMAL KILL']:
 
-                        text = death
+                    text = 'ANIMAL KILL' if not sleep else 'ANIMAL KILL SLEEP'
 
-                    if 'BearTrap' in str(attacker) and PLUGIN['SHOW TRAP DEATH']:
+                if death == 'EXPLOSION' and PLUGIN['SHOW EXPLOSION DEATH']:
 
-                        text = 'TRAP'
+                    text = death
 
-                    elif death in ('SLASH', 'BLUNT', 'STAB', 'BULLET') and PLUGIN['SHOW PLAYER KILL']:
+                if 'BearTrap' in str(attacker) and PLUGIN['SHOW TRAP DEATH']:
 
-                        if weapon == 'Hunting Bow':
+                    text = 'TRAP'
 
-                            text = 'ARROW' if not sleep else 'ARROW SLEEP'
+                elif 'Barricade' in str(attacker) and PLUGIN['SHOW BARRICADE DEATH']:
 
-                        elif death in MSG:
+                    text = 'BARRICADE'
 
-                            text = death if not sleep else '%s SLEEP' % death
+                elif death in ('SLASH', 'BLUNT', 'STAB', 'BULLET') and PLUGIN['SHOW PLAYER KILL']:
+
+                    if weapon == 'Hunting Bow':
+
+                        text = 'ARROW' if not sleep else 'ARROW SLEEP'
+
+                    elif death in MSG:
+
+                        text = death if not sleep else '%s SLEEP' % death
 
             elif 'BaseNPC' in str(victim) and attacker.ToPlayer() and PLUGIN['SHOW ANIMAL DEATH']:
 
@@ -390,7 +427,9 @@ class deathnotes:
                 d['distance'] = '<color=%s>%.2f</color>' % (COLOR['DISTANCE'], self.get_distance(vpos, apos))
                 r['distance'] = '%.2f' % self.get_distance(vpos, apos)
 
-                self.say_filter(text.format(**d), text.format(**r), vpos, attacker)
+                if isinstance(text, str):
+
+                    self.say_filter(text.format(**d), text.format(**r), vpos, attacker)
 
     # ==========================================================================
     # <>> SIDE FUNTIONS

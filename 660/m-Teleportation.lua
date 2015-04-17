@@ -1,9 +1,9 @@
-﻿
+
 -- ----------------------------------------------------------------------------
--- Teleportation System                                          Version 1.4.10
+-- Teleportation System                                          Version 1.4.13
 -- ----------------------------------------------------------------------------
 -- Filename:          m-Teleportation.lua
--- Last Modification: 02-09-2015
+-- Last Modification: 04-17-2015
 -- ----------------------------------------------------------------------------
 -- Description:
 --
@@ -14,7 +14,7 @@
 
 PLUGIN.Title       = "Teleportation System"
 PLUGIN.Description = "Multiple teleportation systems for admins and players."
-PLUGIN.Version     = V( 1, 4, 10 )
+PLUGIN.Version     = V( 1, 4, 13)
 PLUGIN.HasConfig   = true
 PLUGIN.Author      = "Mughisi"
 PLUGIN.ResourceId  = 660
@@ -57,7 +57,7 @@ function PLUGIN:Init()
     command.AddChatCommand( "removehome", self.Plugin, "cmdRemoveHome" )
     command.AddChatCommand( "home",       self.Plugin, "cmdTeleportHome" )
     command.AddChatCommand( "listhomes",  self.Plugin, "cmdListHomes" )
-    
+
     -- Add the chat commands for the TPR System:
     command.AddChatCommand( "tpr", self.Plugin, "cmdTeleportRequest" )
     command.AddChatCommand( "tpa", self.Plugin, "cmdTeleportAccept" )
@@ -76,16 +76,8 @@ function PLUGIN:Init()
     -- Load the teleport datatable file.
     self:LoadSavedData()
 
-    -- Loop through all the online player positions to make sure that none
-    -- of them are bugged after reloading the plugin.
-    local itPlayerList = global.BasePlayer.activePlayerList:GetEnumerator()
-    
-    while itPlayerList:MoveNext() do
-        local positionBug = itPlayerList.Current.transform.position
-    end
-
     -- Check if the configuration file is up to date.
-    if self.Config.Settings.ConfigVersion ~= "1.4.9" then
+    if self.Config.Settings.ConfigVersion ~= "1.4.13" then
         -- The configuration file needs an update.
         self:UpdateConfig()
     end
@@ -149,7 +141,7 @@ function PLUGIN:LoadDefaultConfig()
     -- General Settings:
     self.Config.Settings = {
         ChatName          = "Teleportation",
-        ConfigVersion     = "1.4.9",
+        ConfigVersion     = "1.4.13",
         HomesEnabled      = true,
         TPREnabled        = true,
         InterruptTPOnHurt = true
@@ -544,6 +536,22 @@ function PLUGIN:UpdateConfig()
 
         -- Send a console message to notify the server owner of this change.
         print( "m-Teleportation: Your config file was updated to config version 1.4.9, version indication was updated!" )
+    end
+    
+    if self.Config.Settings.ConfigVersion == "1.4.9" then
+        -- Change the config version.
+        self.Config.Settings.ConfigVersion = "1.4.12"
+
+        -- Send a console message to notify the server owner of this change.
+        print( "m-Teleportation: Your config file was updated to config version 1.4.12, version indication was updated!" )
+    end
+    
+    if self.Config.Settings.ConfigVersion == "1.4.12" then
+        -- Change the config version.
+        self.Config.Settings.ConfigVersion = "1.4.13"
+
+        -- Send a console message to notify the server owner of this change.
+        print( "m-Teleportation: Your config file was updated to config version 1.4.13, version indication was updated!" )
     end
 
     -- Save the config.
@@ -1228,7 +1236,7 @@ function PLUGIN:cmdSetHome( player, cmd, args )
     if not canTeleport then
         -- The player isn't allowed to teleport right now, send him a message
         -- from the plugin that is blocking the teleport and cancel the
-        -- teleport proces.
+        -- teleport process.
         self:SendMessage( player, err )
 
         return
@@ -1608,7 +1616,7 @@ function PLUGIN:cmdTeleportHome( player, cmd, args )
                     TeleportTimers[playerID].timer        = timer.Once ( self.Config.Homes.Countdown, 
                         function()
                             -- Teleport the player to his home location.
-                            self:TeleportToPosition( player, locationCoordinates.x, locationCoordinates.y, locationCoordinates.z )
+                            self:TeleportToPosition( player, locationCoordinates.x, locationCoordinates.y + 1, locationCoordinates.z )
                             
                             -- Modify the teleport amount and last teleport
                             -- timestamp.
@@ -1752,7 +1760,7 @@ function PLUGIN:cmdTeleportRequest( player, cmd, args )
             -- to the player.
             self:SendMessage( player, self.Config.Messages.CantTeleportToSelf )
             
-            --return
+            return
         end
 
         -- Grab the Steam ID of both players.
@@ -1922,12 +1930,12 @@ function PLUGIN:cmdTeleportAccept( player, cmd, args )
 
                             break
                         end
-					end
+                    end
 
                     -- Check if the hit is a deployed item.
                     if it.Current.collider:GetComponentInParent( global.BuildingBlock._type ) then
                         local buildingBlock = it.Current.collider:GetComponentInParent( global.BuildingBlock._type )
-						
+                        
                         if buildingBlock.name:find( "floor", 1, true ) then
                             -- The deployed item is a ceiling, set the boolean 
                             -- `ceiling` to true
@@ -2339,7 +2347,7 @@ end
 -- (BasePlayer or BaseNPC) is attacked. This hook is used to interrupt
 -- a teleport when a player takes damage.
 -- ----------------------------------------------------------------------------
-function PLUGIN:OnEntityAttacked( entity, hitinfo )
+function PLUGIN:OnEntityTakeDamage( entity, hitinfo )
     -- Check if the entity taking damage is a player.
     if entity:ToPlayer() then
         -- The entity taking damage is a player, grab his/her Steam ID.
@@ -2550,13 +2558,10 @@ function PLUGIN:Teleport( player, destination )
     -- Let the player sleep to prevent the player from falling through objects.
     player:StartSleeping()
 
-    -- Change the player's position.
-    rust.ForcePlayerPosition( player, destination.x, destination.y, destination.z )
-    
-    -- Set the player flag to receiving snapshots and update the player.
-    player:SetPlayerFlag( global["BasePlayer+PlayerFlags"].ReceivingSnapshot, true )
-    player:UpdateNetworkGroup()
-    player:SendFullSnapshot()
+    timer.Once(0.5, function()
+        player.transform.position = destination
+        player:ClientRPC(nil, player, "ForcePositionTo", destination)
+    end )
 end
 
 -- ----------------------------------------------------------------------------
@@ -2696,7 +2701,7 @@ function PLUGIN:CheckPosition( position, player )
     local arr = util.TableToArray( { position, 2 } )
     util.ConvertAndSetOnArray( arr, 1, 2, System.Int32._type )
     local hits = OverlapSphere:Invoke( nil, arr )
-	
+    
     -- Setup some variables to use to iterate over the collider hits.
     local colliderIterator = hits:GetEnumerator()
     local colliderDistance = 5
@@ -2725,7 +2730,7 @@ function PLUGIN:CheckPosition( position, player )
             end
         end
     end
-	
+    
     -- If a BuildingBlock was found within the specified radius we need to push
     -- the player back.
     if buildingBlock then
@@ -2761,12 +2766,12 @@ function PLUGIN:CheckPosition( position, player )
         end
         
         -- Return a new location a bit further away from the wall, at the 
-		-- same height.
+        -- same height.
         if position.y - location.y > 2.5 then
             location.y = position.y
         end
         
-		return location
+        return location
     end
 
     return position
@@ -2789,36 +2794,6 @@ function PLUGIN:GetOwner( buildingBlock )
 
     -- Return the owner id.
     return ownerID
-end
-
--- ----------------------------------------------------------------------------
--- PLUGIN:OnRunCommand( arg )
--- ----------------------------------------------------------------------------
--- OnRunCommand hook, triggers when a player runs a console command. Currently 
--- using this to avoid the current problem with player.transform.position. 
--- Appearantly the first time that you request this value it returns a table 
--- instead of a Vector3 so we request a player's position when he wakes up.
--- ----------------------------------------------------------------------------
-function PLUGIN:OnRunCommand( arg )
-    -- Check if the command is being send from an in-game player.
-    if ( not arg ) then return end
-    if ( not arg.cmd ) then return end
-    if ( not arg.cmd.name ) then return end
-    if ( not arg.connection ) then return end
-    if ( not arg.connection.player ) then return end
-
-    -- Check if the wakeup command was used.
-    if arg.cmd.name == "wakeup" then
-        -- Grab the player running the command.
-        local player = arg.connection.player
-
-        -- Get the player his current position twice.
-        position = player.transform.position
-        position = player.transform.position
-
-        -- Send an inventory update.
-        player.inventory:SendSnapshot()
-    end	
 end
 
 -- ----------------------------------------------------------------------------

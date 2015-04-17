@@ -9,7 +9,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Build", "Reneb", "1.0.6")]
+    [Info("Build", "Reneb", "1.0.7")]
     class Build : RustPlugin
     { 
         class BuildPlayer : MonoBehaviour
@@ -465,7 +465,6 @@ namespace Oxide.Plugins
                 block.health = block.MaxHealth();
             else
                 block.health = health;
-            Debug.Log(block.MaxHealth().ToString());
             block.SendNetworkUpdate(BasePlayer.NetworkQueue.Update);
             
         }

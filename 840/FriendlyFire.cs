@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("FriendlyFire", "playrust.io / dcode", "1.3.2", ResourceId = 840)]
+    [Info("FriendlyFire", "playrust.io / dcode", "1.3.3", ResourceId = 840)]
     public class FriendlyFire : RustPlugin
     {
 
@@ -134,8 +134,8 @@ namespace Oxide.Plugins
             RestoreDefaults(player);
         }
 
-        [HookMethod("OnEntityAttacked")]
-        object OnEntityAttacked(MonoBehaviour entity, HitInfo hit) {
+        [HookMethod("OnEntityTakeDamage")]
+        object OnEntityTakeDamage(BaseCombatEntity entity, HitInfo hit) {
             try {
                 if (lib == null || !(entity is BasePlayer) || !(hit.Initiator is BasePlayer) || (entity == hit.Initiator))
                     return null;
@@ -151,6 +151,7 @@ namespace Oxide.Plugins
                         attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map or type: <color=\"#ffd479\">/ff on</color>", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
                         notificationTimes[key] = now;
                     }
+                    hit.damageTypes.types = new float[0];
                     return false;
                 }
             } catch (Exception ex) {

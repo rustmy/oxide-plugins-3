@@ -5,13 +5,13 @@
   "name": "Kits",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "2.0.4",
-  "author": "Mughisi",
+  "version": "2.0.7",
+  "author": "Reneb",
   "rating": 5,
-  "downloads": 3834,
-  "updated": "2015-03-28T11:55:00.000Z",
+  "downloads": 4044,
+  "updated": "2015-04-14T19:22:50.000Z",
   "description": "Kits",
   "iconUrl": "data/resource_icons/0/668.jpg?1415910251",
-  "downloadUrl": "plugins/kits.668/download?version=4193",
+  "downloadUrl": "plugins/kits.668/download?version=4488",
   "filename": "Kits.cs"
 }

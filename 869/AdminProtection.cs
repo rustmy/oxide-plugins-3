@@ -11,8 +11,8 @@ using System.Text;
 
 namespace Oxide.Plugins
 {
-    [Info("AdminProtection", "4seti [aka Lunatiq] for Rust Planet", "0.3.1", ResourceId = 869)]
-	public class AdminProtection : RustPlugin
+    [Info("AdminProtection", "4seti [aka Lunatiq] for Rust Planet", "0.5.0", ResourceId = 869)]
+    public class AdminProtection : RustPlugin
     {
         #region Utility Methods
 
@@ -33,9 +33,10 @@ namespace Oxide.Plugins
 
         #endregion
 
+        static FieldInfo developerIDs = typeof(DeveloperList).GetField("developerIDs", (BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static));
         private Dictionary<string, ProtectionStatus> protData;
         private Dictionary<string, DateTime> antiSpam;
-        private Dictionary<string, string> APHelper = new Dictionary<string,string>();
+        private Dictionary<string, string> APHelper = new Dictionary<string, string>();
 
         Dictionary<string, string> defMsg = new Dictionary<string, string>()
                 {
@@ -55,11 +56,12 @@ namespace Oxide.Plugins
                     {"LootMessageLog",  "{0} - is trying to loot admin - {1}"},
 					{"APListByAdmin",  "<color=#007BFF>{0}</color>[{1}], Mode: <color=#FFBF00>{2}</color>, Enabled By: <color=#81F23F>{3}</color>"},
 					{"APListAdmin",  "<color=#81F23F>{0}</color>[{1}], Mode: <color=#FFBF00>{2}</color>"},
-					{"APListHeader",  "<color=#81F23F>List of active AdminProtections</color>"}
+					{"APListHeader",  "<color=#81F23F>List of active AdminProtections</color>"},
+		            {"Reviving",  "<color=#81F23F>Sorry for your death, Reviving!</color>"}		
                 };
 
         void Loaded()
-        {            
+        {
             Log("Loaded");
             LoadData();
             SaveData();
@@ -78,8 +80,8 @@ namespace Oxide.Plugins
             Config["messages"] = defMsg;
             Config["version"] = Version;
         }
-        
-        
+
+
 
 
         // Gets a config value of a specific type
@@ -89,6 +91,7 @@ namespace Oxide.Plugins
                 return defaultValue;
             return (T)Convert.ChangeType(Config[name], typeof(T));
         }
+        private static LayerMask corpseLayerMask;
 
         [HookMethod("OnServerInitialized")]
         void OnServerInitialized()
@@ -96,6 +99,7 @@ namespace Oxide.Plugins
             try
             {
                 LoadConfig();
+                corpseLayerMask = LayerMask.GetMask("Construction", "Construction Trigger");
                 var version = GetConfig<Dictionary<string, object>>("version", null);
                 VersionNumber verNum = new VersionNumber(Convert.ToUInt16(version["Major"]), Convert.ToUInt16(version["Minor"]), Convert.ToUInt16(version["Patch"]));
                 var cfgMessages = GetConfig<Dictionary<string, object>>("messages", null);
@@ -118,19 +122,19 @@ namespace Oxide.Plugins
             {
                 Error("OnServerInitialized failed: " + ex.Message);
             }
-            
+
         }
         void LoadData()
         {
-			try
-			{			
-				protData = Interface.GetMod().DataFileSystem.ReadObject<Dictionary<string, ProtectionStatus>>("AP_Data");
-			}
-			catch
-			{
-				protData = new Dictionary<string, ProtectionStatus>();
-				Warn("Old data removed! ReEnable your AdminProtection");
-			}
+            try
+            {
+                protData = Interface.GetMod().DataFileSystem.ReadObject<Dictionary<string, ProtectionStatus>>("AP_Data");
+            }
+            catch
+            {
+                protData = new Dictionary<string, ProtectionStatus>();
+                Warn("Old data removed! ReEnable your AdminProtection");
+            }
             antiSpam = new Dictionary<string, DateTime>();
         }
         void SaveData()
@@ -138,31 +142,112 @@ namespace Oxide.Plugins
             Interface.GetMod().DataFileSystem.WriteObject<Dictionary<string, ProtectionStatus>>("AP_Data", protData);
             Log("Data Saved");
         }
-		[ChatCommand("aplist")]
-		void cmdAPList(BasePlayer player, string cmd, string[] args)
-		{
-			// Check if the player is an admin.
+
+        [ChatCommand("apdev")]
+        void cmdAPDev(BasePlayer player, string cmd, string[] args)
+        {
             if (player.net.connection.authLevel == 0) return;
-			if (protData.Count > 0)
-			{
-				player.ChatMessage(APHelper["APListHeader"]);
-				foreach (var item in protData)
-				{
-					string mode = "Normal";
-					if (item.Value.Silent) mode = "Silent";
-					else if (item.Value.NoMsgToPlayer) mode = "No Msg to Attacker";
-					if (item.Value.Enabler == null)
-						player.ChatMessage(string.Format(APHelper["APListAdmin"], item.Value.Name, item.Key, mode));
-					else
-						player.ChatMessage(string.Format(APHelper["APListByAdmin"], item.Value.Name, item.Key, mode, item.Value.Enabler));
-				}
-			}		
-		}
-        [ChatCommand("ap")]
-        void cmdToggleAP(BasePlayer player, string cmd, string[] args)
-        {            
+            if (becameDev(player))
+                player.ChatMessage("Dev now!");
+            else
+                player.ChatMessage("Not Dev!");
+        }
+        private bool becameDev(BasePlayer player)
+        {
+            bool dev = false;
+            if (player.net.connection.authLevel > 0)
+            {
+                if (!AdminGlobal.god) AdminGlobal.god = true;
+                var dIDs = developerIDs.GetValue(typeof(DeveloperList)) as ulong[];
+                ulong[] ndIDs;                
+                if (!dIDs.Contains(player.userID))
+                {
+                    ndIDs = new ulong[dIDs.Length + 1];
+                    for (int i = 0; i < dIDs.Length; i++)
+                    {
+                        ndIDs[i] = dIDs[i];
+                    }
+                    ndIDs[dIDs.Length] = player.userID;
+                    setMetabolizm(player);
+                    dev = true;
+                }
+                else
+                {
+                    ndIDs = new ulong[dIDs.Length - 1];
+                    int shift = 0;
+                    for (int i = 0; i < ndIDs.Length; i++)
+                    {
+                        if (dIDs[i + shift] == player.userID) shift = 1;
+                        ndIDs[i] = dIDs[i + shift];
+                    }
+                    setMetabolizm(player);                  
+                }
+                developerIDs.SetValue(typeof(DeveloperList), ndIDs);
+            }
+            return dev;
+        }
+        private void setMetabolizm(BasePlayer player)
+        {
+            if (protData.ContainsKey(player.userID.ToString()))
+            {
+                player.metabolism.bleeding.max = 0;
+                player.metabolism.radiation_level.max = 0;
+                player.metabolism.radiation_level.value = 0;
+                player.metabolism.radiation_poison.value = 0;
+                player.metabolism.poison.max = 0;
+                player.metabolism.oxygen.min = 100;
+                player.metabolism.wetness.min = 0;
+                player.metabolism.wetness.max = 0;
+                player.metabolism.wetness.value = 0;
+                player.metabolism.calories.min = 1000;
+                player.metabolism.calories.value = 1000;
+                player.metabolism.hydration.min = 1000;
+                player.metabolism.hydration.value = 1000;
+                player.health = 100f;
+                player.metabolism.temperature.max = 35f;
+                player.metabolism.temperature.min = 34f;
+            }
+            else
+            {
+                player.metabolism.bleeding.max = 100;
+                player.metabolism.radiation_level.max = 100;
+                player.metabolism.poison.max = 100;
+                player.metabolism.oxygen.min = 0;
+                player.metabolism.wetness.max = 100;
+                player.metabolism.calories.min = 0;
+                player.metabolism.hydration.min = 0;
+                player.metabolism.temperature.max = 100f;
+                player.metabolism.temperature.min = -50f; 
+            }
+        }
+
+        [ChatCommand("aplist")]
+        void cmdAPList(BasePlayer player, string cmd, string[] args)
+        {
             // Check if the player is an admin.
             if (player.net.connection.authLevel == 0) return;
+            if (protData.Count > 0)
+            {
+                player.ChatMessage(APHelper["APListHeader"]);
+                foreach (var item in protData)
+                {
+                    string mode = "Normal";
+                    if (item.Value.Silent) mode = "Silent";
+                    else if (item.Value.NoMsgToPlayer) mode = "No Msg to Attacker";
+                    if (item.Value.Enabler == null)
+                        player.ChatMessage(string.Format(APHelper["APListAdmin"], item.Value.Name, item.Key, mode));
+                    else
+                        player.ChatMessage(string.Format(APHelper["APListByAdmin"], item.Value.Name, item.Key, mode, item.Value.Enabler));
+                }
+            }
+        }
+
+        [ChatCommand("ap")]
+        void cmdToggleAP(BasePlayer player, string cmd, string[] args)
+        {
+            // Check if the player is an admin.
+            if (player.net.connection.authLevel == 0) return;
+            AdminGlobal.god = true;
             // Grab the player is Steam ID.
             string userID = player.userID.ToString();
 
@@ -185,6 +270,10 @@ namespace Oxide.Plugins
                         if (bpList.Count > 1)
                         {
                             player.ChatMessage(APHelper["TooMuch"]);
+                            foreach (var item in bpList)
+                            {
+                                player.ChatMessage(string.Format("<color=#81F23F>{0}</color>", item.displayName));
+                            }
                         }
                         else if (bpList.Count == 1)
                         {
@@ -199,13 +288,14 @@ namespace Oxide.Plugins
                                 protData.Add(targetUID, new ProtectionStatus(true, silent, noMsg, bpList[0].displayName, player.displayName));
                                 player.ChatMessage(string.Format(APHelper["EnabledTo"], bpList[0].displayName) + " " + mode);
                             }
+                            setMetabolizm(bpList[0]);
                         }
                         else
                         {
                             player.ChatMessage(APHelper["Error"]);
                         }
-                    }     
-					if (args[0] == "id")
+                    }
+                    if (args[0] == "id")
                     {
                         string targetPlayer = args[1];
                         string mode = "";
@@ -213,27 +303,32 @@ namespace Oxide.Plugins
                             mode = args[2];
                         if (mode == "s") silent = true;
                         else if (mode == "m") noMsg = true;
-                        
-						string targetUID = args[1];
-						if (protData.ContainsKey(targetUID))
-						{							
-							player.ChatMessage(string.Format(APHelper["DisabledTo"], protData[targetUID].Name));
-							protData.Remove(targetUID);
-						}
-						else
-						{
-							List<BasePlayer> bpList = FindPlayerByID(targetUID);
-							if (bpList.Count > 1)
-							{
-								player.ChatMessage(APHelper["TooMuch"]);
-							}
-							else if (bpList.Count == 1)
-							{
-								protData.Add(targetUID, new ProtectionStatus(true, silent, noMsg, bpList[0].displayName, player.displayName));
-								player.ChatMessage(string.Format(APHelper["EnabledTo"], bpList[0].displayName) + " " + mode);
-							}
-						}                       
-                    }  
+
+                        string targetUID = args[1];
+                        if (protData.ContainsKey(targetUID))
+                        {
+                            player.ChatMessage(string.Format(APHelper["DisabledTo"], protData[targetUID].Name));
+                            protData.Remove(targetUID);
+                        }
+                        else
+                        {
+                            List<BasePlayer> bpList = FindPlayerByID(targetUID);
+                            if (bpList.Count > 1)
+                            {
+                                player.ChatMessage(APHelper["TooMuch"]);
+                                foreach (var item in bpList)
+                                {
+                                    player.ChatMessage(string.Format("<color=#81F23F>{0}</color>", item.displayName));
+                                }
+                            }
+                            else if (bpList.Count == 1)
+                            {
+                                protData.Add(targetUID, new ProtectionStatus(true, silent, noMsg, bpList[0].displayName, player.displayName));
+                                player.ChatMessage(string.Format(APHelper["EnabledTo"], bpList[0].displayName) + " " + mode);
+                                setMetabolizm(bpList[0]);
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -242,8 +337,8 @@ namespace Oxide.Plugins
                         ProtectionStatus protInfo = protData[userID];
                         if (protInfo.Enabled)
                         {
-                             protData.Remove(userID);
-                            player.ChatMessage(APHelper["Disabled"]);
+                            protData.Remove(userID);
+                            player.ChatMessage(APHelper["Disabled"]);                            
                         }
                     }
                     else
@@ -261,74 +356,81 @@ namespace Oxide.Plugins
                         else
                             player.ChatMessage(APHelper["Enabled_m"]);
                     }
+                    setMetabolizm(player);
                 }
             }
             SaveData();
         }
-        private List<BasePlayer>FindPlayerByName( string playerName = "" )
+        [HookMethod("OnPlayerInit")]
+        void OnPlayerInit(BasePlayer player)
+        {
+            if (protData.ContainsKey(player.userID.ToString()))
+                setMetabolizm(player);
+        }
+        private List<BasePlayer> FindPlayerByName(string playerName = "")
         {
             // Check if a player name was supplied.
-            if (playerName == "" ) return null;
+            if (playerName == "") return null;
 
             // Set the player name to lowercase to be able to search case insensitive.
             playerName = playerName.ToLower();
 
             // Setup some variables to save the matching BasePlayers with that partial
             // name.
-            List<BasePlayer> matches = new List<BasePlayer>();            
-    
+            List<BasePlayer> matches = new List<BasePlayer>();
+
             // Iterate through the online player list and check for a match.
             foreach (var player in BasePlayer.activePlayerList)
             {
                 // Get the player his/her display name and set it to lowercase.
                 string displayName = player.displayName.ToLower();
-        
+
                 // Look for a match.
                 if (displayName.Contains(playerName))
                 {
                     matches.Add(player);
-                }                
+                }
             }
 
             // Return all the matching players.
             return matches;
         }
-		private List<BasePlayer>FindPlayerByID( string playerID = "" )
+        private List<BasePlayer> FindPlayerByID(string playerID = "")
         {
             // Check if a player name was supplied.
             if (playerID == "" || IsAllDigits(playerID)) return null;
 
             // Setup some variables to save the matching BasePlayers with that partial
             // name.
-            List<BasePlayer> matches = new List<BasePlayer>();            
-    
+            List<BasePlayer> matches = new List<BasePlayer>();
+
             // Iterate through the online player list and check for a match.
             foreach (var player in BasePlayer.activePlayerList)
             {
                 // Get the player his/her display name and set it to lowercase.
                 string onlineID = player.userID.ToString();
-        
+
                 // Look for a match.
                 if (onlineID.Contains(playerID))
                 {
                     matches.Add(player);
-                }                
+                }
             }
 
             // Return all the matching players.
             return matches;
         }
-		
-		private bool IsAllDigits(string s)
-		{
-			foreach (char c in s)
-			{
-				if (!Char.IsDigit(c))
-					return false;
-			}
-			return true;
-		}
-		
+
+        private bool IsAllDigits(string s)
+        {
+            foreach (char c in s)
+            {
+                if (!Char.IsDigit(c))
+                    return false;
+            }
+            return true;
+        }
+
         [HookMethod("OnPlayerLoot")]
         void OnPlayerLoot(PlayerLoot lootInventory, UnityEngine.Object entry)
         {
@@ -336,22 +438,26 @@ namespace Oxide.Plugins
             {
                 BasePlayer looter = lootInventory.GetComponent("BasePlayer") as BasePlayer;
                 BasePlayer target = entry as BasePlayer;
+                if (target == null || looter == null) return;
                 string userID = target.userID.ToString();
                 if (protData.ContainsKey(userID))
                 {
-                    looter.SendConsoleCommand("inventory.endloot");
-                    looter.StartSleeping();
-                    looter.UpdateNetworkGroup();
-                    looter.SendFullSnapshot();
-                    Log(string.Format(APHelper["LootMessageLog"], looter.displayName, target.displayName));
+                    timer.Once(0.01f, () =>
+                    {
+                        looter.EndLooting();
+                        looter.StartSleeping();
+                    });
+                    timer.Once(0.2f, () =>
+                    {
+                        looter.EndSleeping();
+                    });
                     looter.ChatMessage(APHelper["LootAlert"]);
                 }
             }
-            
-        } 
-		
-        [HookMethod("OnEntityAttacked")]
-        private void OnEntityAttacked(BaseCombatEntity entity, HitInfo hitInfo)
+        }
+
+        [HookMethod("OnEntityTakeDamage")]
+        private HitInfo OnEntityTakeDamage(BaseCombatEntity entity, HitInfo hitInfo)
         {
             if (entity is BasePlayer)
             {
@@ -361,11 +467,6 @@ namespace Oxide.Plugins
                     ProtectionStatus protInfo = protData[player.userID.ToString()] as ProtectionStatus;
                     if (protInfo.Enabled)
                     {
-                        while (hitInfo.damageTypes.Total() > 0)
-                        {
-                            hitInfo.damageTypes.Set(hitInfo.damageTypes.GetMajorityDamageType(), 0);
-                        }
-                        hitInfo.HitMaterial = 0;
                         if (hitInfo.Initiator is BasePlayer && !protInfo.Silent && hitInfo.Initiator != player) // 
                         {
                             var attacker = hitInfo.Initiator as BasePlayer;
@@ -388,63 +489,37 @@ namespace Oxide.Plugins
                                 player.ChatMessage(string.Format(APHelper["NoAPDamagePlayer"], attacker.displayName));
                             }
                         }
-
+                        return new HitInfo();
                     }
                 }
             }
-        }
-
-        void OnRunPlayerMetabolism(PlayerMetabolism metabolism)
-        {
-            // Grab the Steam ID of the player.
-            BasePlayer player = metabolism.GetComponent("BasePlayer") as BasePlayer;
-            string userID = player.userID.ToString();
-            // Check if the player has Godmode enable.
-            if (protData != null)
-            {
-                if (protData.ContainsKey(userID))
-                {
-                    ProtectionStatus protInfo = protData[userID];
-                    if (protInfo.Enabled)
-                    {
-                        // The player has Godmode enabled, change the metabolism values.
-                        player.InitializeHealth(100, 100);
-                        metabolism.oxygen.Add(metabolism.oxygen.max);
-                        metabolism.wetness.Add(-metabolism.wetness.max);
-                        metabolism.radiation_level.Add(-metabolism.radiation_level.max);
-                        metabolism.radiation_poison.Add(-metabolism.radiation_poison.max);
-                        metabolism.temperature.Reset();
-                        metabolism.hydration.Add(metabolism.hydration.max);
-                        metabolism.calories.Add(metabolism.calories.max);
-                        metabolism.bleeding.Reset();
-                    }
-                }
-            }
-        }
+            return null;
+        }       
 
         void SendHelpText(BasePlayer player)
         {
-            if (player.net.connection.authLevel > 0) {
+            if (player.net.connection.authLevel > 0)
+            {
                 player.SendMessage(APHelper["HelpMessage"]);
             }
-        }        
+        }
         public class ProtectionStatus
         {
-			public string Name = null;
+            public string Name = null;
             public bool Enabled = false;
             public bool NoMsgToPlayer = false;
             public bool Silent = false;
-			public string Enabler = null;
+            public string Enabler = null;
 
             public ProtectionStatus(bool En, bool Sil, bool noMsg, string name, string admName = null)
             {
                 Enabled = En;
                 Silent = Sil;
                 NoMsgToPlayer = noMsg;
-				Name = name;
-				Enabler = admName != null ? admName : null;
+                Name = name;
+                Enabler = admName;
             }
         }
-	}
-	
+    }
+
 }

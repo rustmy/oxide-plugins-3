@@ -8,8 +8,8 @@
   "version": "2.0.4",
   "author": "Mughisi",
   "rating": 5,
-  "downloads": 343,
-  "updated": "2015-04-03T17:07:30.000Z",
+  "downloads": 370,
+  "updated": "2015-04-03T17:07:00.000Z",
   "description": "Additional player list that tracks dead players names, used by other plugins",
   "downloadUrl": "plugins/deadplayerslist.696/download?version=4266",
   "filename": "DeadPlayersList.cs"

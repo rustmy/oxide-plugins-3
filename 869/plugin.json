@@ -5,13 +5,13 @@
   "name": "Admin Protection",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "0.3.1",
+  "version": "0.5.0",
   "author": "4seti",
   "rating": 5,
-  "downloads": 86,
-  "updated": "2015-04-04T15:26:53.000Z",
+  "downloads": 211,
+  "updated": "2015-04-16T22:30:27.000Z",
   "description": "Protect admin from various",
   "iconUrl": "data/resource_icons/0/869.jpg?1428167662",
-  "downloadUrl": "plugins/admin-protection.869/download?version=4316",
+  "downloadUrl": "plugins/admin-protection.869/download?version=4523",
   "filename": "AdminProtection.cs"
 }

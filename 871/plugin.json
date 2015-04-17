@@ -7,9 +7,9 @@
   "type": "cs",
   "version": "1.0.0",
   "author": "Mughisi",
-  "rating": 0,
-  "downloads": 89,
-  "updated": "2015-04-03T18:46:04.000Z",
+  "rating": 4,
+  "downloads": 167,
+  "updated": "2015-04-03T18:46:00.000Z",
   "description": "Look into a player's inventory.",
   "downloadUrl": "plugins/inventory-viewer.871/download?version=4281",
   "filename": "InventoryViewer.cs"

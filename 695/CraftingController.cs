@@ -1,6 +1,4 @@
-﻿// Reference: Oxide.Ext.Rust
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,7 +7,7 @@ using UnityEngine;
 namespace Oxide.Plugins
 {
 
-    [Info("Crafting Controller", "Mughisi", "2.1.0", ResourceId = 695)]
+    [Info("Crafting Controller", "Mughisi", "2.2.1", ResourceId = 695)]
     class CraftingController : RustPlugin
     {
 
@@ -32,12 +30,16 @@ namespace Oxide.Plugins
         bool defaultAdminInstantCraft = true;
         bool defaultModeratorInstantCraft = false;
         bool defaultCompleteCurrentCraftingOnShutdown = false;
+        int defaultKeyLShift = 5;
+        int defaultKeyLCtrl = 10;
 
         float craftingRate;
         bool adminInstantCraft;
         bool moderatorInstantCraft;
         bool completeCurrentCrafting;
         bool cancelAllCrafting;
+        int keyLShift;
+        int keyLCtrl;
 
         // Plugin options - blocked items
         List<object> defaultBlockedItems = new List<object>();
@@ -84,17 +86,18 @@ namespace Oxide.Plugins
 
         private MethodInfo FinishCraftingTask = typeof(ItemCrafter).GetMethod("FinishCrafting", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        void Loaded()
-        {
-            LoadConfigValues();
-        }
+        private readonly MethodInfo CollectIngredients = typeof(ItemCrafter).GetMethod("CollectIngredients", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private readonly FieldInfo serverInputField = typeof(BasePlayer).GetField("serverInput", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        void Loaded() => LoadConfigValues();
 
         void OnServerInitialized()
         {
             blueprintDefinitions.Clear();
             itemDefinitions.Clear();
-            blueprintDefinitions = Resources.LoadAll<ItemBlueprint>("items/").ToList<ItemBlueprint>();
-            itemDefinitions = Resources.LoadAll<ItemDefinition>("items/").ToList<ItemDefinition>();
+            blueprintDefinitions = Resources.LoadAll<ItemBlueprint>("items/").ToList();
+            itemDefinitions = Resources.LoadAll<ItemDefinition>("items/").ToList();
             foreach (ItemBlueprint bp in blueprintDefinitions)
                 blueprints.Add(bp.targetItem.shortname, bp.time);
             foreach (ItemDefinition itemdef in itemDefinitions)
@@ -108,10 +111,7 @@ namespace Oxide.Plugins
                 bp.time = blueprints[bp.targetItem.shortname];
         }
 
-        protected override void LoadDefaultConfig()
-        {
-            Log("New configuration file created.");
-        }
+        protected override void LoadDefaultConfig() => Log("New configuration file created.");
 
         void LoadConfigValues()
         {
@@ -124,7 +124,9 @@ namespace Oxide.Plugins
             moderatorInstantCraft = Convert.ToBoolean(GetConfigValue("Options", "InstantCraftForModerators", defaultModeratorInstantCraft));
             craftingRate = float.Parse(Convert.ToString(GetConfigValue("Options", "CraftingRate", defaultCraftingRate)), System.Globalization.CultureInfo.InvariantCulture);
             completeCurrentCrafting = Convert.ToBoolean(GetConfigValue("Options", "CompleteCurrentCraftingOnShutdown", defaultCompleteCurrentCraftingOnShutdown));
-            
+            keyLShift = int.Parse(Convert.ToString(GetConfigValue("Options", "LShiftAmount", defaultKeyLShift)));
+            keyLCtrl = int.Parse(Convert.ToString(GetConfigValue("Options", "LCtrlAmount", defaultKeyLCtrl)));
+
             // Plugin options - blocked items
             var list = GetConfigValue("Options", "BlockedItems", defaultBlockedItems);
 
@@ -253,11 +255,11 @@ namespace Oxide.Plugins
 
         void OnServerQuit()
         {
-            foreach(BasePlayer player in BasePlayer.activePlayerList)
+            foreach (BasePlayer player in BasePlayer.activePlayerList)
             {
                 if (completeCurrentCrafting)
                     CompleteCrafting(player);
-                
+
                 CancelAllCrafting(player);
             }
         }
@@ -297,13 +299,49 @@ namespace Oxide.Plugins
                 foreach (ItemAmount amount in item.blueprint.ingredients)
                     crafter.inventory.GiveItem(amount.itemid, (int)amount.amount, false);
             }
+
+            if (craftingRate == 0f) item.endTime = 1f;
+            var input = (InputState)serverInputField.GetValue(crafter);
+            if (input.IsDown(BUTTON.SPRINT))
+                BulkCraft(crafter, item, keyLShift);
+            if (input.IsDown(BUTTON.DUCK))
+                BulkCraft(crafter, item, keyLCtrl);
+        }
+
+        void BulkCraft(BasePlayer player, ItemCraftTask task, int amount)
+        {
+            ItemCrafter crafter = player.inventory.crafting;
+            if (crafter.queue.ToArray()[0] == task)
+                amount--;
+
+            for (int i = 1; i <= amount; i++)
+            {
+                if (!crafter.CanCraft(task.blueprint, 1))
+                    break;
+
+                crafter.taskUID++;
+                ItemCraftTask item = new ItemCraftTask {
+                    blueprint = task.blueprint
+                };
+
+                CollectIngredients.Invoke(crafter, new object[] { item.blueprint, item.ingredients });
+                if (craftingRate == 0) item.endTime = 1f;
+                else item.endTime = 0f;
+                item.taskUID = crafter.taskUID;
+                item.owner = player;
+                item.instanceData = null;
+                crafter.queue.Enqueue(item);
+
+                if (item.owner != null)
+                {
+                    object[] args = new object[] { item.taskUID, item.blueprint.targetItem.itemid };
+                    item.owner.Command("note.craft_add", args);
+                }
+            }
         }
 
         #region Helper methods
-        void Log(string message)
-        {
-            Puts("{0} : {1}", Title, message);
-        }
+        void Log(string message) => Puts("{0} : {1}", Title, message);
 
         void SendChatMessage(BasePlayer player, string message, string arguments = null)
         {

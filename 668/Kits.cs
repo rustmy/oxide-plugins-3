@@ -11,7 +11,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("Kits", "Reneb", "2.0.4")]
+    [Info("Kits", "Reneb", "2.0.5")]
     class Kits : RustPlugin
     {
         private string noAccess;
@@ -27,12 +27,13 @@ namespace Oxide.Plugins
         private Core.Configuration.DynamicConfigFile KitsConfig;
         private Core.Configuration.DynamicConfigFile KitsData;
         private bool Changed;
-        private Dictionary<string,string> displaynameToShortname;
+        private Dictionary<string, string> displaynameToShortname;
 
         void Loaded()
         {
             epoch = new System.DateTime(1970, 1, 1);
             displaynameToShortname = new Dictionary<string, string>();
+            if (!permission.PermissionExists("vip")) permission.RegisterPermission("vip", this);
             LoadVariables();
             InitializeKits();
         }
@@ -61,7 +62,7 @@ namespace Oxide.Plugins
         {
             displaynameToShortname.Clear();
             List<ItemDefinition> ItemsDefinition = ItemManager.GetItemDefinitions() as List<ItemDefinition>;
-            foreach(ItemDefinition itemdef in ItemsDefinition)
+            foreach (ItemDefinition itemdef in ItemsDefinition)
             {
                 displaynameToShortname.Add(itemdef.displayName.english.ToString().ToLower(), itemdef.shortname.ToString());
             }
@@ -92,8 +93,8 @@ namespace Oxide.Plugins
             cantUseKit = Convert.ToString(GetConfig("Messages", "cantUseKit", "You are not allowed to use this kit"));
             maxKitReached = Convert.ToString(GetConfig("Messages", "maxKitReached", "You've used all your tokens for this kit"));
             unknownKit = Convert.ToString(GetConfig("Messages", "unknownKit", "This kit doesn't exist"));
-             kitredeemed = Convert.ToString(GetConfig("Messages", "kitredeemed", "You've redeemed a kit"));
-             kitsreset = Convert.ToString(GetConfig("Messages", "kitsreset", "All kits data from players were deleted"));
+            kitredeemed = Convert.ToString(GetConfig("Messages", "kitredeemed", "You've redeemed a kit"));
+            kitsreset = Convert.ToString(GetConfig("Messages", "kitsreset", "All kits data from players were deleted"));
             if (Changed)
             {
                 SaveConfig();
@@ -112,11 +113,16 @@ namespace Oxide.Plugins
                 return true;
             return false;
         }
-        
+        bool hasVip(object source)
+        {
+            if (!(source is BasePlayer)) return true;
+            if (((BasePlayer)source).net.connection.authLevel >= authlevel) return true;
+            return permission.UserHasPermission(((BasePlayer)source).userID.ToString(), "vip");
+        }
         public object GiveItem(BasePlayer player, string itemname, int amount, ItemContainer pref)
         {
             itemname = itemname.ToLower();
-           
+
             bool isBP = false;
             if (itemname.EndsWith(" bp"))
             {
@@ -127,7 +133,7 @@ namespace Oxide.Plugins
                 itemname = displaynameToShortname[itemname];
             var definition = ItemManager.FindItemDefinition(itemname);
             if (definition == null)
-                return string.Format("{0} {1}",itemNotFound,itemname);
+                return string.Format("{0} {1}", itemNotFound, itemname);
             int giveamount = 0;
             int stack = (int)definition.stackable;
             if (isBP)
@@ -157,6 +163,8 @@ namespace Oxide.Plugins
         {
             var kitEnum = KitsConfig.GetEnumerator();
             int authlevel = GetSourceLevel(source);
+            bool isvip = hasVip(source);
+
             while (kitEnum.MoveNext())
             {
                 int kitlvl = 0;
@@ -172,9 +180,13 @@ namespace Oxide.Plugins
                 {
                     kitlvl = (int)kitdata["level"];
                     options = string.Format("{0} - {1}+", options, kitlvl.ToString());
-                   
-                }
 
+                }
+                if (kitdata.ContainsKey("vip"))
+                {
+                    options = string.Format("{0} - {1}", options, "vip");
+                    if (!isvip) continue;
+                }
                 if (kitdata.ContainsKey("max"))
                 {
                     options = string.Format("{0} - {1} max", options, kitdata["max"].ToString());
@@ -197,7 +209,7 @@ namespace Oxide.Plugins
             }
             return 2;
         }
- 
+
         void cmdAddKit(BasePlayer player, string[] args)
         {
             if (args.Length < 3)
@@ -206,6 +218,7 @@ namespace Oxide.Plugins
                 SendTheReply(player, "Options avaible:");
                 SendTheReply(player, "-maxXX => max times someone can use this kit. Default is infinite.");
                 SendTheReply(player, "-cooldownXX => cooldown of the kit. Default is none.");
+                SendTheReply(player, "-vip => Allow to give this kit only to vip & admins");
                 SendTheReply(player, "-authlevelXX => Level needed to use this plugin: 0, 1 or 2. Default is 0");
                 return;
             }
@@ -213,15 +226,16 @@ namespace Oxide.Plugins
             string desription = args[2].ToString();
             int authlevel = 0;
             int max = -1;
+            bool vip = false;
             double cooldown = 0.0;
             if (KitsConfig[kitname] != null)
             {
-                SendTheReply(player, string.Format("The kit {0} already exists. Delete it first or change the name.",kitname) );
+                SendTheReply(player, string.Format("The kit {0} already exists. Delete it first or change the name.", kitname));
                 return;
             }
             if (args.Length > 3)
             {
-                object validoptions = VerifyOptions(args, out authlevel, out max, out cooldown);
+                object validoptions = VerifyOptions(args, out authlevel, out max, out cooldown, out vip);
                 if (validoptions is string)
                 {
                     SendTheReply(player, (string)validoptions);
@@ -231,10 +245,12 @@ namespace Oxide.Plugins
             Dictionary<string, object> kitsitems = GetNewKitFromPlayer(player);
             Dictionary<string, object> newkit = new Dictionary<string, object>();
             newkit.Add("items", kitsitems);
-            if(authlevel > 0)
+            if (authlevel > 0)
                 newkit.Add("level", authlevel);
-            if(max >= 0)
+            if (max >= 0)
                 newkit.Add("max", max);
+            if (vip)
+                newkit.Add("vip", true);
             if (cooldown > 0.0)
                 newkit.Add("cooldown", cooldown);
             newkit.Add("description", desription);
@@ -247,7 +263,7 @@ namespace Oxide.Plugins
             List<object> wearList = new List<object>();
             List<object> mainList = new List<object>();
             List<object> beltList = new List<object>();
-            
+
             ItemContainer wearcontainer = player.inventory.containerWear;
             ItemContainer maincontainer = player.inventory.containerMain;
             ItemContainer beltcontainer = player.inventory.containerBelt;
@@ -256,12 +272,12 @@ namespace Oxide.Plugins
             foreach (Item item in (List<Item>)wearcontainer.itemList)
             {
                 Dictionary<string, object> newObject = new Dictionary<string, object>();
-                
-                
+
+
                 newObject.Add(item.info.shortname.ToString(), (int)item.amount);
                 wearList.Add(newObject);
             }
-           
+
             foreach (Item item in (List<Item>)maincontainer.itemList)
             {
                 Dictionary<string, object> newObject = new Dictionary<string, object>();
@@ -286,11 +302,12 @@ namespace Oxide.Plugins
             kitsitems.Add("belt", beltList);
             return kitsitems;
         }
-        object VerifyOptions(string[] args, out int authlevel, out int max, out double cooldown)
+        object VerifyOptions(string[] args, out int authlevel, out int max, out double cooldown, out bool vip)
         {
             authlevel = 0;
             max = -1;
             cooldown = 0.0;
+            vip = false;
             for (var i = 3; i < args.Length; i++)
             {
                 int substring = 0;
@@ -305,6 +322,10 @@ namespace Oxide.Plugins
                     substring = 9;
                     if (!(double.TryParse(args[i].Substring(substring), out cooldown)))
                         return string.Format("Wrong Number Value for : {0}", args[i].ToString());
+                }
+                else if (args[i].StartsWith("-vip"))
+                {
+                    vip = true;
                 }
                 else if (args[i].StartsWith("-authlevel"))
                 {
@@ -325,10 +346,10 @@ namespace Oxide.Plugins
         void cmdResetKits(BasePlayer player, string[] args)
         {
             KitsData.Clear();
-            SendTheReply(player, "All kits data from players were deleted" );
+            SendTheReply(player, "All kits data from players were deleted");
             SaveKitsData();
         }
-        void OnPlayerSpawn(BasePlayer player)
+        void OnPlayerRespawned(BasePlayer player)
         {
             if (KitsConfig["autokit"] == null) return;
             object thereturn = Interface.GetMod().CallHook("canRedeemKit", new object[] { player });
@@ -379,7 +400,7 @@ namespace Oxide.Plugins
                 KitsConfig[pair.Key] = pair.Value;
             }
             SaveKits();
-            SendTheReply(player, string.Format("The kit {0} was successfully removed",kitname));
+            SendTheReply(player, string.Format("The kit {0} was successfully removed", kitname));
         }
         int GetKitLeft(BasePlayer player, string kitname, int max)
         {
@@ -407,9 +428,9 @@ namespace Oxide.Plugins
                 return;
             }
             object thereturn = Interface.GetMod().CallHook("canRedeemKit", new object[1] { player });
-            if(thereturn != null)
+            if (thereturn != null)
             {
-                if(thereturn is string)
+                if (thereturn is string)
                 {
                     SendTheReply(player, (string)thereturn);
                 }
@@ -420,6 +441,7 @@ namespace Oxide.Plugins
             double cooldown = 0.0;
             int kitleft = 1;
             int kitlvl = 0;
+
             if (kitdata.ContainsKey("level"))
                 kitlvl = (int)kitdata["level"];
             if (kitlvl > player.net.connection.authLevel)
@@ -429,16 +451,22 @@ namespace Oxide.Plugins
             }
             if (kitdata.ContainsKey("max"))
                 kitleft = GetKitLeft(player, kitname, (int)(kitdata["max"]));
-            if (kitleft <= 0 )
+            if (kitleft <= 0)
             {
                 SendTheReply(player, maxKitReached);
                 return;
             }
+            if (kitdata.ContainsKey("vip"))
+                if (!hasVip(player))
+                {
+                    SendReply(player, cantUseKit);
+                    return;
+                }
             if (kitdata.ContainsKey("cooldown"))
                 cooldown = GetKitTimeleft(player, kitname, (double)(kitdata["cooldown"]));
             if (cooldown > 0.0)
             {
-                SendTheReply(player, string.Format("You must wait {0}s before using this kit again",cooldown.ToString()));
+                SendTheReply(player, string.Format("You must wait {0}s before using this kit again", cooldown.ToString()));
                 return;
             }
             object wasGiven = GiveKit(player, kitname);
@@ -493,7 +521,7 @@ namespace Oxide.Plugins
             List<object> mainList = kitsitems["main"] as List<object>;
             List<object> beltList = kitsitems["belt"] as List<object>;
             ItemContainer pref = player.inventory.containerWear;
-            
+
             if (wearList.Count > 0)
             {
                 pref = player.inventory.containerWear;
@@ -505,7 +533,7 @@ namespace Oxide.Plugins
                     }
                 }
             }
-            
+
             if (mainList.Count > 0)
             {
                 pref = player.inventory.containerMain;

@@ -10,7 +10,7 @@ using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("ZoneManager", "Reneb", "2.0.8")]
+    [Info("ZoneManager", "Reneb", "2.0.11", ResourceId = 739)]
     class ZoneManager : RustPlugin
     {
         ////////////////////////////////////////////
@@ -28,13 +28,14 @@ namespace Oxide.Plugins
         public FieldInfo[] allZoneFields;
         public FieldInfo cachedField;
         public static FieldInfo fieldInfo;
-
+         
         /////////////////////////////////////////
         /// Cached Fields, used to make the plugin faster
         /////////////////////////////////////////
         public static Vector3 cachedDirection;
         public Collider[] cachedColliders;
         public DamageTypeList emptyDamageType;
+        public List<DamageTypeEntry> emptyDamageList;
         public BasePlayer cachedPlayer;
 
         /////////////////////////////////////////
@@ -266,6 +267,7 @@ namespace Oxide.Plugins
         {
             allZoneFields = typeof(ZoneDefinition).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
             emptyDamageType = new DamageTypeList();
+            emptyDamageList = new List<DamageTypeEntry>();
             foreach (KeyValuePair<string, ZoneDefinition> pair in zonedefinitions)
             {
                 NewZone(pair.Value);
@@ -451,10 +453,13 @@ namespace Oxide.Plugins
         /////////////////////////////////////////
         bool CreateOrUpdateZone(string ZoneID, string[] args, Vector3 position = default(Vector3))
         {
-            ZoneDefinition zonedef;
-            if (zonedefinitions[ZoneID] == null) zonedef = new ZoneDefinition();
-            else zonedef = zonedefinitions[ZoneID];
-            zonedef.ID = ZoneID;
+            var zonedef = zonedefinitions[ZoneID];
+            if (zonedefinitions[ZoneID] != null) storedData.ZoneDefinitions.Remove(zonedefinitions[ZoneID]);
+            if (zonedef == null)
+            {
+                zonedef = new ZoneDefinition();
+                zonedef.ID = ZoneID;
+            }
 
             string editvalue;
             for (int i = 0; i < args.Length; i = i + 2)
@@ -484,8 +489,7 @@ namespace Oxide.Plugins
             }
 
             if (position != default(Vector3)) { zonedef.Location = new ZoneLocation((Vector3)position, (zonedef.radius != null) ? zonedef.radius : "20"); }
-
-            if (zonedefinitions[ZoneID] != null) storedData.ZoneDefinitions.Remove(zonedefinitions[ZoneID]);
+            
             zonedefinitions[ZoneID] = zonedef;
             storedData.ZoneDefinitions.Add(zonedefinitions[ZoneID]);
             SaveData();
@@ -496,8 +500,9 @@ namespace Oxide.Plugins
         bool EraseZone(string ZoneID)
         {
             if (zonedefinitions[ZoneID] == null) return false;
-            zonedefinitions[ZoneID] = null;
+            
             storedData.ZoneDefinitions.Remove(zonedefinitions[ZoneID]);
+            zonedefinitions[ZoneID] = null;
             SaveData();
             RefreshZone(ZoneID);
             return true;
@@ -555,7 +560,7 @@ namespace Oxide.Plugins
             Zone targetZone = GetZoneByID(ZoneID);
             if (targetZone == null) return false;
             RemoveFromKeepinlist(targetZone, player);
-            return true;
+            return true; 
         }
         /////////////////////////////////////////
         // Random Commands
@@ -597,13 +602,13 @@ namespace Oxide.Plugins
                             if (pair.Value.Contains(gameObj)) playerZones[pair.Key].Remove(gameObj);
                         }
                         GameObject.Destroy(gameObj);
-                        if (zonedefinitions[zoneID] != null)
-                        {
-                            NewZone(zonedefinitions[zoneID]);
-                        }
                         break;
                     }
                 }
+            if (zonedefinitions[zoneID] != null)
+            {
+                NewZone(zonedefinitions[zoneID]);
+            }
         }
 
         int GetRandom(int min, int max) { return UnityEngine.Random.Range(min, max); }
@@ -649,7 +654,7 @@ namespace Oxide.Plugins
                     if (zone.info.undestr != null)
                     {
                         if (Vector3.Distance(explosive.GetEstimatedWorldPosition(), zone.transform.position) <= (zone.info.Location.GetRadius()))
-                            explosive.damage = 0f;
+                            explosive.KillMessage();
                     }
                 }
         }
@@ -665,7 +670,7 @@ namespace Oxide.Plugins
             if (playerZones[player] == null) playerZones[player] = new List<Zone>();
             if (!playerZones[player].Contains(zone)) playerZones[player].Add(zone);
             if (zone.info.enter_message != null) SendMessage(player, zone.info.enter_message);
-            if (zone.info.eject != null && !isAdmin(player) && !zone.whiteList.Contains(player)) EjectPlayer(zone, player);
+            if (zone.info.eject != null && !isAdmin(player) && !zone.whiteList.Contains(player) && !zone.keepInList.Contains(player)) EjectPlayer(zone, player);
             Interface.CallHook("OnEnterZone", zone.info.ID, player);
         }
         static void OnExitZone(Zone zone, BasePlayer player)

@@ -16,7 +16,7 @@ using System.Text;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterStability", "playrust.io/ dcode", "0.7.1", ResourceId = 862)]
+    [Info("BetterStability", "playrust.io/ dcode", "0.7.6", ResourceId = 862)]
     public class BetterStability : RustPlugin
     {
         // Singleton instance
@@ -25,10 +25,6 @@ namespace Oxide.Plugins
         // Update queues
         private List<BuildingBlock> stabilityQueueDelayed = new List<BuildingBlock>();
         private List<BuildingBlock> stabilityQueue = new List<BuildingBlock>();
-        private List<BuildingBlock> positioningQueue = new List<BuildingBlock>();
-
-        // Static configuration
-        private float wallPositioningOffset = 0.025f;
 
         // Stats
         private Stats currentStats = new Stats();
@@ -64,6 +60,14 @@ namespace Oxide.Plugins
         // Logs a message to console
         public void Log(string message) {
             Puts("{0}: {1}", Title, message);
+        }
+
+        // Logs an error to console
+        public void Error(string message, Exception ex = null) {
+            if (ex == null)
+                PrintError("{0}: {1}", Title, message);
+            else
+                PrintError("{0}: {1}: {2}\n{3}", Title, message, ex.Message, ex.StackTrace);
         }
 
         protected override void LoadDefaultConfig() {
@@ -122,9 +126,6 @@ namespace Oxide.Plugins
                     EnqueueUpdate(block);
                     ++n;
                 }
-                if (firstStart && BuildingBlockHelpers.IsWall(block)) {
-                    EnqueuePositioning(block);
-                }
             }
             Log("Queued " + n + " blocks for stability updates");
         }
@@ -134,39 +135,29 @@ namespace Oxide.Plugins
             if (obj == null)
                 return;
             var block = obj.GetComponent<BuildingBlock>();
-            if (block == null)
+            if (block == null || block.isDestroyed || block.blockDefinition == null /* ? */)
                 return;
             ++currentStats.blocksBuilt;
-            if (!UpdateStability(block, false)) {
-                ++currentStats.blocksFailedBuilding;
-                // If this isn't stable, refund.
-                var player = planner.ownerPlayer;
-                foreach (var cost in block.blockDefinition.defaultGrade.costToBuild) {
-                    var item = ItemManager.CreateByItemID(cost.itemid, (int)cost.amount, false);
-                    player.GiveItem(item);
+            try {
+                if (!UpdateStability(block, false)) {
+                    ++currentStats.blocksFailedBuilding;
+                    // If this isn't stable, refund.
+                    var player = planner.ownerPlayer;
+                    foreach (var cost in block.blockDefinition.defaultGrade.costToBuild) {
+                        var item = ItemManager.CreateByItemID(cost.itemid, (int)cost.amount, false);
+                        player.GiveItem(item);
+                    }
+                    player.ChatMessage(_(buildingFailedMessages[rng.Next(0, buildingFailedMessages.Length)]));
+                    return;
                 }
-                player.ChatMessage(_(buildingFailedMessages[rng.Next(0, buildingFailedMessages.Length)]));
-                return;
-            }
-            // Reposition walls a bit to keep pillars accessible
-            if (BuildingBlockHelpers.IsWall(block)) {
-#if DEBUG
-                Log("Repositioning " + BuildingBlockHelpers.Name(block));
-#endif
-                block.transform.position += block.transform.rotation * (Vector3.right * wallPositioningOffset);
+            } catch (Exception ex) {
+                Error("OnEntityBuilt failed", ex);
             }
         }
 
-        [HookMethod("OnBuildingBlockDoRotation")]
+        /* [HookMethod("OnBuildingBlockDoRotation")]
         private void OnBuildingBlockRotate(BuildingBlock block, object whatev) {
-            if (BuildingBlockHelpers.IsWall(block)) {
-#if DEBUG
-                Log("Undoing repositioning on " + BuildingBlockHelpers.Name(block));
-#endif
-                block.transform.position -= block.transform.rotation * (Vector3.right * wallPositioningOffset);
-                EnqueuePositioning(block);
-            }
-        }
+        } */
 
         [HookMethod("OnBuildingBlockDemolish")]
         private void OnBuildingBlockDemolish(BuildingBlock block, BasePlayer player) {
@@ -206,16 +197,6 @@ namespace Oxide.Plugins
             while (stabilityQueueDelayed.Count > 0) {
                 stabilityQueue.Add(stabilityQueueDelayed[0]);
                 stabilityQueueDelayed.RemoveAt(0);
-            }
-            // Always update the entire positioning queue
-            while (positioningQueue.Count > 0) {
-                var block = positioningQueue[0];
-                positioningQueue.RemoveAt(0);
-#if DEBUG
-                Log("Repositioning " + BuildingBlockHelpers.Name(block));
-#endif
-                block.transform.position += block.transform.rotation * (Vector3.right * wallPositioningOffset);
-                block.SendNetworkUpdate();
             }
         }
 
@@ -263,12 +244,6 @@ namespace Oxide.Plugins
 #endif
                 stabilityQueueDelayed.Add(block);
             }
-        }
-
-        // Enqueues a positioning update for the next tick
-        private void EnqueuePositioning(BuildingBlock block) {
-            if (!positioningQueue.Contains(block))
-                positioningQueue.Add(block);
         }
 
         // Demolishes a block
@@ -392,10 +367,21 @@ namespace Oxide.Plugins
             // Tests if the block is a generally supported by the specified
             public static bool IsSupportedBy(BuildingBlock self, BuildingBlock by) {
                 string[] supportFor;
-                if (!supportMap.TryGetValue(self.blockDefinition.fullName, out supportFor)) {
+                if (!supportMap.TryGetValue(self.blockDefinition.fullName, out supportFor))
                     return false;
+                try {
+                    return supportFor.Contains(by.blockDefinition.fullName);
+                } catch (Exception) {
+                    if (supportFor == null)
+                        throw new Exception("supportFor is null");
+                    if (by == null)
+                        throw new Exception("by is null");
+                    if (by.blockDefinition == null)
+                        throw new Exception("by.blockDefinition is null");
+                    if (by.blockDefinition.fullName == null)
+                        throw new Exception("by.blockDefinition.fullName is null");
+                    throw;
                 }
-                return supportFor.Contains(by.blockDefinition.fullName);
             }
 
 
@@ -404,14 +390,13 @@ namespace Oxide.Plugins
                 supports = new List<BuildingBlock>();
                 supported = new List<BuildingBlock>();
                 List<StabilityPinPoint> pinPoints = GetPrefabPinPoints(self);
-                bool isSupport = supportNames.Contains(self.blockDefinition.fullName);
                 // Find all blocks supporting this block
                 foreach (var pinPoint in pinPoints) {
                     var worldPosition = LocalToWorld(self, pinPoint.worldPosition);
                     Collider[] colliders = Physics.OverlapSphere(worldPosition, 0.1f, constructionLayerMask);
                     foreach (var collider in colliders) {
                         BuildingBlock other = collider.gameObject.ToBaseEntity() as BuildingBlock;
-                        if (other == null || other == self) // Bogus or self
+                        if (other == null || other.isDestroyed || other == self) // Bogus or self
                             continue;
                         if (IsSupportedBy(self, other))
                             supports.Add(other);
@@ -426,7 +411,7 @@ namespace Oxide.Plugins
                     Collider[] colliders = Physics.OverlapSphere(worldPosition, 0.2f, constructionLayerMask);
                     foreach (var collider in colliders) {
                         BuildingBlock other = collider.gameObject.ToBaseEntity() as BuildingBlock;
-                        if (other == null || other == self) // Bogus or self
+                        if (other == null || other.isDestroyed || other == self) // Bogus or self
                             continue;
                         if (IsSupportedBy(other, self))
                             supported.Add(other);
@@ -551,7 +536,7 @@ namespace Oxide.Plugins
             public static List<StabilityPinPoint> GetPrefabPinPoints(BuildingBlock self) {
                 List<StabilityPinPoint> pinPoints;
                 if (!prefabPinPoints.TryGetValue(self.prefabID, out pinPoints))
-                    prefabPinPoints.Add(self.prefabID, pinPoints = PrefabAttribute.server.FindAll<StabilityPinPoint>(self.prefabID));
+                    prefabPinPoints.Add(self.prefabID, pinPoints = PrefabAttribute.server.FindAll<StabilityPinPoint>(self.prefabID).ToList());
                 return pinPoints;
             }
 
@@ -562,7 +547,7 @@ namespace Oxide.Plugins
             public static List<Socket_Base> GetPrefabSockets(BuildingBlock self) {
                 List<Socket_Base> sockets;
                 if (!prefabSockets.TryGetValue(self.prefabID, out sockets))
-                    prefabSockets.Add(self.prefabID, sockets = PrefabAttribute.server.FindAll<Socket_Base>(self.prefabID));
+                    prefabSockets.Add(self.prefabID, sockets = PrefabAttribute.server.FindAll<Socket_Base>(self.prefabID).ToList());
                 return sockets;
             }
 

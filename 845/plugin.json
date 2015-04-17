@@ -8,7 +8,7 @@
   "version": "1.0.0",
   "author": "dcode",
   "rating": 5,
-  "downloads": 75,
+  "downloads": 86,
   "updated": "2015-03-17T13:29:00.000Z",
   "description": "A template to help you get started to develop plugins using the Rust:IO API.",
   "iconUrl": "data/resource_icons/0/845.jpg?1427126017",

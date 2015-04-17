@@ -5,13 +5,13 @@
   "name": "Build Blocker",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.2.1",
+  "version": "1.2.5",
   "author": "Bombardir",
   "rating": 4.5,
-  "downloads": 296,
-  "updated": "2015-04-06T19:36:41.000Z",
+  "downloads": 388,
+  "updated": "2015-04-11T17:52:18.000Z",
   "description": "Fixes blocks in objects!",
   "iconUrl": "data/resource_icons/0/834.jpg?1428089013",
-  "downloadUrl": "plugins/build-blocker.834/download?version=4364",
+  "downloadUrl": "plugins/build-blocker.834/download?version=4447",
   "filename": "BuildBlocker.cs"
 }

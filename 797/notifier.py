@@ -7,7 +7,7 @@ from System import Action, Int32, String
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.5
+LATEST_CFG = 3.6
 LINE = '-' * 50
 
 class notifier:
@@ -19,10 +19,9 @@ class notifier:
 
         # PLUGIN INFO
         self.Title = 'Notifier'
-        self.Version = V(2, 6, 0)
+        self.Version = V(2, 6, 1)
         self.Author = 'SkinN'
         self.Description = 'Broadcasts chat messages as notifications and advertising.'
-        self.HasConfig = True
         self.ResourceId = 797
 
     # ==========================================================================
@@ -63,7 +62,8 @@ class notifier:
                 'NO ADMINS ONLINE': 'There are no <cyan>Admins<end> currently online.',
                 'ONLY PLAYER': 'You are the only survivor online.',
                 'CHECK CONSOLE NOTE': 'Check the console (press F1) for more info.',
-                'PLAYERS COUNT': 'There are <lime>{count}<end> survivors online.',
+                'PLAYERS COUNT': 'There are <lime>{active}<end> survivors online.',
+                'PLAYERS STATS': '<orange>TOTAL OF PLAYERS:<end> <lime>{total}<end> <yellow>|<end> <orange>SLEEPERS:<end> <lime>{sleepers}<end>',
                 'NO RULES': 'No rules have been found!.',
                 'NO LANG': 'Language not found in rules list.',
                 'ADMINS LIST TITLE': 'ADMINS ONLINE',
@@ -193,22 +193,14 @@ class notifier:
 
         else:
 
-            self.console('Applying changes of the new configuration file version', True)
+            self.console('Applying new changes to the configuration file (Version: %s)' % LATEST_CFG, True)
 
             # NEW VERSION VALUE
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
             # NEW CHANGES
-            self.Config['SETTINGS']['ENABLE SERVER MAP CMD'] = True
-            self.Config['MESSAGES']['SERVER MAP'] = 'SERVER MAP: <lime>{ip}:{port}<end>'
-            self.Config['MESSAGES']['SERVER MAP DESC'] = '<white>/map -<end> Shows the server map link.'
-            self.Config['COMMANDS']['SERVER MAP'] = 'map'
-            self.Config['COMMANDS']['RULES'] = ('rules',)
-
-            if 'OWNER NAME' in self.Config['COLORS']:
-                del self.Config['COLORS']['OWNER NAME']
-            if 'MODERATOR NAME' in self.Config['COLORS']:
-                del self.Config['COLORS']['MODERATOR NAME']
+            self.Config['MESSAGES']['PLAYERS COUNT'] = 'There are <lime>{active}<end> survivors online.'
+            self.Config['MESSAGES']['PLAYERS STATS'] = '<orange>TOTAL OF PLAYERS:<end> <lime>{total}<end> <yellow>|<end> <orange>SLEEPERS:<end> <lime>{sleepers}<end>'
 
         # SAVE CHANGES
         self.SaveConfig()
@@ -235,73 +227,55 @@ class notifier:
         # PLUGIN SPECIFIC
         self.prefix = '<color=%s>%s</color>' % (COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
         self.title = '<color=red>%s</color>' % self.Title.upper()
-        self.countries = {}
+        self.ply_countries = {}
         self.lastadvert = 0
 
-        self.console('Checking players countries and Admin tags')
+        # COUNTRIES NAMES
+        self.countries = data.GetData('notifier_countries_db')
+        self.countries.update(self.countries_dict())
+        data.SaveData('notifier_countries_db')
+        self.console('Updating countries database')
 
         # IS ADVERTS ENABLED?
         if PLUGIN['ENABLE ADVERTS']:
-
             sec = PLUGIN['ADVERTS INTERVAL']
-
             if sec < 60:
-
                 self.console('Adverts interval can\'t be lower than 60 seconds, setting to default value. (Current: %s second/s)' % sec)
-
             sec = sec if sec > 59 else 300
-
             self.adverts_loop = timer.Repeat(sec, 0, Action(self.send_advert), self.Plugin)
-
             self.console('Adverts are enabled, starting messages loop (Interval: %d minute/s %d second/s)' % divmod(sec, 60))
-
         else:
-
             self.adverts_loop = None
-
             self.console('Adverts are disabled.')
 
         # COMMANDS
         self.cmds = []
-
         self.console('Enabled commands:')
-
         if PLUGIN['ENABLE RULES CMD']:
-
             self.console('- Server Rules: /%s' % ' /'.join(self.Config['COMMANDS']['RULES']))
-            
             for cmd in self.Config['COMMANDS']['RULES']:
-
                 command.AddChatCommand(cmd, self.Plugin, 'rules_CMD')
 
         for cmd in ('PLAYERS LIST', 'ADMINS LIST', 'PLUGINS LIST', 'SEED', 'SERVER MAP'):
-
             # IS COMMAND ENABLED?
             if PLUGIN['ENABLE %s CMD' % cmd]:
-
                 self.cmds.append(cmd)
-
                 command.AddChatCommand(self.Config['COMMANDS'][cmd], self.Plugin, '%s_CMD' % cmd.replace(' ', '_').lower())
 
         n = '%s' % self.Title.lower()
         command.AddChatCommand(n, self.Plugin, 'plugin_CMD')
 
         if self.cmds:
-
             for cmd in self.cmds:
-
                 self.console('- /%s (%s)' % (self.Config['COMMANDS'][cmd], cmd.title()))
-
         else:
-
             self.console('- No commands enabled')
 
         # GET CONNECTED PLAYERS COUNTRIES
         for player in self.player_list():
-
             self.check_tag(player)
-
             self.get_country(self.get_player(player), False)
+        self.console('Checking players countries and Admin tags')
 
         self.console(LINE)
         self.console('Loading Complete')
@@ -311,18 +285,13 @@ class notifier:
 
         # STOP ADVERTS LOOP
         if self.adverts_loop:
-
             self.adverts_loop.Destroy()
-
             self.console('Stopping Adverts loop')
 
         # REMOVE ADMIN TAGS
         for player in self.player_list():
-
             self.check_tag(player, True)
-
         self.console('Removing Admin tags')
-
         self.console('Unload complete')
 
     # ==========================================================================
@@ -339,7 +308,7 @@ class notifier:
     def pconsole(self, player, text, color='white'):
         ''' Sends a message to a player console '''
 
-        player.SendConsoleCommand('echo <color=%s>%s</color>' % (color, text))
+        player.SendConsoleCommand(self._format('echo <color=%s>%s</color>' % (color, text)))
 
     # --------------------------------------------------------------------------
     def say(self, text, color='white', userid=0, force=True):
@@ -436,7 +405,7 @@ class notifier:
         # CHECK IF PLAYER IS IN CONNECTED LIST
         target = self.get_player(player)
         
-        if target['steamid'] in self.countries:
+        if target['steamid'] in self.ply_countries:
 
             # DISCONNECTED MESSAGE / SHOW CONNECTED MESSAGES?
             if PLUGIN['SHOW DISCONNECTED']:
@@ -444,14 +413,16 @@ class notifier:
                 # SHOULD HIDE MESSAGE IF PLAYER IS AN ADMIN?
                 if not (PLUGIN['HIDE ADMINS CONNECTIONS'] and int(target['auth']) > 0):
 
-                    text = MSG['DISCONNECTED'].format(country=target['country'], username=target['username'], steamid=target['steamid'])
+                    country = self.countries[target['country']] if target['country'] in self.countries else target['country']
+
+                    text = MSG['DISCONNECTED'].format(country=country, username=target['username'], steamid=target['steamid'])
 
                     self.say(text, COLOR['DISCONNECTED MESSAGE'], target['steamid'])
 
             # REMOVE FROM THE COUNTRIES DICTIONARY
-            if target['steamid'] in self.countries:
+            if target['steamid'] in self.ply_countries:
 
-                del self.countries[target['steamid']]
+                del self.ply_countries[target['steamid']]
 
     # ==========================================================================
     # <>> MAIN FUNTIONS
@@ -459,29 +430,17 @@ class notifier:
     def send_advert(self):
 
         l = self.Config['ADVERTS']
-
         if l:
-
             index = self.lastadvert
-
             count = len(l)
-
             if count > 1:
-
                 while index == self.lastadvert:
-
                     index = random.Range(0, len(l))
-
                 self.lastadvert = index
-
             line = l[index].format(ip=str(server.ip), port=str(server.port), seed=str(server.seed) if server.seed else 'Random')
-
             self.say(line, COLOR['ADVERTS'])
-
         else:
-
             self.console('The Adverts list is empty, stopping Adverts loop')
-
             self.adverts_loop.Destroy()
 
     # ==========================================================================
@@ -533,8 +492,10 @@ class notifier:
     def players_list_CMD(self, player, cmd, args):
 
         l = self.player_list()
+        s = BasePlayer.sleepingPlayerList
 
-        count_msg = MSG['PLAYERS COUNT'].format(count='<color=lime>%s</color>' % len(l)) if len(l) > 1 else MSG['ONLY PLAYER']
+        players_count = MSG['PLAYERS COUNT'].format(active=str(len(l))) if len(l) > 1 else MSG['ONLY PLAYER']
+        players_stats = MSG['PLAYERS STATS'].format(sleepers=str(len(s)), total=str(len(l) + len(s)))
         title = '%s | %s:' % (self.title, MSG['PLAYERS LIST TITLE'])
         chat = PLUGIN['CHAT PLAYERS LIST']
         console = PLUGIN['CONSOLE PLAYERS LIST']
@@ -552,7 +513,8 @@ class notifier:
                 self.tell(player, ', '.join(i), 'white', force=False)
 
             self.tell(player, LINE, force=False)
-            self.tell(player, count_msg, 'yellow', force=False)
+            self.tell(player, players_count, 'yellow', force=False)
+            self.tell(player, players_stats, 'yellow', force=False)
 
             if console:
 
@@ -564,7 +526,6 @@ class notifier:
 
             if not chat:
 
-                self.tell(player, count_msg, 'yellow')
                 self.tell(player, '(%s)' % MSG['CHECK CONSOLE NOTE'], 'yellow')
 
             self.pconsole(player, LINE)
@@ -576,7 +537,8 @@ class notifier:
                 self.pconsole(player, '<color=orange>{num}</color> | {steamid} | {country} | <color=lime>{username}</color>'.format(num='%03d' % (num + 1), **self.get_player(ply)))
 
             self.pconsole(player, LINE)
-            self.pconsole(player, count_msg, 'yellow')
+            self.pconsole(player, players_count, 'yellow')
+            self.pconsole(player, players_stats, 'yellow')
             self.pconsole(player, LINE)
 
     # --------------------------------------------------------------------------
@@ -633,7 +595,7 @@ class notifier:
             'steamid': steamid,
             'auth': connection.authLevel,
             'con': connection,
-            'country': self.countries[steamid] if steamid in self.countries else 'Unknown'
+            'country': self.ply_countries[steamid] if steamid in self.ply_countries else 'Unknown'
         }
 
     # --------------------------------------------------------------------------
@@ -659,7 +621,7 @@ class notifier:
                 country = 'Unknown'
 
             # SAVE COUNTRY
-            self.countries[target['steamid']] = country
+            self.ply_countries[target['steamid']] = country
 
             if send:
 
@@ -668,6 +630,8 @@ class notifier:
 
                     # SHOULD HIDE MESSAGE IF PLAYER IS AN ADMIN?
                     if not (PLUGIN['HIDE ADMINS CONNECTIONS'] and int(target['auth']) > 0):
+
+                        country = self.countries[country] if country in self.countries else country
 
                         text = MSG['CONNECTED'].format(country=country, username=target['username'], steamid=target['steamid'])
 
@@ -692,7 +656,7 @@ class notifier:
         elif default == 'AUTO':
 
             steamid = rust.UserIDFromPlayer(player)
-            lang = self.countries[steamid] if steamid in self.countries else 'EN'
+            lang = self.ply_countries[steamid] if steamid in self.ply_countries else 'EN'
 
             # PORTGUESE FILTER
             if lang in ('PT','BR'): lang = 'PT'
@@ -715,35 +679,110 @@ class notifier:
 
         # ADMINS TAGS / SHOULD USE ADMIN TAGS?
         if PLUGIN['ENABLE ADMIN TAGS']:
-
             if auth == 1 and not PLUGIN['MODERATOR TAG'] in name:
-
                 player.displayName = '%s %s' % (PLUGIN['MODERATOR TAG'], name)
-
             elif auth == 2 and not PLUGIN['OWNER TAG'] in name:
-
                 player.displayName = '%s %s' % (PLUGIN['OWNER TAG'], name)
-
         if not PLUGIN['ENABLE ADMIN TAGS'] or remove:
-
             if auth == 1 and PLUGIN['MODERATOR TAG'] in name:
-
                 player.displayName = name.replace('%s ' % PLUGIN['MODERATOR TAG'], '')
-
             elif auth == 2 and PLUGIN['OWNER TAG'] in name:
-
                 player.displayName = name.replace('%s ' % PLUGIN['OWNER TAG'], '')
 
     # ==========================================================================
-    # <>> HELP TEXT
+    # <>> MISC FUNTIONS
     # ==========================================================================
     def SendHelpText(self, player, cmd=None, args=None):
 
         # IS HELPTEXT ENABLED?
         if PLUGIN['ENABLE HELPTEXT']:
-
             for cmd in self.cmds:
-
                 self.tell(player, MSG['%s DESC' % cmd], 'yellow', force=False)
+
+    # --------------------------------------------------------------------------
+    def countries_dict(self):
+        ''' Returns dictionary of players countries names '''
+
+        return {
+            'AF': 'Afghanistan',
+            'AS': 'American Samoa',
+            'AD': 'Andorra',
+            'AO': 'Angola',
+            'AR': 'Argentina',
+            'AU': 'Australia',
+            'AT': 'Austria',
+            'BE': 'Belgium',
+            'BR': 'Brazil',
+            'BQ': 'British Antarctic Territory',
+            'IO': 'British Indian Ocean Territory',
+            'VG': 'British Virgin Islands',
+            'BG': 'Bulgaria',
+            'CA': 'Canada',
+            'CV': 'Cape Verde',
+            'CF': 'Central African Republic',
+            'TD': 'Chad',
+            'CL': 'Chile',
+            'CN': 'China',
+            'CO': 'Colombia',
+            'CR': 'Costa Rica',
+            'HR': 'Croatia',
+            'CU': 'Cuba',
+            'CZ': 'Czech Republic',
+            'DK': 'Denmark',
+            'DO': 'Dominican Republic',
+            'DD': 'East Germany',
+            'EC': 'Ecuador',
+            'EG': 'Egypt',
+            'EE': 'Estonia',
+            'FI': 'Finland',
+            'FR': 'France',
+            'GF': 'French Guiana',
+            'PF': 'French Polynesia',
+            'TF': 'French Southern Territories',
+            'FQ': 'French Southern and Antarctic Territories',
+            'GE': 'Georgia',
+            'DE': 'Germany',
+            'GR': 'Greece',
+            'HN': 'Honduras',
+            'HU': 'Hungary',
+            'IS': 'Iceland',
+            'IN': 'India',
+            'IE': 'Ireland',
+            'IT': 'Italy',
+            'JM': 'Jamaica',
+            'JP': 'Japan',
+            'LU': 'Luxembourg',
+            'FX': 'Metropolitan France',
+            'MX': 'Mexico',
+            'MD': 'Moldova',
+            'MC': 'Monaco',
+            'ME': 'Montenegro',
+            'MA': 'Morocco',
+            'MZ': 'Mozambique',
+            'NO': 'Norway',
+            'PL': 'Poland',
+            'PT': 'Portugal',
+            'PR': 'Puerto Rico',
+            'RO': 'Romania',
+            'RU': 'Russia',
+            'SG': 'Singapore',
+            'SI': 'Slovenia',
+            'ZA': 'South Africa',
+            'ES': 'Spain',
+            'SZ': 'Swaziland',
+            'SE': 'Sweden',
+            'CH': 'Switzerland',
+            'TN': 'Tunisia',
+            'TR': 'Turkey',
+            'UM': 'U.S. Minor Outlying Islands',
+            'PU': 'U.S. Miscellaneous Pacific Islands',
+            'VI': 'U.S. Virgin Islands',
+            'UG': 'Uganda',
+            'UA': 'Ukraine',
+            'SU': 'Union of Soviet Socialist Republics',
+            'AE': 'United Arab Emirates',
+            'GB': 'United Kingdom',
+            'US': 'United States'
+        }
 
 # ==============================================================================

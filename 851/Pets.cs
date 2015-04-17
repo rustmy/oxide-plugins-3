@@ -9,13 +9,14 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Pets", "Bombardir", "0.2.0", ResourceId = 851)]
+    [Info("Pets", "Bombardir", "0.3.2", ResourceId = 851)]
     class Pets : RustPlugin
 	{
         private static FieldInfo serverinput;
         private static MethodInfo SetDeltaTimeMethod;
         private static Pets PluginInstance;
         private static BUTTON MainButton;
+        private static BUTTON SecondButton;
         private static Dictionary<string, PetInfo> SaveNpcList;
         public enum Act { Move, Attack, Eat, Follow, Sleep, None }
 
@@ -25,7 +26,7 @@ namespace Oxide.Plugins
 		{
             private static float ButtonReload = 0.3f;
             private static float DrawReload = 0.05f;
-            private static float LootDistance = 1f;
+            internal static float LootDistance = 1f;
             internal static float ReloadControl = 60f;
             internal static float MaxControlDistance = 10f;
 
@@ -72,90 +73,88 @@ namespace Oxide.Plugins
 
             void UpdateDraw()
             {
-                Vector3 drawpos = Vector3.zero;
-                if (npc.action == Act.Move)
-                    drawpos = npc.targetpoint;
-                else if (npc.targetentity != null)
-                    drawpos = npc.targetentity.transform.position;
-
+                Vector3 drawpos = npc.action == Act.Move ? npc.targetpoint : npc.targetentity?.transform.position ?? Vector3.zero;
                 if (drawpos != Vector3.zero)
                     owner.SendConsoleCommand("ddraw.arrow", new object[] { DrawReload + 0.02f, npc.action == Act.Move ? Color.cyan : npc.action == Act.Attack ? Color.red : Color.yellow, drawpos + new Vector3(0, 5f, 0), drawpos, 1.5f });
             }
 
             void UpdateAction()
             {
-                RaycastHit hit;
-                if (Physics.SphereCast(owner.eyes.position, 0.5f, Quaternion.Euler(input.current.aimAngles) * Vector3.forward, out hit) && hit.transform != transform)
-                {
-                    if (npc == null)
+                if (npc != null && input.IsDown(SecondButton))
+                    if (npc.action == Act.Follow)
                     {
-                        BaseNPC hited = hit.transform.GetComponent<BaseNPC>();
-                        if (hited != null)
-                        {
-                            NpcAI OwnedNpc = hited.GetComponent<NpcAI>();
-                            if (OwnedNpc != null && OwnedNpc.owner != this)
-                                owner.ChatMessage(NoOwn);
-                            else if (NextTimeToControl < Time.realtimeSinceStartup)
-                            {
-                                if (!UsePermission || PluginInstance.HasPermission(owner, "can" + hited.modelPrefab.Remove(0, 12).Replace("_skin", "")))
-                                {
-                                    if (hit.distance < MaxControlDistance)
-                                    {
-                                        NextTimeToControl = Time.realtimeSinceStartup + ReloadControl;
-                                        owner.ChatMessage(NewPetMsg);
-                                        npc = hited.gameObject.AddComponent<NpcAI>();
-                                        npc.owner = this;
-                                    }
-                                    else
-                                        owner.ChatMessage(CloserMsg);
-                                }
-                                else
-                                    owner.ChatMessage(NoPermPetMsg);
-                            }
-                            else
-                                owner.ChatMessage(ReloadMsg);
-                        }
+                        owner.ChatMessage(UnFollowMsg);
+                        npc.action = Act.None;
                     }
                     else
                     {
-                        BaseCombatEntity targetentity = hit.transform.GetComponent<BaseCombatEntity>();
-                        if (targetentity == null)
+                        owner.ChatMessage(FollowMsg);
+                        npc.Attack(owner.GetComponent<BaseCombatEntity>(), Act.Follow);
+                    }
+                else
+                {
+                    RaycastHit hit;
+                    if (Physics.SphereCast(owner.eyes.position, 0.5f, Quaternion.Euler(input.current.aimAngles) * Vector3.forward, out hit) && hit.transform != transform)
+                    {
+                        if (npc == null)
                         {
-                            npc.targetpoint = hit.point;
-                            npc.action = Act.Move;
+                            BaseNPC hited = hit.transform.GetComponent<BaseNPC>();
+                            if (hited != null)
+                            {
+                                NpcAI OwnedNpc = hited.GetComponent<NpcAI>();
+                                if (OwnedNpc != null && OwnedNpc.owner != this)
+                                    owner.ChatMessage(NoOwn);
+                                else if (NextTimeToControl < Time.realtimeSinceStartup)
+                                {
+                                    if (!UsePermission || PluginInstance.HasPermission(owner, "can" + hited.modelPrefab.Remove(0, 12).Replace("_skin", "")))
+                                    {
+                                        if (hit.distance < MaxControlDistance)
+                                        {
+                                            NextTimeToControl = Time.realtimeSinceStartup + ReloadControl;
+                                            owner.ChatMessage(NewPetMsg);
+                                            npc = hited.gameObject.AddComponent<NpcAI>();
+                                            npc.owner = this;
+                                        }
+                                        else
+                                            owner.ChatMessage(CloserMsg);
+                                    }
+                                    else
+                                        owner.ChatMessage(NoPermPetMsg);
+                                }
+                                else
+                                    owner.ChatMessage(ReloadMsg);
+                            }
                         }
                         else
                         {
-                            if (targetentity == (BaseCombatEntity) npc.Base)
+                            BaseCombatEntity targetentity = hit.transform.GetComponent<BaseCombatEntity>();
+                            if (targetentity == null)
                             {
-                                if (hit.distance <= LootDistance)
-                                {
-                                    owner.inventory.loot.StartLootingEntity((BaseEntity)npc.Base, true);
-                                    owner.inventory.loot.AddContainer(npc.inventory);
-                                    owner.inventory.loot.SendImmediate();
-                                    owner.ClientRPC(owner.net.connection, owner, "RPC_OpenLootPanel", "smallwoodbox");
-                                } 
-                                else if (npc.action == Act.Follow)
-                                {
-                                    owner.ChatMessage(UnFollowMsg);
-                                    npc.action = Act.None;
-                                }
-                                else
-                                {
-                                    owner.ChatMessage(FollowMsg);
-                                    npc.targetentity = owner.GetComponent<BaseCombatEntity>();
-                                    npc.action = Act.Follow;
-                                }
-                            }
-                            else if (targetentity is BaseCorpse)
-                            {
-                                owner.ChatMessage(EatMsg);
-                                npc.Attack(targetentity, Act.Eat);
+                                npc.targetpoint = hit.point;
+                                npc.action = Act.Move;
                             }
                             else
                             {
-                                owner.ChatMessage(AttackMsg);
-                                npc.Attack(targetentity);
+                                if (targetentity == (BaseCombatEntity)npc.Base)
+                                {
+                                    if (hit.distance <= LootDistance)
+                                    {
+                                        owner.inventory.loot.StartLootingEntity((BaseEntity)npc.Base, true);
+                                        owner.inventory.loot.AddContainer(npc.inventory);
+                                        owner.inventory.loot.SendImmediate();
+                                        owner.ClientRPC(owner.net.connection, owner, "RPC_OpenLootPanel", "smallwoodbox");
+                                    }
+                                }
+                                else if (targetentity is BaseCorpse)
+                                {
+                                    owner.ChatMessage(EatMsg);
+                                    npc.Attack(targetentity, Act.Eat);
+                                }
+                                else
+                                {
+                                    owner.ChatMessage(AttackMsg);
+                                    npc.Attack(targetentity);
+                                }
                             }
                         }
                     }
@@ -169,6 +168,10 @@ namespace Oxide.Plugins
         public class NpcAI : MonoBehaviour
         {
             internal static float IgnoreTargetDistance = 70f;
+            internal static float HealthModificator = 1.5f;
+            internal static float AttackModificator = 2f;
+            internal static float SpeedModificator = 1f;
+
             private static float PointMoveDistance = 1f;
             private static float TargetMoveDistance = 3f;
 
@@ -217,11 +220,15 @@ namespace Oxide.Plugins
                lastTick = Time.time;
                targetpoint = Vector3.zero;
                action = Act.None;
-               hungerLose = RustMetabolism.calories.max*2 / 15000;
-               thristyLose = RustMetabolism.hydration.max*3 / 15000;
-               sleepLose = RustMetabolism.sleep.max / 15000;
+               hungerLose = RustMetabolism.calories.max*2 / 12000;
+               thristyLose = RustMetabolism.hydration.max*3 / 12000;
+               sleepLose = RustMetabolism.sleep.max / 12000;
                inventory = new ItemContainer();
                inventory.ServerInitialize((Item)null, 6);
+               Base.InitializeHealth(Base.health * HealthModificator, Base.MaxHealth() * HealthModificator);
+               Base.locomotion.gallopSpeed *= SpeedModificator;
+               Base.locomotion.trotSpeed *= SpeedModificator;
+               Base.locomotion.acceleration *= SpeedModificator;
             }
 
             void FixedUpdate()
@@ -243,13 +250,10 @@ namespace Oxide.Plugins
 
                         if (action != Act.None)
                             if (action == Act.Move)
-                            {
-                                float distance = Vector3.Distance(transform.position, targetpoint);
-                                if (distance < PointMoveDistance)
+                                if (Vector3.Distance(transform.position, targetpoint) < PointMoveDistance)
                                     action = Act.None;
                                 else
                                     Move(targetpoint);
-                            }
                             else if (action == Act.Sleep)
                             {
                                 Base.state = BaseNPC.State.Sleeping;
@@ -266,6 +270,7 @@ namespace Oxide.Plugins
                             {
                                 float distance = Vector3.Distance(transform.position, targetentity.transform.position);
                                 if (distance < IgnoreTargetDistance)
+                                {
                                     if (action != Act.Follow && distance <= attackrange)
                                     {
                                         Vector3 normalized = Vector3Ex.XZ3D(targetentity.transform.position - transform.position).normalized;
@@ -278,12 +283,15 @@ namespace Oxide.Plugins
                                                 RustMetabolism.hydration.Add(RustMetabolism.hydration.max * 0.03f);
                                             }
                                         }
-                                        else if (Base.attack.Hit(targetentity, targetentity is BaseNPC ? 1f : 2f, false))
+                                        else if (Base.attack.Hit(targetentity, (targetentity is BaseNPC ? 1f : 2f) * AttackModificator, false))
                                             transform.rotation = Quaternion.LookRotation(normalized);
                                         Base.steering.Face(normalized);
                                     }
-                                    else if (action != Act.Follow || distance > TargetMoveDistance)
+                                    else if (action != Act.Follow || distance > TargetMoveDistance && distance > attackrange)
                                         Move(targetentity.transform.position);
+                                }
+                                else
+                                    action = Act.None;
                             }
                     }
                 }
@@ -291,6 +299,10 @@ namespace Oxide.Plugins
 
             void OnDestroy ()
             {
+                Base.InitializeHealth(Base.health / HealthModificator, Base.MaxHealth() / HealthModificator);
+                Base.locomotion.gallopSpeed /= SpeedModificator;
+                Base.locomotion.trotSpeed /= SpeedModificator;
+                Base.locomotion.acceleration /= SpeedModificator;
                 DropUtil.DropItems(inventory, transform.position);
                 SaveNpcList.Remove(owner.owner.userID.ToString());
                 RustAI.ServerInit();
@@ -303,7 +315,7 @@ namespace Oxide.Plugins
             public uint prefabID;
             public uint parentNPC;
             public float x, y, z;
-            public ProtoBuf.ItemContainer inventory;
+            public byte[] inventory;
             internal bool NeedToSpawn;
 
             public PetInfo() 
@@ -318,7 +330,7 @@ namespace Oxide.Plugins
                 z = pet.transform.position.z;
                 prefabID = pet.Base.prefabID;
                 parentNPC = pet.Base.net.ID;
-                inventory = pet.inventory.Save();
+                inventory = pet.inventory.Save().ToProtoBytes();
                 NeedToSpawn = false;
             }
         }
@@ -328,7 +340,8 @@ namespace Oxide.Plugins
 
         private static bool UsePermission = true;
         private static bool GlobalDraw = true;
-        private static string CfgButtion = "USE";
+        private static string CfgButton = "USE";
+        private static string CfgSecButton = "RELOAD";
         private static string ReloadMsg = "You can not tame so often! Wait!";
         private static string NewPetMsg = "Now you have a new pet!";
         private static string CloserMsg = "You need to get closer!";
@@ -351,14 +364,6 @@ namespace Oxide.Plugins
 
         void LoadDefaultConfig() { }
 
-        private void CheckCfg<T>(string Key, ref T var)
-        {
-            if (Config[Key] is T)
-                var = (T)Config[Key];
-            else
-                Config[Key] = var;
-        }
-
         void Init()
         {
             serverinput = typeof(BasePlayer).GetField("serverInput", (BindingFlags.Instance | BindingFlags.NonPublic));
@@ -367,10 +372,15 @@ namespace Oxide.Plugins
 
             CheckCfg<bool>("Use permissions", ref UsePermission);
             CheckCfg<bool>("Enable draw system", ref GlobalDraw);
-            CheckCfg<string>("Main button to controll pet", ref CfgButtion);
+            CheckCfg<string>("Main button to controll pet", ref CfgButton);
+            CheckCfg<string>("Second button to use follow|unfollow", ref CfgSecButton);
             CheckCfg<float>("Reload time to take new npc", ref NpcControl.ReloadControl);
             CheckCfg<float>("Max distance to take npc", ref NpcControl.MaxControlDistance);
+            CheckCfg<float>("Distance to loot npc", ref NpcControl.LootDistance);
             CheckCfg<float>("Distance when target will be ignored by NPC", ref NpcAI.IgnoreTargetDistance);
+            CheckCfg<float>("Pet's Health Modificator", ref NpcAI.HealthModificator);
+            CheckCfg<float>("Pet's Attack Modificator", ref NpcAI.AttackModificator);
+            CheckCfg<float>("Pet's Speed Modificator", ref NpcAI.SpeedModificator);
             CheckCfg<string>("New pet msg", ref NewPetMsg);
             CheckCfg<string>("Closer msg", ref CloserMsg);
             CheckCfg<string>("No take perm msg", ref NoPermPetMsg);
@@ -392,7 +402,8 @@ namespace Oxide.Plugins
             CheckCfg<string>("Info msg", ref InfoMsg);
             SaveConfig();
 
-            MainButton = ConvertStringToButton(CfgButtion);
+            MainButton = ConvertStringToButton(CfgButton);
+            SecondButton = ConvertStringToButton(CfgSecButton);
 
             if (UsePermission)
             {
@@ -404,21 +415,13 @@ namespace Oxide.Plugins
                 permission.RegisterPermission("canboar", this);
             }
 
-            try { SaveNpcList = Interface.GetMod().DataFileSystem.ReadObject<Dictionary<string, PetInfo>>("Pets"); }
-            catch { SaveNpcList = new Dictionary<string, PetInfo>(); }
+            try { SaveNpcList = Interface.GetMod().DataFileSystem.ReadObject<Dictionary<string, PetInfo>>("Pets"); } catch { }
+            if (SaveNpcList == null) SaveNpcList = new Dictionary<string, PetInfo>();
         }
 
         #endregion
 
         #region Unload Hook (destroy all plugin's objects)
-
-        void DestroyAll<T>()
-        {
-            UnityEngine.Object[] objects = GameObject.FindObjectsOfType(typeof(T));
-            if (objects != null)
-                foreach (UnityEngine.Object gameObj in objects)
-                    GameObject.Destroy(gameObj);
-        }
 
         void Unload()
 		{
@@ -429,7 +432,8 @@ namespace Oxide.Plugins
         #endregion
 
         #region Hook OnAttacked for NpcAI
-        void OnEntityAttacked(BaseCombatEntity entity, HitInfo hitInfo)
+
+        void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo hitInfo)
         {
             if (entity is BaseNPC)
             {
@@ -438,9 +442,11 @@ namespace Oxide.Plugins
                     ai.OnAttacked(hitInfo);
             }
         }
+
         #endregion
 
         #region Hook OnPlayerInit (load player's pet)
+
         void OnPlayerInit(BasePlayer player)
         {
             PetInfo info;
@@ -454,26 +460,31 @@ namespace Oxide.Plugins
                     pet.Spawn(true);
                     comp.npc = pet.gameObject.AddComponent<NpcAI>();
                     comp.npc.owner = comp;
-                    comp.npc.inventory.Load(info.inventory);
+                    comp.npc.inventory.Load(ProtoBuf.ItemContainer.Deserialize(info.inventory));
                     info.NeedToSpawn = false;
                 }
             }
         }
+
         #endregion
 
         #region Hook OnServerInitialized (kill all pets, then spawn when owner will connect)
+
         void OnServerInitialized()
         {
-            foreach(KeyValuePair<string, PetInfo> entry in SaveNpcList)
-            {
-                BaseNetworkable parent = BaseNetworkable.serverEntities.Find(entry.Value.parentNPC);
-                if (parent != null)
-                    parent.KillMessage();
-            }
+            if (Time.realtimeSinceStartup < 100)
+                foreach(KeyValuePair<string, PetInfo> entry in SaveNpcList)
+                {
+                    BaseNetworkable parent = BaseNetworkable.serverEntities.Find(entry.Value.parentNPC);
+                    if (parent != null)
+                        parent.KillMessage();
+                }
         }
+
         #endregion
 
         #region Hook OnServerSave (save all pets)
+
         void OnServerSave()
         {
             UnityEngine.Object[] objects = GameObject.FindObjectsOfType(typeof(NpcAI));
@@ -488,12 +499,13 @@ namespace Oxide.Plugins
                 Interface.GetMod().DataFileSystem.WriteObject("Pets", SaveNpcList);
             }
         }
+
         #endregion
 
         #region PET Command (activate/deactivate npc mode)
 
         [ChatCommand("pet")]
-        void npc(BasePlayer player, string command, string[] args)
+        void pet(BasePlayer player, string command, string[] args)
         {
             if (!UsePermission || HasPermission(player, "cannpc"))
 			{
@@ -578,7 +590,24 @@ namespace Oxide.Plugins
             return permission.UserHasPermission(player.userID.ToString(), perm);
         }
 
-        private BUTTON ConvertStringToButton(string button)
+        private static void DestroyAll<T>()
+        {
+            UnityEngine.Object[] objects = GameObject.FindObjectsOfType(typeof(T));
+            if (objects != null)
+                foreach (UnityEngine.Object gameObj in objects)
+                    GameObject.Destroy(gameObj);
+        }
+
+        private void CheckCfg<T>(string Key, ref T var)
+        {
+            if (Config[Key] == null)
+                Config[Key] = var;
+            else
+                try { var = (T) Convert.ChangeType(Config[Key], typeof(T)); }
+                catch { Config[Key] = var; }
+        }
+
+        private static BUTTON ConvertStringToButton(string button)
         {
             switch (button)
             {
@@ -589,7 +618,6 @@ namespace Oxide.Plugins
                 case "JUMP": return BUTTON.JUMP;
                 case "DUCK": return BUTTON.DUCK;
                 case "SPRINT": return BUTTON.SPRINT;
-                case "USE": return BUTTON.USE;
                 case "INVENTORY": return BUTTON.INVENTORY;
                 case "FIRE_PRIMARY": return BUTTON.FIRE_PRIMARY;
                 case "FIRE_SECONDARY": return BUTTON.FIRE_SECONDARY;
@@ -615,12 +643,27 @@ namespace Oxide.Plugins
 
 
 /* Change Log
- * 0.1.0
+ * 0.1.0 (26/03/15)
     - Small optimization and code clean up
     - Configurable Button
     - Inventories!
- * 0.1.1
+
+ * 0.1.1 (05/04/15)
     - Fixed all errors (Null, save)
- * 0.2.0
+
+ * 0.2.0 (05/04/15)
     - Pets save!
+
+ * 0.3.0 (10/04/15)
+    - Low size save file.
+    - Metabolism 20% faster.
+    - Now u can modify standart MAXHP\SPEED\ATTACK
+    - Changed Follow\Unfollow cmd use
+    - AI slightly improved
+
+ * 0.3.1 (10/04/15)
+    - Changed OnAttacked hookname
+
+ * 0.3.2 (11/04/15)
+    - Config fix
 */
