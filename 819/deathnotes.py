@@ -41,7 +41,7 @@ class deathnotes:
         self.Title = 'Death Notes'
         self.Author = 'SkinN'
         self.Description = 'Broadcasts players and animals deaths to chat'
-        self.Version = V(2, 4, 3)
+        self.Version = V(2, 4, 4)
         self.ResourceId = 819
 
     # ==========================================================================
@@ -336,9 +336,9 @@ class deathnotes:
                           'eye', 'group', 'head', 'clavicle'):
                     if x in part:
                         part = x
-                part = part.replace('_', ' ').title()
+                part = part.replace('_', ' ').upper()
             else: part = None
-            bodypart = self.Config['BODYPARTS'][part] if part in self.Config['BODYPARTS'] else part
+            bodypart = self.Config['BODYPARTS'][part] if part and part in self.Config['BODYPARTS'] else part
 
             #self.console(LINE)
             #self.console('TYPE: %s' % death)

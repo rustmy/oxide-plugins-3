@@ -5,13 +5,13 @@
   "name": "Death Notes",
   "category": "Rust-Experimental",
   "type": "py",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "author": "SkinN õ.Õ&#039;.|.",
   "rating": 4.91667,
-  "downloads": 2057,
-  "updated": "2015-04-17T15:12:28.000Z",
+  "downloads": 2102,
+  "updated": "2015-04-18T04:16:03.000Z",
   "description": "Broadcasts players and animals deaths to chat",
   "iconUrl": "data/resource_icons/0/819.jpg?1428288306",
-  "downloadUrl": "plugins/death-notes.819/download?version=4542",
+  "downloadUrl": "plugins/death-notes.819/download?version=4556",
   "filename": "deathnotes.py"
 }

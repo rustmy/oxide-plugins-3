@@ -2,6 +2,7 @@
 // Reference: Newtonsoft.Json
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Hunt.RPG;
 using Hunt.RPG.Keys;
 using Newtonsoft.Json;
@@ -22,10 +23,11 @@ using System.Collections;
 namespace Oxide.Plugins
 {
 
-    [Info("Hunt RPG", "PedraozauM / SW", "1.2.8", ResourceId = 841)]
+    [Info("Hunt RPG", "PedraozauM / SW", "1.2.9", ResourceId = 841)]
     public class HuntPlugin : RustPlugin
     {
-        [PluginReference] private Plugin NpcController;
+        [PluginReference] private Plugin Pets;
+        [PluginReference] private Plugin BuildingOwners;
         private readonly HuntRPG HuntRPGInstance;
         private bool ServerInitialized;
         private bool UpdateConfig;
@@ -43,7 +45,7 @@ namespace Oxide.Plugins
         public void GiveTamePermission(string playerid, string perm)
         {
             if (permission.UserHasPermission(playerid, perm)) return;
-            permission.GrantUserPermission(playerid, perm, NpcController);
+            permission.GrantUserPermission(playerid, perm, Pets);
         }
 
         public void RevokeTamePermission(string playerid, string perm)
@@ -72,11 +74,13 @@ namespace Oxide.Plugins
                 Config[HK.ResearchSkillTable] = HuntTablesGenerator.GenerateResearchTable();
                 Config[HK.UpgradeBuildTable] = HuntTablesGenerator.GenerateUpgradeBuildingTable();
                 Config[HK.MessagesTable] = HuntTablesGenerator.GenerateMessageTable();
+                Config[HK.TameTable] = HuntTablesGenerator.GenerateTameTable();
                 SaveConfig();
             }
-            else
+            else if (UpdatePlayerData)
             {
                 //this will be called only on serverinit if the config needs updating
+                LogToConsole("Generating item table.");
                 Config[HK.ItemTable] = HuntTablesGenerator.GenerateItemTable();
                 SaveConfig();
             }
@@ -127,14 +131,20 @@ namespace Oxide.Plugins
             var itemTable = ReadFromConfig<Dictionary<string, ItemInfo>>(HK.ItemTable);
             var researchSkillTable = ReadFromConfig<Dictionary<string, int>>(HK.ResearchSkillTable);
             var upgradeBuildTable = ReadFromConfig<Dictionary<BuildingGrade.Enum, float>>(HK.UpgradeBuildTable);
-            HuntRPGInstance.ConfigRPG(messagesTable, xpTable, maxStatsTable, upgradeBuildTable, skillTable, researchSkillTable, itemTable, rpgConfig, playerFurnaces);
+            var tameTable = ReadFromConfig<Dictionary<int, string>>(HK.TameTable);
+            HuntRPGInstance.ConfigRPG(messagesTable, xpTable, maxStatsTable, upgradeBuildTable, skillTable, researchSkillTable, itemTable,tameTable, rpgConfig, playerFurnaces);
             if (showMsgs)
                 LogToConsole("Data and config loaded!");
-            var plugin = plugins.Find("NpcController");
-            if (plugin == null)
+            
+            if (Pets == null)
             {
-                LogToConsole("NpcController plugin was not found, disabling taming skill");
+                LogToConsole("Pets plugin was not found, disabling taming skill");
                 skillTable[HRK.Tamer].Enabled = false;
+            }
+            if (BuildingOwners == null)
+            {
+                LogToConsole("Building Owners plugin was not found, disabling blink to arrow skill");
+                skillTable[HRK.BlinkArrow].Enabled = false;
             }
 
         }
@@ -178,8 +188,8 @@ namespace Oxide.Plugins
             LoadRPG();
         }
 
-        [HookMethod("OnUnload")]
-        void OnUnload()
+        [HookMethod("Unload")]
+        void Unload()
         {
             HuntRPGInstance.SaveRPG();
         }
@@ -232,8 +242,8 @@ namespace Oxide.Plugins
         //    HuntRPGInstance.OnItemAddedToContainer(itemContainer, item);
         //}
 
-        [HookMethod("OnEntityAttacked")]
-        object OnEntityAttacked(MonoBehaviour entity, HitInfo hitInfo)
+        [HookMethod("OnEntityTakeDamage")]
+        object OnEntityTakeDamage(MonoBehaviour entity, HitInfo hitInfo)
         {
             var player = entity as BasePlayer;
             if (player == null) return null;
@@ -350,7 +360,7 @@ namespace Oxide.Plugins
         public Vector3? GetGround(Vector3 position)
         {
             var direction = Vector3.forward;
-            var raycastHits = Physics.RaycastAll(position, direction, 50f).GetEnumerator();
+            var raycastHits = Physics.RaycastAll(position, direction, 25f).GetEnumerator();
             float nearestDistance = 9999f;
             Vector3? nearestPoint = null;
             while (raycastHits.MoveNext())
@@ -373,6 +383,13 @@ namespace Oxide.Plugins
         {
             Puts(String.Format("Hunt: {0}",message));
         }
+
+        public bool IsOwner(object buildingBlock, BasePlayer player)
+        {
+            if (BuildingOwners == null) return false;
+            string owner = (string) BuildingOwners.Call("FindBlockData", new[] {buildingBlock});
+            return owner == RPGHelper.SteamId(player);
+        }
     }
 }
 
@@ -385,6 +402,7 @@ namespace Hunt.RPG
         private PluginMessagesConfig MessagesTable;
         private Dictionary<string, Skill> SkillTable;
         private Dictionary<int, long> XPTable;
+        private Dictionary<int, string> TameTable;
         private Dictionary<string, ItemInfo> ItemTable;
         private Dictionary<string, int> ResearchTable;
         private Dictionary<string, string> PlayersFurnaces;
@@ -402,13 +420,14 @@ namespace Hunt.RPG
             PlayerLastPercentChange = new Dictionary<string, float>();
         }
 
-        public void ConfigRPG(PluginMessagesConfig messagesTable, Dictionary<int, long> xpTable, Dictionary<string, float> maxStatsTable, Dictionary<BuildingGrade.Enum, float> upgradeBuildTable, Dictionary<string, Skill> skillTable, Dictionary<string, int> researchSkillTable, Dictionary<string, ItemInfo> itemTable, Dictionary<string, RPGInfo> rpgConfig, Dictionary<string, string> playerFurnaces)
+        public void ConfigRPG(PluginMessagesConfig messagesTable, Dictionary<int, long> xpTable, Dictionary<string, float> maxStatsTable, Dictionary<BuildingGrade.Enum, float> upgradeBuildTable, Dictionary<string, Skill> skillTable, Dictionary<string, int> researchSkillTable, Dictionary<string, ItemInfo> itemTable, Dictionary<int, string> tameTable, Dictionary<string, RPGInfo> rpgConfig, Dictionary<string, string> playerFurnaces)
         {
             MessagesTable = messagesTable;
             XPTable = xpTable;
             SkillTable = skillTable;
             MaxStatsTable = maxStatsTable;
             ItemTable = itemTable;
+            TameTable = tameTable;
             RPGConfig = rpgConfig;
             ResearchTable = researchSkillTable;
             UpgradeBuildingTable = upgradeBuildTable;
@@ -892,9 +911,8 @@ namespace Hunt.RPG
                         if (!skill.Name.Equals(HRK.Tamer)) continue;
                         var tamerSkill = rpgInfo.Skills[HRK.Tamer];
                         PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), HPK.CanTame);
-                        PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), HPK.CanTameWolf);
-                        if (tamerSkill > 1)
-                            PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), HPK.CanTameBear);
+                        for (int j = 1; j <= tamerSkill; j++)
+                            PluginInstance.GiveTamePermission(RPGHelper.SteamId(player), TameTable[j]);
                     }
                         
                     else
@@ -1144,6 +1162,15 @@ namespace Hunt.RPG
                     return false;
                 }
                 var position = (Vector3)newPos;
+                var buildingBlock = GetBuildingBlock(position);
+                if (buildingBlock != null)
+                {
+                    if (!PluginInstance.IsOwner(buildingBlock, player))
+                    {
+                        ChatMessage(player, "Can't blink to other player house!");
+                        return false;
+                    }
+                }
                 PluginInstance.TeleportPlayerTo(player, position);
                 SetCooldown(rpgInfo, time, playerCooldowns, HRK.BlinkArrow);
                 return true;
@@ -1153,6 +1180,19 @@ namespace Hunt.RPG
             if (rpgInfo.Preferences.AutoToggleBlinkArrow)
                 rpgInfo.Preferences.UseBlinkArrow = false;
             return false;
+        }
+
+        public object GetBuildingBlock(Vector3 position)
+        {
+            var hits = Physics.OverlapSphere(position, 3f);
+            foreach (var hit in hits)
+            {
+                if (hit.GetComponentInParent<BuildingBlock>() != null)
+                {
+                    return hit.GetComponentInParent<BuildingBlock>();
+                }
+            }
+            return null;
         }
 
         //public void OnItemAddedToContainer(ItemContainer itemContainer, Item item)
@@ -1286,7 +1326,8 @@ namespace Hunt.RPG
             blinkarrow.AddRequiredStat("agi", (int)Math.Floor(blinkarrow.RequiredLevel * 2.5d));
             blinkarrow.Enabled = false;
             skillTable.Add(HRK.BlinkArrow, blinkarrow);
-            var tamer = new Skill(HRK.Tamer, "This skill allows you to tame a animal as your pet. Level 1 allows wolf, level 2 allows bear.", 50, 2);
+            var tamer = new Skill(HRK.Tamer, "This skill allows you to tame a animal as your pet. Level 1 allows chicken, level 2 allows boar, level 3 allows stag, level 4 allows wolf, level 5 allows bear.", 50, 5);
+            tamer.SkillpointsPerLevel = 5;
             tamer.Usage = "Type \"/pet \" to toggle taming. To tame get close to the animal and press your USE button(E). After tamed press USE looking at something, if its terrain he will move, if its a player or other animal it he will attack. If looking at him it will start following you. To set the pet free type \"/pet free\".";
             skillTable.Add(HRK.Tamer, tamer);
             return skillTable;
@@ -1320,6 +1361,19 @@ namespace Hunt.RPG
                 {"Weapon", 5}
             };
             return researchTable;
+        }
+
+        public static Dictionary<int, string> GenerateTameTable()
+        {
+            var tameTable = new Dictionary<int, string>
+            {
+                {1, HPK.CanTameChicken},
+                {2, HPK.CanTameBoar},
+                {3, HPK.CanTameStag},
+                {4, HPK.CanTameWolf},
+                {5, HPK.CanTameBear}
+            };
+            return tameTable;
         }
 
         public static Dictionary<BuildingGrade.Enum, float> GenerateUpgradeBuildingTable()
@@ -1729,6 +1783,7 @@ namespace Hunt.RPG.Keys
         public const string SkillTable = "SKILLTABLE";
         public const string ItemTable = "ITEMTABLE";
         public const string ResearchSkillTable = "RESEARCHSKILLTABLE";
+        public const string TameTable = "TAMETABLE";
         public const string UpgradeBuildTable = "UPGRADEBUILDTABLE";
         public const int MaxLevel = 200;
         public const int BaseXP = 383;
@@ -1762,6 +1817,9 @@ namespace Hunt.RPG.Keys
     public static class HPK
     {
         public const string CanTame = "cannpc";
+        public const string CanTameChicken = "canchicken";
+        public const string CanTameBoar = "canboar";
+        public const string CanTameStag = "canstag";
         public const string CanTameWolf = "canwolf";
         public const string CanTameBear = "canbear";
     }
