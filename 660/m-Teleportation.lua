@@ -1,9 +1,9 @@
 
 -- ----------------------------------------------------------------------------
--- Teleportation System                                          Version 1.4.13
+-- Teleportation System                                          Version 1.4.15
 -- ----------------------------------------------------------------------------
 -- Filename:          m-Teleportation.lua
--- Last Modification: 04-17-2015
+-- Last Modification: 04-25-2015
 -- ----------------------------------------------------------------------------
 -- Description:
 --
@@ -14,7 +14,7 @@
 
 PLUGIN.Title       = "Teleportation System"
 PLUGIN.Description = "Multiple teleportation systems for admins and players."
-PLUGIN.Version     = V( 1, 4, 13)
+PLUGIN.Version     = V( 1, 4, 15)
 PLUGIN.HasConfig   = true
 PLUGIN.Author      = "Mughisi"
 PLUGIN.ResourceId  = 660
@@ -77,7 +77,7 @@ function PLUGIN:Init()
     self:LoadSavedData()
 
     -- Check if the configuration file is up to date.
-    if self.Config.Settings.ConfigVersion ~= "1.4.13" then
+    if self.Config.Settings.ConfigVersion ~= "1.4.15" then
         -- The configuration file needs an update.
         self:UpdateConfig()
     end
@@ -141,7 +141,7 @@ function PLUGIN:LoadDefaultConfig()
     -- General Settings:
     self.Config.Settings = {
         ChatName          = "Teleportation",
-        ConfigVersion     = "1.4.13",
+        ConfigVersion     = "1.4.15",
         HomesEnabled      = true,
         TPREnabled        = true,
         InterruptTPOnHurt = true
@@ -552,6 +552,22 @@ function PLUGIN:UpdateConfig()
 
         -- Send a console message to notify the server owner of this change.
         print( "m-Teleportation: Your config file was updated to config version 1.4.13, version indication was updated!" )
+    end
+    
+    if self.Config.Settings.ConfigVersion == "1.4.13" then
+        -- Change the config version.
+        self.Config.Settings.ConfigVersion = "1.4.14"
+
+        -- Send a console message to notify the server owner of this change.
+        print( "m-Teleportation: Your config file was updated to config version 1.4.14, version indication was updated!" )
+    end
+    
+    if self.Config.Settings.ConfigVersion == "1.4.14" then
+        -- Change the config version.
+        self.Config.Settings.ConfigVersion = "1.4.15"
+
+        -- Send a console message to notify the server owner of this change.
+        print( "m-Teleportation: Your config file was updated to config version 1.4.15, version indication was updated!" )
     end
 
     -- Save the config.
@@ -2558,10 +2574,17 @@ function PLUGIN:Teleport( player, destination )
     -- Let the player sleep to prevent the player from falling through objects.
     player:StartSleeping()
 
-    timer.Once(0.5, function()
-        player.transform.position = destination
-        player:ClientRPC(nil, player, "ForcePositionTo", destination)
-    end )
+    player.transform.position = destination
+    player:ClientRPCPlayer(nil, player, "ForcePositionTo", destination)
+
+    player:SetPlayerFlag(global.BasePlayer.PlayerFlags.ReceivingSnapshot, true);
+    player:UpdateNetworkGroup();
+    player:UpdatePlayerCollider(true, false);
+    player:SendNetworkUpdateImmediate(false);
+    player:ClientRPCPlayer(null, player, "StartLoading");
+    player:SendFullSnapshot();
+    player:SetPlayerFlag(global.BasePlayer.PlayerFlags.ReceivingSnapshot, false);
+    player:ClientRPCPlayer(null, player, "FinishLoading" );
 end
 
 -- ----------------------------------------------------------------------------

@@ -5,13 +5,13 @@
   "name": "Teleportation System",
   "category": "Rust-Experimental",
   "type": "lua",
-  "version": "1.4.13",
+  "version": "1.4.15",
   "author": "Mughisi",
-  "rating": 4.88372,
-  "downloads": 5043,
-  "updated": "2015-04-17T18:11:23.000Z",
+  "rating": 4.86957,
+  "downloads": 5399,
+  "updated": "2015-04-25T13:59:01.000Z",
   "description": "Offers admin teleport commands, optional tpa system and an option homes system.",
   "iconUrl": "data/resource_icons/0/660.jpg?1419645574",
-  "downloadUrl": "plugins/teleportation-system.660/download?version=4551",
+  "downloadUrl": "plugins/teleportation-system.660/download?version=4723",
   "filename": "m-Teleportation.lua"
 }

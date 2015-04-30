@@ -5,12 +5,12 @@
   "name": "Crafting Controller",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "author": "Mughisi",
   "rating": 5,
-  "downloads": 2540,
-  "updated": "2015-04-12T12:29:00.000Z",
+  "downloads": 2769,
+  "updated": "2015-04-30T04:45:40.000Z",
   "description": "Allows you to modify the time spend crafting and which items can be crafted.",
-  "downloadUrl": "plugins/crafting-controller.695/download?version=4458",
+  "downloadUrl": "plugins/crafting-controller.695/download?version=4781",
   "filename": "CraftingController.cs"
 }

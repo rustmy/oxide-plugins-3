@@ -10,10 +10,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("FriendlyFire", "playrust.io / dcode", "1.3.3", ResourceId = 840)]
+    [Info("FriendlyFire", "playrust.io / dcode", "1.4.0", ResourceId = 840)]
     public class FriendlyFire : RustPlugin
     {
 
@@ -134,30 +135,48 @@ namespace Oxide.Plugins
             RestoreDefaults(player);
         }
 
-        [HookMethod("OnEntityTakeDamage")]
-        object OnEntityTakeDamage(BaseCombatEntity entity, HitInfo hit) {
-            try {
-                if (lib == null || !(entity is BasePlayer) || !(hit.Initiator is BasePlayer) || (entity == hit.Initiator))
-                    return null;
-                var victim = entity as BasePlayer;
-                var victimId = victim.userID.ToString();
-                var attacker = hit.Initiator as BasePlayer;
-                var attackerId = attacker.userID.ToString();
-                var key = attackerId + "-" + victimId;
-                if (!manuallyEnabledBy.Contains(attacker.userID) && HasFriend(attackerId, victimId)) {
-                    DateTime now = DateTime.UtcNow;
-                    DateTime time;
-                    if (!notificationTimes.TryGetValue(key, out time) || time < now.AddSeconds(-10)) {
-                        attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map or type: <color=\"#ffd479\">/ff on</color>", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
-                        notificationTimes[key] = now;
-                    }
-                    hit.damageTypes.types = new float[0];
-                    return false;
+        private object ProcessAttack(BasePlayer attacker, BasePlayer victim, HitInfo hit) {
+            if (lib == null || attacker == victim)
+                return null;
+            var victimId = victim.userID.ToString();
+            var attackerId = attacker.userID.ToString();
+            var key = attackerId + "-" + victimId;
+            if (!manuallyEnabledBy.Contains(attacker.userID) && HasFriend(attackerId, victimId)) {
+                DateTime now = DateTime.UtcNow;
+                DateTime time;
+                if (!notificationTimes.TryGetValue(key, out time) || time < now.AddSeconds(-10)) {
+                    attacker.SendConsoleCommand("chat.add", "", _("%NAME% is your friend and cannot be hurt. To disable this, unshare your location with %NAME% on the live map or type: <color=\"#ffd479\">/ff on</color>", new Dictionary<string, string>() { { "NAME", victim.displayName } }));
+                    notificationTimes[key] = now;
                 }
-            } catch (Exception ex) {
-                Error("OnEntityAttacked failed: " + ex.Message);
+                // Clear the HitInfo (we don't want to rely on the return behavior because other plugins may cause conflicts)
+                hit.damageTypes = new DamageTypeList();
+                hit.DidHit = false;
+                hit.HitEntity = null;
+                hit.Initiator = null;
+                hit.DoHitEffects = false;
+                return false;
             }
             return null;
+        }
+
+        [HookMethod("OnPlayerAttack")]
+        void OnPlayerAttack(BasePlayer attacker, HitInfo hit) {
+            try {
+                if (hit.HitEntity is BasePlayer)
+                    ProcessAttack(attacker, hit.HitEntity as BasePlayer, hit);
+            } catch (Exception ex) {
+                Error("OnPlayerAttack failed: " + ex.Message);
+            }
+        }
+
+        [HookMethod("OnEntityTakeDamage")]
+        void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo hit) {
+            try {
+                if (entity is BasePlayer && hit.Initiator is BasePlayer)
+                    ProcessAttack(hit.Initiator as BasePlayer, entity as BasePlayer, hit);
+            } catch (Exception ex) {
+                Error("OnEntityTakeDamage failed: " + ex.Message);
+            }
         }
 
         [ChatCommand("ff")]

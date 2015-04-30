@@ -5,13 +5,13 @@
   "name": "R-AntiCheat",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.6.0",
+  "version": "2.1.14",
   "author": "Reneb",
-  "rating": 4.5,
-  "downloads": 1552,
-  "updated": "2015-04-03T20:15:00.000Z",
+  "rating": 4.85714,
+  "downloads": 1808,
+  "updated": "2015-04-29T13:02:12.000Z",
   "description": "Anti-cheat system with checks for speed and jump hacks",
   "iconUrl": "data/resource_icons/0/730.jpg?1428092312",
-  "downloadUrl": "plugins/r-anticheat.730/download?version=4307",
+  "downloadUrl": "plugins/r-anticheat.730/download?version=4769",
   "filename": "AntiCheat.cs"
 }

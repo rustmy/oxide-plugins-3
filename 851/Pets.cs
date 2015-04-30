@@ -9,7 +9,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Pets", "Bombardir", "0.3.2", ResourceId = 851)]
+    [Info("Pets", "Bombardir", "0.3.3", ResourceId = 851)]
     class Pets : RustPlugin
 	{
         private static FieldInfo serverinput;
@@ -24,8 +24,8 @@ namespace Oxide.Plugins
 
         public class NpcControl : MonoBehaviour 
 		{
-            private static float ButtonReload = 0.3f;
-            private static float DrawReload = 0.05f;
+            const float ButtonReload = 0.2f;
+            const float DrawReload = 0.05f;
             internal static float LootDistance = 1f;
             internal static float ReloadControl = 60f;
             internal static float MaxControlDistance = 10f;
@@ -142,7 +142,7 @@ namespace Oxide.Plugins
                                         owner.inventory.loot.StartLootingEntity((BaseEntity)npc.Base, true);
                                         owner.inventory.loot.AddContainer(npc.inventory);
                                         owner.inventory.loot.SendImmediate();
-                                        owner.ClientRPC(owner.net.connection, owner, "RPC_OpenLootPanel", "smallwoodbox");
+                                        owner.ClientRPCPlayer(owner.net.connection, owner, "RPC_OpenLootPanel", "smallwoodbox");
                                     }
                                 }
                                 else if (targetentity is BaseCorpse)
@@ -299,13 +299,13 @@ namespace Oxide.Plugins
 
             void OnDestroy ()
             {
+                DropUtil.DropItems(inventory, transform.position);
+                SaveNpcList.Remove(owner.owner.userID.ToString());
+                RustAI.ServerInit();
                 Base.InitializeHealth(Base.health / HealthModificator, Base.MaxHealth() / HealthModificator);
                 Base.locomotion.gallopSpeed /= SpeedModificator;
                 Base.locomotion.trotSpeed /= SpeedModificator;
                 Base.locomotion.acceleration /= SpeedModificator;
-                DropUtil.DropItems(inventory, transform.position);
-                SaveNpcList.Remove(owner.owner.userID.ToString());
-                RustAI.ServerInit();
             }
         }
         #endregion
@@ -640,30 +640,3 @@ namespace Oxide.Plugins
         #endregion
     }
 }
-
-
-/* Change Log
- * 0.1.0 (26/03/15)
-    - Small optimization and code clean up
-    - Configurable Button
-    - Inventories!
-
- * 0.1.1 (05/04/15)
-    - Fixed all errors (Null, save)
-
- * 0.2.0 (05/04/15)
-    - Pets save!
-
- * 0.3.0 (10/04/15)
-    - Low size save file.
-    - Metabolism 20% faster.
-    - Now u can modify standart MAXHP\SPEED\ATTACK
-    - Changed Follow\Unfollow cmd use
-    - AI slightly improved
-
- * 0.3.1 (10/04/15)
-    - Changed OnAttacked hookname
-
- * 0.3.2 (11/04/15)
-    - Config fix
-*/

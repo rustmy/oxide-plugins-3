@@ -5,13 +5,13 @@
 # SLASH     = SALVAGE AXE / HATCHETS / BARRICADES
 # BLUNT     = TORCH / ROCK / SALVAGE HAMMER
 # BITE      = ANIMALS
-# BULLET    = GUNS
-# EXPLOSION = C4 / GRENADES
+# BULLET    = GUNS / BOW
+# EXPLOSION = C4 / GRENADES / ROCKET LAUNCHER
 # ==============================================================================
 # METABOLISM
 # ==============================================================================
-# FALL   | DROWNED | POISON | COLD   | HEAT    | RADIATION LEVEL/POISON
-# HUNGER | THIRST  | BLEEDING |
+# FALL   | DROWNED | POISON | COLD | HEAT | RADIATION LEVEL/POISON
+# HUNGER | THIRST | BLEEDING |
 # ==============================================================================
 # ANIMALS
 # ==============================================================================
@@ -27,7 +27,7 @@ from UnityEngine import Vector3
 
 # GLOBAL VARIABLES
 DEV = False
-LATEST_CFG = 3.2
+LATEST_CFG = 3.4
 LINE = '-' * 50
 
 class deathnotes:
@@ -37,11 +37,10 @@ class deathnotes:
     # ==========================================================================
     def __init__(self):
 
-        # PLUGIN INFO
         self.Title = 'Death Notes'
         self.Author = 'SkinN'
         self.Description = 'Broadcasts players and animals deaths to chat'
-        self.Version = V(2, 4, 4)
+        self.Version = V(2, 4, 7)
         self.ResourceId = 819
 
     # ==========================================================================
@@ -49,7 +48,6 @@ class deathnotes:
     # ==========================================================================
     def LoadDefaultConfig(self):
 
-        # DICTIONARY
         self.Config = {
             'CONFIG_VERSION': LATEST_CFG,
             'SETTINGS': {
@@ -85,7 +83,7 @@ class deathnotes:
                 'HEAT': ('{victim} burned to death.','{victim} turned into a human torch.'),
                 'FALL': ('{victim} died from a big fall.','{victim} believed he could fly, he believed he could touch the sky!'),
                 'BLEEDING': ('{victim} bled to death.','{victim} emptied in blood.'),
-                'EXPLOSION': ('{victim} exploded into a million little pieces.','{victim} was a sexy bomb, died from a sexy explosion.'),
+                'EXPLOSION': ('{victim} died from a {weapon} explosion.','A {weapon} blew {victim} into a million little pieces.'),
                 'POISON': ('{victim} died poisoned.','{victim} eat the wrong meat and died poisoned.'),
                 'SUICIDE': ('{victim} committed suicide.','{victim} has put an end to his life.'),
                 'TRAP': ('{victim} stepped on a snap trap.','{victim} did not watch his steps, died on a trap.'),
@@ -121,20 +119,23 @@ class deathnotes:
                 'WING': 'Wing',
                 'EYE': 'Eye',
                 'EAR': 'Ear',
+                'STOMACHE': 'Stomache',
+                'MANE': 'Mane',
                 'CLAVICLE': 'Clavicle',
                 'FINGERS': 'Fingers',
                 'THIGH': 'Thigh',
                 'GROUP': 'Group',
-                'LEFT SHOULDER': 'Left Shoulder',
-                'RIGHT SHOULDER': 'Right Shoulder',
-                'LEFT CALF': 'Left Calf',
-                'RIGHT CALF': 'Right Calf',
-                'LEFT TOE': 'Left Toe',
-                'RIGHT TOE': 'Right Toe',
-                'LEFT HAND': 'Left Hand',
-                'RIGHT HAND': 'Right Hand',
-                'LEFT KNEE': 'Left Knee',
-                'RIGHT KNEE': 'Right Knee'
+                'SHOULDER': 'Shoulder',
+                'CALF': 'Calf',
+                'TOE': 'Toe',
+                'HAND': 'Hand',
+                'KNEE': 'Knee',
+                'FOREARM': 'Forearm',
+                'UPPERARM': 'Upperarm',
+                'TONGUE': 'Tongue',
+                'SHIN': 'Shin',
+                'ULNA': 'Ulna',
+                'ROOTBONE': 'Chicken Rootbone'
             },
             'WEAPONS': {
                 'WOODEN SPEAR': 'Wooden Spear',
@@ -156,7 +157,10 @@ class deathnotes:
                 'SALVAGED ICEPICK': 'Salvaged Icepick',
                 'TORCH': 'Torch',
                 'THOMPSON': 'Thompson',
-                'REVOLVER': 'Revolver'
+                'REVOLVER': 'Revolver',
+                'ROCKET': 'Rocket Launcher',
+                'GRENADE': 'F1 Granade',
+                'TIMED': 'C4'
             },
             'ANIMALS': {
                 'STAG': 'Deer',
@@ -168,33 +172,64 @@ class deathnotes:
             }
         }
 
-        self.console('Loading default configuration file', True)
+        self.console('* Loading default configuration file', True)
 
     # --------------------------------------------------------------------------
     def UpdateConfig(self):
 
-        # IS OLDER CONFIG TWO VERSIONS OLDER?
         if (self.Config['CONFIG_VERSION'] <= LATEST_CFG - 0.2) or DEV:
 
-            self.console('Current configuration file is two or more versions older than the latest (Current: v%s / Latest: v%s)' % (self.Config['CONFIG_VERSION'], LATEST_CFG), True)
+            self.console('* Configuration file is too old, replacing to default file (Current: v%s / Latest: v%s)' % (self.Config['CONFIG_VERSION'], LATEST_CFG), True)
             
-            # RESET CONFIGURATION
             self.Config.clear()
-
-            # LOAD THE DEFAULT CONFIGURATION
             self.LoadDefaultConfig()
 
         else:
 
-            self.console('Applying new changes to the configuration file (Version: %s)' % LATEST_CFG, True)
+            self.console('* Applying new changes to the configuration file (Version: %s)' % LATEST_CFG, True)
 
-            # NEW VERSION VALUE
             self.Config['CONFIG_VERSION'] = LATEST_CFG
 
-            # NEW CHANGES
-            self.Config['ANIMALS']['HORSE'] = 'Horse'
+            self.Config['MESSAGES']['EXPLOSION'] = ('{victim} died from a {weapon} explosion.','A {weapon} blew {victim} into a million little pieces.')
+            self.Config['WEAPONS']['ROCKET'] = 'Rocket Launcher'
+            self.Config['WEAPONS']['GRENADE'] = 'F1 Granade'
+            self.Config['WEAPONS']['TIMED'] = 'C4'
+            self.Config['BODYPARTS'] = {
+                'SPINE': 'Spine',
+                'LIP': 'Lips',
+                'JAW': 'Jaw',
+                'NECK': 'Neck',
+                'TAIL': 'Tail',
+                'HIP': 'Hip',
+                'FOOT': 'Feet',
+                'PELVIS': 'Pelvis',
+                'LEG': 'Leg',
+                'HEAD': 'Head',
+                'ARM': 'Arm',
+                'JOINT': 'Joint',
+                'PENIS': 'Penis',
+                'WING': 'Wing',
+                'EYE': 'Eye',
+                'EAR': 'Ear',
+                'STOMACHE': 'Stomache',
+                'MANE': 'Mane',
+                'CLAVICLE': 'Clavicle',
+                'FINGERS': 'Fingers',
+                'THIGH': 'Thigh',
+                'GROUP': 'Group',
+                'SHOULDER': 'Shoulder',
+                'CALF': 'Calf',
+                'TOE': 'Toe',
+                'HAND': 'Hand',
+                'KNEE': 'Knee',
+                'FOREARM': 'Forearm',
+                'UPPERARM': 'Upperarm',
+                'TONGUE': 'Tongue',
+                'SHIN': 'Shin',
+                'ULNA': 'Ulna',
+                'ROOTBONE': 'Chicken Rootbone'
+            }
 
-        # SAVE CHANGES
         self.SaveConfig()
 
     # ==========================================================================
@@ -202,85 +237,60 @@ class deathnotes:
     # ==========================================================================
     def Init(self):
 
-        # UPDATE CONFIG FILE
         if self.Config['CONFIG_VERSION'] < LATEST_CFG or DEV:
-
             self.UpdateConfig()
 
-        # CONFIGURATION VARIABLES
-        global MSG, PLUGIN, COLOR
+        global MSG, PLUGIN, COLOR, PARTS, WEAPONS
         MSG = self.Config['MESSAGES']
         COLOR = self.Config['COLORS']
+        PARTS = self.Config['BODYPARTS']
         PLUGIN = self.Config['SETTINGS']
+        WEAPONS = self.Config['WEAPONS']
 
-        # PLUGIN SPECIFIC
         self.prefix = '<color=%s>%s</color>' % (COLOR['PREFIX'], PLUGIN['PREFIX']) if PLUGIN['PREFIX'] else None
         self.title = '<color=red>%s</color>' % self.Title.upper()
         self.metabolism = ('DROWNED','HEAT','COLD','THIRST','POISON','HUNGER','RADIATION','BLEEDING','FALL')
         self.fallcache = []
 
-        # COMMANDS
         command.AddChatCommand(self.Title.replace(' ', '').lower(), self.Plugin, 'plugin_CMD')
 
     # ==========================================================================
     # <>> MESSAGE FUNTIONS
     # ==========================================================================
     def console(self, text, force=False):
-        ''' Sends a console message '''
 
         if self.Config['SETTINGS']['BROADCAST TO CONSOLE'] or force:
-
             print('[%s v%s] :: %s' % (self.Title, str(self.Version), text))
 
     # --------------------------------------------------------------------------
     def say(self, text, color='white', userid=0):
-        ''' Sends a global chat message '''
 
         if self.prefix:
-
             rust.BroadcastChat('%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, text), None, str(userid))
-
         else:
-
             rust.BroadcastChat('<color=%s>%s</color>' % (color, text), None, str(userid))
 
     # --------------------------------------------------------------------------
     def tell(self, player, text, color='white', userid=0, force=True):
-        ''' Sends a global chat message '''
 
         if self.prefix and force:
-
             rust.SendChatMessage(player, '%s <color=white>:</color> <color=%s>%s</color>' % (self.prefix, color, text), None, str(userid))
-
         else:
-
             rust.SendChatMessage(player, '<color=%s>%s</color>' % (color, text), None, str(userid))
 
     # --------------------------------------------------------------------------
     def say_filter(self, text, raw, vpos, attacker):
 
         color = COLOR['MESSAGE']
-
-        # SEND MESSAGE IN RADIUS?
         if PLUGIN['SHOW MESSAGE IN RADIUS']:
-
             for player in BasePlayer.activePlayerList:
-
-                if self.get_distance(player.transform.position, vpos) <= float(PLUGIN['MESSAGES RADIUS']):
-
+                if self.distance(player.transform.position, vpos) <= float(PLUGIN['MESSAGES RADIUS']):
                     self.tell(player, text, color)
-
                 elif attacker and player == attacker:
-
                     self.tell(player, text, color)
-
-        # OTHERWISE SEND GLOBAL
         else:
-
             self.say(text, color)
-
         if PLUGIN['BROADCAST TO CONSOLE']:
-
             self.console(raw)
 
     # ==========================================================================
@@ -288,29 +298,23 @@ class deathnotes:
     # ==========================================================================
     def OnEntityTakeDamage(self, victim, hitinfo):
 
-        if victim.ToPlayer() and str(victim.lastDamage).upper() == 'FALL':
-
+        if victim.ToPlayer():
             sid = rust.UserIDFromPlayer(victim)
-
-            if sid not in self.fallcache:
-
+            if victim.lastDamage == 'fall' and sid not in self.fallcache:
                 self.fallcache.append(sid)
 
     # --------------------------------------------------------------------------
     def OnEntityDeath(self, victim, hitinfo):
 
-        if any(x in str(victim) for x in ('BasePlayer','BaseNPC')):
+        if any(x in str(victim) for x in ('player','animals')) and not 'corpse' in str(victim):
 
-            # DEATH INFO
             text = None
             attacker = hitinfo.Initiator
             death = str(victim.lastDamage).upper()
 
-            # VICTIM AND ATTACKER POS
             vpos = victim.transform.position
             apos = attacker.transform.position if attacker else vpos
 
-            # ANIMAL NAME
             if not victim.ToPlayer():
                 animal = str(victim.LookupPrefabName().split('/')[-1].strip()).upper()
             elif not attacker.ToPlayer():
@@ -319,40 +323,21 @@ class deathnotes:
                 animal = None
             animal = self.Config['ANIMALS'][animal] if animal in self.Config['ANIMALS'] else animal
 
-            # WEAPON USED
             if hitinfo.Weapon:
                 x = str(hitinfo.Weapon.LookupShortPrefabName()).upper().replace('.WEAPON', '').replace('_', ' ')
-                weapon = self.Config['WEAPONS'][x] if x in self.Config['WEAPONS'] else 'None'
+                weapon = WEAPONS[x] if x in WEAPONS else 'None'
             else:
                 weapon = 'None'
 
-            # BODYPART
+            part = 'NONE'
             if hitinfo.HitBone:
-                part = StringPool.Get(hitinfo.HitBone)
-                part = part.replace('l_', 'left_').replace('r_', 'right_')
-                for x in ('spine', 'lip', 'jaw', 'neck', 'tail',\
-                          'hip', 'foot', 'pelvis', 'leg', 'arm',\
-                          'joint', 'wing', 'ear', 'fingers', 'thigh',\
-                          'eye', 'group', 'head', 'clavicle'):
-                    if x in part:
-                        part = x
-                part = part.replace('_', ' ').upper()
-            else: part = None
-            bodypart = self.Config['BODYPARTS'][part] if part and part in self.Config['BODYPARTS'] else part
+                part = StringPool.Get(hitinfo.HitBone).upper()
+                for p in PARTS:
+                    part = p if p in part else part
+            bodypart = PARTS[part] if part and part in PARTS else part
 
-            #self.console(LINE)
-            #self.console('TYPE: %s' % death)
-            #self.console('VICTIM: %s' % victim)
-            #self.console('ATTACKER: %s' % attacker)
-            #self.console('ANIMAL: %s' % animal)
-            #self.console('WEAPON: %s' % weapon)
-            #self.console('BODY PART: %s' % bodypart)
-            #self.console(LINE)
+            if victim.ToPlayer():
 
-            # DEATH TYPE MESSAGE
-            if 'Player' in str(victim):
-
-                # CHECK IF FALL
                 sid = rust.UserIDFromPlayer(victim)
 
                 if death == 'BLEEDING' and sid in self.fallcache:
@@ -361,7 +346,6 @@ class deathnotes:
 
                     death = 'FALL'
 
-                # IS PLAYER SLEEPING?
                 sleep = victim.IsSleeping()
 
                 if (death == 'SUICIDE' and PLUGIN['SHOW SUICIDES']) or (death in self.metabolism and PLUGIN['SHOW METABOLISM DEATH']):
@@ -370,17 +354,25 @@ class deathnotes:
 
                 if death == 'BITE' and PLUGIN['SHOW ANIMAL KILL']:
 
-                    text = 'ANIMAL KILL' if not sleep else 'ANIMAL KILL SLEEP'
+                    if attacker.ToPlayer():
+
+                        text = 'TRAP'
+
+                    else:
+
+                        text = 'ANIMAL KILL' if not sleep else 'ANIMAL KILL SLEEP'
 
                 if death == 'EXPLOSION' and PLUGIN['SHOW EXPLOSION DEATH']:
 
+                    for w in WEAPONS:
+
+                        a = str(animal).replace('_','.')
+
+                        weapon = WEAPONS[w] if w in a.split('.') else weapon
+
                     text = death
 
-                if 'BearTrap' in str(attacker) and PLUGIN['SHOW TRAP DEATH']:
-
-                    text = 'TRAP'
-
-                elif 'Barricade' in str(attacker) and PLUGIN['SHOW BARRICADE DEATH']:
+                if 'barricades' in str(attacker) and PLUGIN['SHOW BARRICADE DEATH']:
 
                     text = 'BARRICADE'
 
@@ -394,18 +386,24 @@ class deathnotes:
 
                         text = death if not sleep else '%s SLEEP' % death
 
-            elif 'BaseNPC' in str(victim) and attacker.ToPlayer() and PLUGIN['SHOW ANIMAL DEATH']:
+            elif 'animals' in str(victim) and attacker.ToPlayer() and PLUGIN['SHOW ANIMAL DEATH']:
 
                 text = 'ANIMAL DEATH'
 
-            # FORMAT MESSAGE
+            #self.console(LINE)
+            #self.console('TYPE: %s' % death)
+            #self.console('VICTIM: %s' % victim)
+            #self.console('ATTACKER: %s' % attacker)
+            #self.console('ANIMAL: %s (%s)' % (animal, attacker.LookupPrefabName()))
+            #self.console('WEAPON: %s' % weapon)
+            #self.console('BODY PART: %s' % bodypart)
+            #self.console(LINE)
+
             if text:
 
                 text = MSG[text]
-
                 if isinstance(text, tuple):
                     text = text[Random.Range(0, len(text))]
-
                 d, r = {}, {}
 
                 if victim.ToPlayer():
@@ -424,18 +422,16 @@ class deathnotes:
                 r['weapon'] = weapon
                 d['bodypart'] = '<color=%s>%s</color>' % (COLOR['BODYPART'], bodypart)
                 r['bodypart'] = bodypart
-                d['distance'] = '<color=%s>%.2f</color>' % (COLOR['DISTANCE'], self.get_distance(vpos, apos))
-                r['distance'] = '%.2f' % self.get_distance(vpos, apos)
+                d['distance'] = '<color=%s>%.2f</color>' % (COLOR['DISTANCE'], self.distance(vpos, apos))
+                r['distance'] = '%.2f' % self.distance(vpos, apos)
 
                 if isinstance(text, str):
-
                     self.say_filter(text.format(**d), text.format(**r), vpos, attacker)
 
     # ==========================================================================
     # <>> SIDE FUNTIONS
     # ==========================================================================
-    def get_distance(self, p1, p2):
-        ''' Returns distance between two positions '''
+    def distance(self, p1, p2):
 
         return Vector3.Distance(p1, p2)
 

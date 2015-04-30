@@ -5,13 +5,13 @@
   "name": "Ranks And Titles",
   "category": "Rust-Experimental",
   "type": "js",
-  "version": "1.4.8",
+  "version": "1.5.3",
   "author": "KillParadise",
   "rating": 5,
-  "downloads": 560,
-  "updated": "2015-03-22T22:32:00.000Z",
+  "downloads": 687,
+  "updated": "2015-04-28T00:05:09.000Z",
   "description": "Setup a Rank system, or a custom title system",
   "iconUrl": "data/resource_icons/0/830.jpg?1425355163",
-  "downloadUrl": "plugins/ranks-and-titles.830/download?version=4114",
+  "downloadUrl": "plugins/ranks-and-titles.830/download?version=4750",
   "filename": "RanksAndTitles.js"
 }

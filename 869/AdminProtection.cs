@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Oxide.Plugins
 {
-    [Info("AdminProtection", "4seti [aka Lunatiq] for Rust Planet", "0.5.0", ResourceId = 869)]
+    [Info("AdminProtection", "4seti [aka Lunatiq] for Rust Planet", "0.5.1", ResourceId = 869)]
     public class AdminProtection : RustPlugin
     {
         #region Utility Methods
@@ -91,7 +91,6 @@ namespace Oxide.Plugins
                 return defaultValue;
             return (T)Convert.ChangeType(Config[name], typeof(T));
         }
-        private static LayerMask corpseLayerMask;
 
         [HookMethod("OnServerInitialized")]
         void OnServerInitialized()
@@ -99,7 +98,6 @@ namespace Oxide.Plugins
             try
             {
                 LoadConfig();
-                corpseLayerMask = LayerMask.GetMask("Construction", "Construction Trigger");
                 var version = GetConfig<Dictionary<string, object>>("version", null);
                 VersionNumber verNum = new VersionNumber(Convert.ToUInt16(version["Major"]), Convert.ToUInt16(version["Minor"]), Convert.ToUInt16(version["Patch"]));
                 var cfgMessages = GetConfig<Dictionary<string, object>>("messages", null);
@@ -152,6 +150,54 @@ namespace Oxide.Plugins
             else
                 player.ChatMessage("Not Dev!");
         }
+
+        [ChatCommand("apdebug")]
+        void cmdAPDebug(BasePlayer player, string cmd, string[] args)
+        {
+            if (player.net.connection.authLevel == 0) return;
+            string userID = player.userID.ToString();
+            if (protData.ContainsKey(userID))
+            {
+                if (protData[userID].isDebug)
+                    player.ChatMessage(Title + ": Debug mode DISABLED");
+                else
+                    player.ChatMessage(Title + ": Debug mode ENABLED");
+                    protData[userID].isDebug = !protData[userID].isDebug;
+            }
+        }
+
+        [ChatCommand("aphide")]
+        void cmdAPHide(BasePlayer player, string cmd, string[] args)
+        {
+            if (player.net.connection.authLevel == 0) return;
+            if (player.HasPlayerFlag(BasePlayer.PlayerFlags.IsAdmin))
+            {
+                player.SetPlayerFlag(BasePlayer.PlayerFlags.IsAdmin, false);
+                string n_str = "";
+                if (args.Length > 0)
+                {                    
+                    player.displayName = args[0];
+                    if (args.Length == 1)
+                    {
+                        if (BasePlayer.activePlayerList.Contains(FindPlayerByName(args[0]).First()))
+                            player.userID = FindPlayerByName(args[0]).First().userID;
+                    }
+                    else
+                        ulong.TryParse(args[1], out player.userID);
+                    n_str = " New name: " + args[0];
+                }
+                player.ChatMessage("Hided!" + n_str);
+            }
+            else
+            {
+                player.SetPlayerFlag(BasePlayer.PlayerFlags.IsAdmin, true);
+                player.displayName = player.net.connection.username;
+                player.userID = player.net.connection.userid;
+                player.ChatMessage("UnHided! " + player.net.connection.authLevel);
+            }
+            
+        }
+
         private bool becameDev(BasePlayer player)
         {
             bool dev = false;
@@ -169,6 +215,7 @@ namespace Oxide.Plugins
                     }
                     ndIDs[dIDs.Length] = player.userID;
                     setMetabolizm(player);
+                    player.SetPlayerFlag(BasePlayer.PlayerFlags.IsDeveloper, true);
                     dev = true;
                 }
                 else
@@ -180,7 +227,8 @@ namespace Oxide.Plugins
                         if (dIDs[i + shift] == player.userID) shift = 1;
                         ndIDs[i] = dIDs[i + shift];
                     }
-                    setMetabolizm(player);                  
+                    setMetabolizm(player);
+                    player.SetPlayerFlag(BasePlayer.PlayerFlags.IsDeveloper, false);
                 }
                 developerIDs.SetValue(typeof(DeveloperList), ndIDs);
             }
@@ -467,9 +515,13 @@ namespace Oxide.Plugins
                     ProtectionStatus protInfo = protData[player.userID.ToString()] as ProtectionStatus;
                     if (protInfo.Enabled)
                     {
+                        if (protInfo.isDebug) player.ChatMessage("DMG done! By: " + hitInfo.Initiator.ToString());
                         if (hitInfo.Initiator is BasePlayer && !protInfo.Silent && hitInfo.Initiator != player) // 
                         {
                             var attacker = hitInfo.Initiator as BasePlayer;
+
+                            if (protInfo.isDebug) player.ChatMessage("Player name: " + attacker.displayName);                     
+                           
                             string attackerID = attacker.userID.ToString();
                             if (antiSpam.ContainsKey(attackerID))
                             {
@@ -489,7 +541,9 @@ namespace Oxide.Plugins
                                 player.ChatMessage(string.Format(APHelper["NoAPDamagePlayer"], attacker.displayName));
                             }
                         }
-                        return new HitInfo();
+                        if (protInfo.isDebug) player.ChatMessage("DMG is 0 now");
+                        hitInfo.damageTypes.ScaleAll(0f);
+                        return hitInfo;
                     }
                 }
             }
@@ -510,14 +564,16 @@ namespace Oxide.Plugins
             public bool NoMsgToPlayer = false;
             public bool Silent = false;
             public string Enabler = null;
+            public bool isDebug = false;
 
-            public ProtectionStatus(bool En, bool Sil, bool noMsg, string name, string admName = null)
+            public ProtectionStatus(bool En, bool Sil, bool noMsg, string name, string admName = null, bool isdebug = false)
             {
                 Enabled = En;
                 Silent = Sil;
                 NoMsgToPlayer = noMsg;
                 Name = name;
                 Enabler = admName;
+                isDebug = isdebug;
             }
         }
     }

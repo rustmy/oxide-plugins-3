@@ -1,449 +1,440 @@
-// Reference: Oxide.Ext.Rust
- 
 using System.Collections.Generic;
 using System;
+using System.Data;
 using UnityEngine;
 using Oxide.Core;
+using Oxide.Core.Plugins;
  
 namespace Oxide.Plugins
 {
-    [Info("AntiCheat", "Reneb & Fix by DieWildeBetty", 1.6)]
+    [Info("AntiCheat", "Reneb", "2.1.14", ResourceId = 730)]
     class AntiCheat : RustPlugin
     {
-        private static readonly DateTime epoch = new DateTime(1970, 1, 1);
-        private double lastCheck;
-        private double currenttime;
-        private float interval;
- 
-        private Dictionary<BasePlayer, Vector3> posSave;
-        private Dictionary<BasePlayer, double> lastSpeedDetection;
-        private Dictionary<BasePlayer, double> lastJumpDetection;
-        private Dictionary<BasePlayer, int> JumpDetections;
-        private Dictionary<BasePlayer, int> SpeedDetections;
-        private Dictionary<BasePlayer, int> TimeLeft;
- 
-        private float Sminspeedpersecond;
-        private int Sdetectionsbeforepunish;
-        private bool Sban;
-        private bool Skick;
- 
-        private float Jjumpheight;
-        private int Jdetectionsbeforepunish;
-        private double Jtimebeforereset;
-        private bool Jban;
-        private bool Jkick;
- 
-        private bool permanent;
-        private int timetocheck;
-        private bool checkadmins;
-        private float ignorefps;
-        private float fps;
- 
-        private Core.Configuration.DynamicConfigFile playerdata;
-        private List<BasePlayer> tempPlayers;
-        private bool Changed;
- 
-        void Loaded()
+        static RaycastHit cachedRaycasthit;
+        static int constructionColl;
+        float lastTime;
+        bool serverInitialized = false;
+        Oxide.Plugins.Timer activateTimer;
+        static Vector3 VectorDown = new Vector3(0f, -1f, 0f);
+        GameObject originalWallhack;
+        List<GameObject> ListGameObjects = new List<GameObject>();
+		static List<BasePlayer> adminList = new List<BasePlayer>();
+		
+        Hash<TriggerBase, Hash<BaseEntity, Vector3>> TriggerData = new Hash<TriggerBase, Hash<BaseEntity, Vector3>>();
+        Hash<TriggerBase, BuildingBlock> TriggerToBlock = new Hash<TriggerBase, BuildingBlock>();
+        Hash<BaseEntity, float> lastDetections = new Hash<BaseEntity, float>();
+        Dictionary<uint, float> DoorCheck = new Dictionary<uint, float>();
+
+        static int authIgnore = 1;
+        static int fpsIgnore = 30;
+
+        static bool speedhack = true;
+        static bool speedhackPunish = true;
+        static int speedhackDetections = 3;
+        static float minSpeedPerSecond = 10f;
+
+
+        static bool flyhack = true;
+        static bool flyhackPunish = true;
+        static int flyhackDetections = 3; 
+
+        static bool wallhack = true;
+
+        static bool fpsCheckCalled = false;
+        static ConsoleSystem.Arg fpsCaller;
+        static List<PlayerHack> fpsCalled = new List<PlayerHack>();
+        static float fpsTime;
+        
+
+        void LoadDefaultConfig() { }
+
+        private void CheckCfg<T>(string Key, ref T var)
         {
-            playerdata = Interface.GetMod().DataFileSystem.GetDatafile("AntiCheat_Data");
-                posSave = new Dictionary<BasePlayer, Vector3>();
-            tempPlayers = new List<BasePlayer>();
-            lastCheck = CurrentTime();
+            if (Config[Key] is T) 
+                var = (T)Config[Key];
+            else
+                Config[Key] = var;
+        }
+        private void CheckCfgFloat(string Key, ref float var)
+        {
+        
+            if (Config[Key] != null) 
+                var = Convert.ToSingle(Config[Key]);
+            else
+                Config[Key] = var;
+        } 
            
-            lastSpeedDetection = new Dictionary<BasePlayer, double>();
-            lastJumpDetection = new Dictionary<BasePlayer, double>();
-            JumpDetections = new Dictionary<BasePlayer, int>();
-            SpeedDetections = new Dictionary<BasePlayer, int>();
-            TimeLeft = new Dictionary<BasePlayer, int>();
-        }
-        float CurrentFPS()
+        void Init()
         {
-            return (1 / UnityEngine.Time.smoothDeltaTime);
-        }
-        void SaveData()
+            CheckCfg<int>("Settings: Ignore Hacks for authLevel", ref authIgnore);
+            CheckCfg<int>("Settings: FPS Ignore", ref fpsIgnore);
+            CheckCfg<bool>("SpeedHack: activated", ref speedhack);
+            CheckCfg<bool>("SpeedHack: Punish", ref speedhackPunish);
+            CheckCfg<int>("SpeedHack: Punish Detections", ref speedhackDetections);
+            CheckCfgFloat("SpeedHack: Speed Detection", ref minSpeedPerSecond);
+            CheckCfg<bool>("Flyhack: activated", ref flyhack);
+            CheckCfg<bool>("Flyhack: Punish", ref flyhackPunish);
+            CheckCfg<int>("Flyhack: Punish Detections", ref flyhackDetections);
+            CheckCfg<bool>("Wallhack: activated", ref wallhack);
+            SaveConfig();            
+        } 
+
+
+        public class PlayerHack : MonoBehaviour
         {
-            Interface.GetMod().DataFileSystem.SaveDatafile("AntiCheat_Data");
-        }
-        double CurrentTime()
-        {
-            return System.DateTime.UtcNow.Subtract(epoch).TotalSeconds;
-        }
- 
-        void LoadVariables()
-        {
-            GetConfig("GeneralConfig", "Version", Version.ToString()); // TODO update check if new config required
-            Sminspeedpersecond = Convert.ToSingle(GetConfig("AntiSpeedHack", "minSpeedPerSecond", 12));
-            Sdetectionsbeforepunish = Convert.ToInt32(GetConfig("AntiSpeedHack", "detectionsBeforePunish", 3));
-            Sban = Convert.ToBoolean(GetConfig("AntiSpeedHack", "punishByBan", true));
-            Skick = Convert.ToBoolean(GetConfig("AntiSpeedHack", "punishByKick", false));
- 
-            Jjumpheight = Convert.ToSingle(GetConfig("AntiJumpHack", "jumpHeight", 5));
-            Jdetectionsbeforepunish = Convert.ToInt32(GetConfig("AntiJumpHack", "detectionsBeforePunish", 2));
-            Jtimebeforereset = Convert.ToDouble(GetConfig("AntiJumpHack", "timeBeforeReset", 120)); ;
-            Jban = Convert.ToBoolean(GetConfig("AntiJumpHack", "punishByBan", true));
-            Jkick = Convert.ToBoolean(GetConfig("AntiJumpHack", "punishByKick", false));
-            checkadmins = Convert.ToBoolean(GetConfig("GeneralConfig", "CheckAdmins", false));
-            permanent = Convert.ToBoolean(GetConfig("DetectionTime", "Permanent", false));
-            timetocheck = Convert.ToInt32(GetConfig("DetectionTime", "TimeToCheck", 3600));
-            ignorefps = Convert.ToSingle(GetConfig("DetectionTime", "IgnoreUnderFPS", 10));
- 
-            if (Changed)
+            public BasePlayer player;
+            public Vector3 lastPosition;
+            public float Distance3D;
+            public float VerticalDistance;
+            public bool isonGround;
+            
+            public float currentTick;
+            public float lastTick;
+
+            public float speedHackDetections = 0f;
+            public float lastTickSpeed;
+
+            public float flyHackDetections = 0f;
+            public float lastTickFly;
+
+            void Awake()
             {
-                ((Dictionary<string,object>)Config["GeneralConfig"])["Version"] = Version.ToString(); //updated to new version
-                SaveConfig();
-                Changed = false;
+                player = GetComponent<BasePlayer>();
+                InvokeRepeating("CheckPlayer", 1f, 1f);
+                lastPosition = player.transform.position;
+            }
+            void CheckPlayer()
+            {           
+                if (!player.IsConnected()) GameObject.Destroy(this);
+                currentTick = Time.realtimeSinceStartup;
+                Distance3D = Vector3.Distance(player.transform.position, lastPosition);
+                VerticalDistance = player.transform.position.y - lastPosition.y;
+                isonGround = player.IsOnGround();
+
+                if(!player.IsWounded() && !player.IsDead() && !player.IsSleeping() && Performance.frameRate > fpsIgnore)
+                    CheckForHacks(this);
+
+                lastPosition = player.transform.position;
+
+                if(fpsCheckCalled)
+                    if(!fpsCalled.Contains(this))
+                    {
+                        fpsCalled.Add(this);
+                        fpsTime += (Time.realtimeSinceStartup - currentTick);
+                    }
+
+                lastTick = currentTick;
             }
         }
- 
-        void LoadDefaultConfig()
+        static void CheckForHacks(PlayerHack hack)
         {
-            Puts("AntiCheat: Creating a new config file");
-            Config.Clear(); // force clean new config
-            LoadVariables();
+            if (speedhack)
+                CheckForSpeedHack(hack);
+            if (flyhack)
+                CheckForFlyhack(hack);
+          
         }
- 
-        object GetConfig(string menu, string datavalue, object defaultValue)
+        void OnDoorOpened(BuildingBlock door)
         {
-            var data = Config[menu] as Dictionary<string, object>;
-            if (data == null)
+            if (DoorCheck.ContainsKey(door.net.ID))
+                DoorCheck[door.net.ID] = Time.realtimeSinceStartup;            
+			else
+                DoorCheck.Add(door.net.ID, Time.realtimeSinceStartup);
+        }
+        void OnDoorClosed(BuildingBlock door)
+        {
+            if (DoorCheck.ContainsKey(door.net.ID))
+                DoorCheck[door.net.ID] = Time.realtimeSinceStartup;
+            else
+                DoorCheck.Add(door.net.ID, Time.realtimeSinceStartup);
+        }
+        static void CheckForSpeedHack(PlayerHack hack)
+        {
+            if (hack.Distance3D < minSpeedPerSecond) return;
+            if (hack.VerticalDistance < -10f) return;
+            if(hack.lastTickSpeed == hack.lastTick)
             {
-                data = new Dictionary<string, object>();
-                Config[menu] = data;
-                Changed = true;
-            }
-            object value;
-            if (!data.TryGetValue(datavalue, out value))
-            {
-                value = defaultValue;
-                data[datavalue] = value;
-                Changed = true;
-            }
-            return value;
-        }
- 
-        void OnServerInitialized()
-        {
-            LoadVariables();
-            StartAll();
-        }
- 
-        void ShutdownAll()
-        {
-            foreach (var player in BasePlayer.activePlayerList)
-            {
-                EndPlayer(player);
-            }
-        }
- 
-        void StartAll()
-        {
-            foreach (var player in BasePlayer.activePlayerList)
-            {
-                InitPlayer(player);
-            }
-        }
-        void Reset()
-        {
-            ShutdownAll();
-            playerdata.Clear();
-            SaveData();
-            StartAll();
-        }
-        void RefreshAll()
-        {
-            ShutdownAll();
-            foreach (var player in BasePlayer.activePlayerList)
-            {
-                playerdata[player.userID.ToString()] = null;
-            }
-            SaveData();
-            StartAll();
-        }
-        void InitPlayer(BasePlayer player)
-        {
-            if (checkadmins || player.net.connection.authLevel < 1)
-            {
-                posSave[player] = player.transform.position;
-                lastSpeedDetection.Add(player, 0);
-                SpeedDetections.Add(player, 0);
-                lastJumpDetection.Add(player, 0);
-                JumpDetections.Add(player, 0);
-                var timeleft = timetocheck;
-                if (playerdata[player.userID.ToString()] != null)
-                    timeleft = Convert.ToInt32(playerdata[player.userID.ToString()]);
-                TimeLeft.Add(player, timeleft);
-                tempPlayers.Add(player);
+                hack.speedHackDetections++; 
+                SendDetection(string.Format("{0} - {1} is being detected with: Speedhack ({2}m/s)", hack.player.userID.ToString(), hack.player.displayName, hack.Distance3D.ToString()));
+                if(hack.speedHackDetections >= speedhackDetections)
+                {
+                    if(speedhackPunish)
+                        Punish(hack.player, string.Format("rSpeedhack ({0}m/s)", hack.Distance3D.ToString()));
+                }
             }
             else
             {
-                Puts(string.Format("{0} will not be checked by the AntiCheat as he is an admin", player.displayName));
+                hack.speedHackDetections = 0f;
+            }
+            hack.lastTickSpeed = hack.currentTick;
+        }
+        static void CheckForFlyhack(PlayerHack hack)
+        { 
+            if (hack.isonGround) return;
+            if (hack.player.transform.position.y < 5f) return;
+            if (hack.VerticalDistance < -10f) return; 
+            if (UnityEngine.Physics.Raycast(hack.player.transform.position, VectorDown, 5f)) return;
+            if (hack.lastTickFly == hack.lastTick) 
+            {
+                hack.flyHackDetections++;
+                SendDetection(string.Format("{0} - {1} is being detected with: Flyhack ({2}m/s)", hack.player.userID.ToString(), hack.player.displayName, hack.Distance3D.ToString()));
+                if (hack.flyHackDetections >= flyhackDetections)
+                {
+                    if (flyhackPunish)
+                        Punish(hack.player, string.Format("rFlyhack ({0}m/s)", hack.Distance3D.ToString()));
+                }
+            } 
+            else
+            {
+                hack.flyHackDetections = 0f;
+            }
+            hack.lastTickFly = hack.currentTick;
+        }
+        static void SendDetection(string msg)
+        {
+            foreach (BasePlayer player in adminList)
+            {
+                if(player != null && player.net != null)
+                {
+                    player.SendConsoleCommand("chat.add", new object[] { 0, msg.QuoteSafe() });
+                }
+            }
+            Interface.GetMod().LogWarning(msg);
+        }
+        static void Punish(BasePlayer player, string msg)
+        {
+            if (player.net.connection.authLevel < authIgnore)
+                Interface.GetMod().CallHook("Ban", null, player, msg, false);
+            else
+            {
+                GameObject.Destroy(player.GetComponent<PlayerHack>());
             }
         }
-        void EndPlayer(BasePlayer player)
+        bool isOpen(BuildingBlock block)
         {
-            tempPlayers.Remove(player);
-            lastSpeedDetection.Remove(player);
-            SpeedDetections.Remove(player);
-            lastJumpDetection.Remove(player);
-            JumpDetections.Remove(player);
-            if(TimeLeft.ContainsKey(player))
-                playerdata[player.userID.ToString()] = TimeLeft[player].ToString();
-            TimeLeft.Remove(player);
-            SaveData();
+            if (DoorCheck.ContainsKey(block.net.ID))
+            {
+                if (Time.realtimeSinceStartup - DoorCheck[block.net.ID] < 6f)
+                    return true;
+            }
+            return block.IsOpen();
         }
         void OnPlayerInit(BasePlayer player)
         {
-            InitPlayer(player);
+        	if(player.net.connection.authLevel > 0 || permission.UserHasPermission(player.userID.ToString(), "cananticheat"))
+        	{
+        		if(!adminList.Contains(player))
+        			adminList.Add(player);
+        	}
         }
         void OnPlayerDisconnected(BasePlayer player)
         {
-            EndPlayer(player);
+        	if(adminList.Contains(player))
+        		adminList.Remove(player);
         }
-        void SendMsgAdmin(string msg)
+        void OnEntityEnter(TriggerBase triggerbase, BaseEntity entity)
         {
-            foreach (var player in BasePlayer.activePlayerList)
-            {
-                if (player.GetComponent<BaseNetworkable>().net.connection.authLevel > 0)
-                {
-                    player.SendConsoleCommand("chat.add", new object[] { 0, "SERVER", msg.QuoteSafe() } );
-                }
-            }
+            if (triggerbase.gameObject.name != "Anti Wallhack(Clone)") return;
+            if (entity.GetComponent<BasePlayer>() == null) return;
+            if (TriggerData[triggerbase] == null)
+                TriggerData[triggerbase] = new Hash<BaseEntity,Vector3>();
+            (TriggerData[triggerbase])[entity] = entity.transform.position;
         }
-        void BroadcastToChat(string msg)
+        void OnEntityLeave(TriggerBase triggerbase, BaseEntity entity)
         {
-            //ConsoleSystem.Broadcast("chat.add", new object[] { 0, "SERVER" , msg.ToString() });
-            ConsoleSystem.Broadcast("chat.add \"SERVER\" " + msg.QuoteSafe() + " 1.0", new object[0]);
-        }
- 
-        void PunishForJump(BasePlayer player, float height)
-        {
-            var punishment = "kicked";
-            SpeedDetections[player] = 0;
-            if (Jban)
+            if (entity == null || triggerbase == null || triggerbase.gameObject.name != "Anti Wallhack(Clone)") return;
+            if (entity.GetComponent<BasePlayer>() == null) return;
+            if(TriggerToBlock[triggerbase] == null)
             {
-                punishment = "banned";
-                Interface.GetMod().CallHook("Ban", new object[] { null, player, string.Format("r-SuperJump {0}", height.ToString()), false });
+                GameObject.Destroy(triggerbase.gameObject);
+                return;
             }
-            if (Jban || Jkick)
-            {
-                BroadcastToChat(string.Format("{0} was detected super-jumping and was {1} from the server ({2}m/s)", player.displayName, punishment, height.ToString()));
-                Network.Net.sv.Kick(player.net.connection, "Kicked from the server");
-            }
-        }
-        void PunishForSpeed(BasePlayer player, float dist)
-        {
-            var punishment = "kicked";
-            SpeedDetections[player] = 0;
-            if (Sban)
-            {
-                punishment = "banned";
-                Interface.GetMod().CallHook("Ban", new object[] { null, player, string.Format("r-Speedhack {0}",dist.ToString()), false });
-            }
-            if (Sban || Skick)
-            {
-                BroadcastToChat(string.Format("{0} was detected speedhacking and was {1} from the server ({2}m/s)",player.displayName,punishment,dist.ToString()));
-                Network.Net.sv.Kick(player.net.connection, "Kicked from the server");
-            }
-        }
-        void SpeedDetection(BasePlayer player, float dist)
-        {
-            if (lastSpeedDetection[player] == lastCheck)
-            {
-                SendMsgAdmin(string.Format("{0} is running at {1} m/s", player.displayName, dist));
-                SpeedDetections[player] = SpeedDetections[player] + 1;
-                if (SpeedDetections[player] >= Sdetectionsbeforepunish)
-                {
-                    PunishForSpeed(player, dist);
-                }
-            }
-            lastSpeedDetection[player] = lastCheck;
-        }
-        void JumpDetection(BasePlayer player, float height)
-        {
-            if (currenttime < (lastJumpDetection[player] + Jtimebeforereset))
-            {
-                SendMsgAdmin(string.Format("{0} made a jump of {1} m", player.displayName, height));
-                JumpDetections[player] = JumpDetections[player] + 1;
-                if (JumpDetections[player] >= Jdetectionsbeforepunish)
-                {
-                    PunishForJump(player, height);
-                }
-            }
-            lastJumpDetection[player] = lastCheck;
-        }
-        void CheckTimeLeft(BasePlayer player)
-        {
-            if (!permanent)
-            {
-                if (TimeLeft[player] <= 0)
-                {
-                    EndPlayer(player);
-                    return;
-                }
-                TimeLeft[player] = TimeLeft[player] - 1;
-            }
-        }
-        void CheckAllPlayers(List<BasePlayer> players)
-        {
-            foreach (BasePlayer player in players.ToArray())
-            {
-                if (player == null)
-                {
-                    tempPlayers.Remove(player);
-                }
-                else
-                {
-                    if (fps > ignorefps)
-                    {
-                        float height = (player.transform.position.y - posSave[player].y) / interval;
-                        float dist = Vector3.Distance(posSave[player], player.transform.position) / interval;
 
-                        if (Math.Abs(height) < 3.5)
+            if (!isOpen(TriggerToBlock[triggerbase]))
+            {
+                if (entity.GetComponent<BasePlayer>().net.connection != null)
+                {
+                    if (entity.GetComponent<BasePlayer>().net.connection.authLevel < authIgnore)
+                        if (CheckWallhack(TriggerToBlock[triggerbase], entity, (TriggerData[triggerbase])[entity]))
                         {
-                            if (dist > Sminspeedpersecond)
-                                SpeedDetection(player, dist);
+                            if (Performance.frameRate > fpsIgnore && (Time.realtimeSinceStartup - lastDetections[entity]) < 2f)
+                            {
+                                SendMsgAdmin(string.Format("{0} was detected wallhacking from {1} to {2}", entity.GetComponent<BasePlayer>().displayName, (TriggerData[triggerbase])[entity].ToString(), entity.transform.position.ToString()));
+                                PrintWarning(string.Format("{0}[{3}] was detected wallhacking from {1} to {2}", entity.GetComponent<BasePlayer>().displayName, (TriggerData[triggerbase])[entity].ToString(), entity.transform.position.ToString(), entity.GetComponent<BasePlayer>().userID));
+                            }
+                            lastDetections[entity] = Time.realtimeSinceStartup;
+                            ForcePlayerBack(entity.GetComponent<BasePlayer>(), (TriggerData[triggerbase])[entity], entity.transform.position);
                         }
-                        else if (height > Jjumpheight)
-                        {
-                            if (Math.Abs((dist - height)) <= 12)
-                                JumpDetection(player, height);
-                        }
-                    }
-                    posSave[player] = player.transform.position;
-                    CheckTimeLeft(player);
+                }
+            } 
+            (TriggerData[triggerbase]).Remove(entity);
+        }
+        static void SendMsgAdmin(string msg)
+        {
+        	foreach (BasePlayer player in adminList)
+            {
+                if (player != null && player.net != null)
+                {
+                        player.SendConsoleCommand("chat.add", new object[] { 0, msg.QuoteSafe() });
                 }
             }
-            lastCheck = currenttime;
         }
+        bool CheckWallhack(BuildingBlock buildingblock, BaseEntity col, Vector3 initialPos)
+        {
+            Vector3 cachedDiff = col.transform.position - initialPos;
+            if (initialPos.y - buildingblock.transform.position.y > 2) return false;
 
-        void OnTick()
-        {
-            if ((CurrentTime() - lastCheck) >= 1)
+            if (UnityEngine.Physics.Linecast(initialPos, col.transform.position, out cachedRaycasthit, constructionColl))
             {
-                fps = CurrentFPS();
-                var players = tempPlayers;
-                currenttime = CurrentTime();
-                interval = (float)(currenttime - lastCheck);
-                CheckAllPlayers(players);
-            }
-        }
-        object CheckPlayer(string tofind)
-        {
-            var target = BasePlayer.Find(tofind);
-            if (target == null || target.net == null || target.net.connection == null)
-            {
-                return false;
-            }
-            EndPlayer(target);
-            playerdata[target.userID.ToString()] = null;
-            InitPlayer(target);
-            return target.displayName;
-        }
- 
-        [ConsoleCommand("ac_reset")]
-        void cmdConsoleReset(ConsoleSystem.Arg arg)
-        {
-            if (arg.connection != null)
-            {
-                if (arg.connection.authLevel < 1)
+                if (cachedRaycasthit.collider.GetComponentInParent<BuildingBlock>() == buildingblock)
                 {
-                    SendReply(arg, "You are not allowed to use this command");
-                    return;
+                    return true;
                 }
             }
-            Reset();
-            SendReply(arg, "AntiCheat resetted");
+            return false;
+        } 
+        void Loaded()
+        {  
+            constructionColl = LayerMask.GetMask( new string[] { "Construction" });
+            if (!permission.PermissionExists("cananticheat")) permission.RegisterPermission("cananticheat", this);
         }
- 
-        [ChatCommand("ac_reset")]
-        void cmdChatReset(BasePlayer player, string command, string[] args)
+        void ForcePlayerBack(BasePlayer player, Vector3 entryposition, Vector3 exitposition)
         {
-            if (player.net.connection.authLevel < 1)
-            {
-                SendReply(player, "You are not allowed to use this command");
-                return;
-            }
-            Reset();
-            SendReply(player, "AntiCheat resetted");
+            var distance = Vector3.Distance(exitposition, entryposition) + 0.5f;
+            var direction = (entryposition - exitposition).normalized;
+            ForcePlayerPosition(player, exitposition + (direction * distance));
         }
- 
-        [ConsoleCommand("ac_checkall")]
-        void cmdConsoleCheckAll(ConsoleSystem.Arg arg)
+        void OnServerInitialized()
+        { 
+            serverInitialized = true;
+            originalWallhack = new UnityEngine.GameObject("Anti Wallhack");
+            originalWallhack.AddComponent<MeshCollider>();
+            originalWallhack.AddComponent<TriggerBase>();
+            originalWallhack.gameObject.layer = UnityEngine.LayerMask.NameToLayer("Trigger");
+            var newlayermask = new UnityEngine.LayerMask();
+            newlayermask.value = 133120;
+            originalWallhack.GetComponent<TriggerBase>().interestLayers = newlayermask;
+            RefreshAllWalls(); 
+            RefreshPlayers();
+        }  
+        void Unload()
         {
-            if (arg.connection != null)
+            foreach(GameObject gameObj in ListGameObjects)
+            { 
+                GameObject.Destroy(gameObj);
+            } 
+            var objects = GameObject.FindObjectsOfType(typeof(PlayerHack));
+            if (objects != null)
+                foreach (var gameObj in objects)
+                    GameObject.Destroy(gameObj);
+            if (activateTimer != null)
+                activateTimer.Destroy();
+        } 
+        void ForcePlayerPosition(BasePlayer player, Vector3 destination)
+        {
+            player.transform.position = destination;
+            player.ClientRPCPlayer(null, player, "ForcePositionTo", new object[] { destination });
+            player.TransformChanged();
+        }
+        void RefreshPlayers()
+        {
+            foreach(BasePlayer player in BasePlayer.activePlayerList)
             {
-                if (arg.connection.authLevel < 1)
+                if (player.GetComponent<PlayerHack>() != null) GameObject.Destroy(player.GetComponent<PlayerHack>());
+                if(player.net.connection.authLevel > 0 || permission.UserHasPermission(player.userID.ToString(), "cananticheat"))
                 {
-                    SendReply(arg, "You are not allowed to use this command");
-                    return;
+                	if(!adminList.Contains(player))
+        			adminList.Add(player);
+        			continue;
                 }
+                if (!speedhack && !flyhack) continue;
+                player.gameObject.AddComponent<PlayerHack>();
             }
-            RefreshAll();
-            SendReply(arg, "All players will now be checked");
-        }
- 
-        [ChatCommand("ac_checkall")]
-        void cmdChatCheckAll(BasePlayer player, string command, string[] args)
+        } 
+        void RefreshAllWalls()
         {
-            if (player.net.connection.authLevel < 1)
+            if (!wallhack) return;
+            var allbuildings = UnityEngine.Resources.FindObjectsOfTypeAll<BuildingBlock>();
+            var currenttime = Time.realtimeSinceStartup;
+            foreach (BuildingBlock block in allbuildings)
             {
-                SendReply(player, "You are not allowed to use this command");
-                return;
-            }
-            RefreshAll();
-            SendReply(player, "All players will now be checked");
-        }
- 
-        [ConsoleCommand("ac_check")]
-        void cmdConsoleCheck(ConsoleSystem.Arg arg)
-        {
-            if (arg.connection != null)
-            {
-                if (arg.connection.authLevel < 1)
+                if (block.blockDefinition != null && (block.blockDefinition.hierachyName == "wall" || block.blockDefinition.hierachyName == "door.hinged"))
                 {
-                    SendReply(arg, "You are not allowed to use this command");
-                    return;
+                    CreateNewProtectionFromBlock(block, true);
+                    if (block.blockDefinition.hierachyName == "door.hinged")                    
+                            DoorCheck.Add(block.net.ID, Time.realtimeSinceStartup);                                        
                 }
-            }
-            if (arg.Args.Length < 1)
-            {
-                SendReply(arg, "You must select a player to check");
-                return;
-            }
-            var startedcheck = CheckPlayer(arg.Args[0]);
-            if (startedcheck is bool)
-            {
-                SendReply(arg, "Target player not found");
-            }
+            } 
+            Debug.Log(string.Format("AntiCheat: Took {0} seconds to protect all walls & doors", (Time.realtimeSinceStartup - currenttime).ToString()));
+        }
+        void CreateNewProtectionFromBlock(BuildingBlock buildingblock, bool Immediate)
+        {
+            var newgameobject = UnityEngine.Object.Instantiate(originalWallhack);
+            ListGameObjects.Add(newgameobject);
+            var mesh = newgameobject.GetComponent<MeshCollider>();
+            newgameobject.transform.position = buildingblock.transform.position;
+            newgameobject.transform.rotation = buildingblock.transform.rotation;
+            mesh.convex = false;
+            mesh.sharedMesh = buildingblock.GetComponentInChildren<UnityEngine.MeshCollider>().sharedMesh;
+            mesh.enabled = true;
+            if (Immediate) newgameobject.SetActive(true);
             else
             {
-                startedcheck = (string)startedcheck;
-                SendReply(arg, string.Format("Checking {0}", startedcheck));
+                newgameobject.SetActive(false);
+                timer.Once(20f, () => ActivateGameObject(newgameobject));
+            }
+            TriggerToBlock[newgameobject.GetComponent<TriggerBase>()] = buildingblock;
+        }
+        void ActivateGameObject(UnityEngine.GameObject gameObj)
+        {
+            if (gameObj == null) return;
+            gameObj.SetActive(true);
+        }
+        void OnPlayerRespawned(BasePlayer  player)
+        {
+            if (player.net.connection.authLevel >= authIgnore) return;
+            if (player.GetComponent<PlayerHack>() == null)
+            {
+                player.gameObject.AddComponent<PlayerHack>();
+            } 
+        }
+        void OnEntityBuilt(Planner planner, GameObject gameobject)
+        {
+            if (!serverInitialized) return;
+            if (!wallhack) return;
+            var buildingblock = gameobject.GetComponentInParent<BuildingBlock>();
+            if (buildingblock == null) return;
+            if (buildingblock.blockDefinition.hierachyName == "wall" || buildingblock.blockDefinition.hierachyName == "door.hinged")
+            {
+                CreateNewProtectionFromBlock(buildingblock, false);
+                if (buildingblock.blockDefinition.hierachyName == "door.hinged")
+                    DoorCheck.Add(buildingblock.net.ID, Time.realtimeSinceStartup);   
             }
         }
- 
-        [ChatCommand("ac_check")]
-        void cmdChatCheck(BasePlayer player, string command, string[] args)
+        
+        [ConsoleCommand("ac.fps")]
+        void cmdConsoleAcFPS(ConsoleSystem.Arg arg)
         {
-            if (player.net.connection.authLevel < 1)
+            if (arg.connection != null)
             {
-                SendReply(player, "You are not allowed to use this command");
-                return;
+                if (arg.connection.authLevel < 1)
+                {
+                    SendReply(arg, "You dont have access to this command");
+                    return;
+                }
             }
-            if (args.Length < 1)
+            SendReply(arg, "Checking the time the anticheat takes to check all your current players");
+            fpsCheckCalled = true;
+            fpsCaller = arg;
+            fpsTime = 0f;
+            fpsCalled.Clear();
+            timer.Once(2f, () => SendFPSCount());
+        }
+        void SendFPSCount()
+        {
+            if(fpsCaller is ConsoleSystem.Arg)
             {
-                SendReply(player, "You must select a player to check");
-                return;
-            }
-            var startedcheck = CheckPlayer(args[0]);
-            if (startedcheck is Boolean)
-            {
-                SendReply(player, "Target player not found");
-            }
-            else
-            {
-                startedcheck = (string)startedcheck;
-                SendReply(player, string.Format("Checking {0}", startedcheck));
+                SendReply((ConsoleSystem.Arg)fpsCaller, string.Format("Checking all players on your server took {0}s", fpsTime.ToString()));
             }
         }
     }

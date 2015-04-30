@@ -22,10 +22,11 @@ function PLUGIN:cmdTalk(player, cmd, args)
 		if args.Length == 2 then
 			local TalkingPlayer = global.BasePlayer.Find(args[0])
 			local Message = tostring(args[1])
+			local userid = rust.UserIDFromPlayer(TalkingPlayer)
 			if TalkingPlayer.net.connection.authLevel < 1 then
-				rust.BroadcastChat("<color=#58ACFA>" .. TalkingPlayer.displayName, "</color><color=white>" .. Message .. "</color>")
+				rust.BroadcastChat("<color=#58ACFA>" .. TalkingPlayer.displayName, "</color><color=white>" .. Message .. "</color>", userid)
 			else
-				rust.BroadcastChat("<color=#ACFA58>" .. TalkingPlayer.displayName, "</color><color=white>" .. Message .. "</color>")
+				rust.BroadcastChat("<color=#ACFA58>" .. TalkingPlayer.displayName, "</color><color=white>" .. Message .. "</color>", userid)
 			end
 		else
 			rust.SendChatMessage(player, "PLAYER TALK", "Syntax: /talk [PlayerName] ''[Message]''")		

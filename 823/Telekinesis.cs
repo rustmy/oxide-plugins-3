@@ -1,15 +1,13 @@
-// Reference: Oxide.Ext.Rust
-
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-using UnityEngine;  
+using UnityEngine;
 using Rust;
 
 namespace Oxide.Plugins
 {
 
-    [Info("Telekinesis", "Bombardir", 0.4)]
+    [Info("Telekinesis", "Bombardir", "0.4.1")]
 	class Telekinesis : RustPlugin
 	{
         private static FieldInfo serverinput;
@@ -36,7 +34,7 @@ namespace Oxide.Plugins
 				enabled = false;
 			}
 
-            void Update()
+            void FixedUpdate()
             {
                 if (input.WasJustPressed(BUTTON.USE))
                 {
@@ -95,15 +93,15 @@ namespace Oxide.Plugins
 					if (IsRotate)
 						target.transform.rotation = Quaternion.Euler(input.current.aimAngles*RotateSpeed);
                     if (TargetPlayer != null && !TargetPlayer.IsSleeping())
-                        TargetPlayer.ClientRPC(null, TargetPlayer, "ForcePositionTo", new object[] { target.transform.position });
+                        TargetPlayer.ClientRPCPlayer(null, TargetPlayer, "ForcePositionTo", new object[] { target.transform.position });
                     else
                         target.SendNetworkUpdate(BasePlayer.NetworkQueue.UpdateDistance);
                 }
             }
 		}
-		
-		
-		object OnEntityAttacked(MonoBehaviour entity, HitInfo hitinfo)
+
+
+        object OnEntityTakeDamage(MonoBehaviour entity, HitInfo hitinfo)
 		{
 			if (entity != null && hitinfo != null)
 				if (GodList.Contains(entity))

@@ -5,13 +5,13 @@
   "name": "Player Chatcontrol",
   "category": "Rust-Experimental",
   "type": "lua",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "author": "LaserHydra",
   "rating": 0,
-  "downloads": 60,
-  "updated": "2015-03-29T22:50:00.000Z",
+  "downloads": 85,
+  "updated": "2015-04-21T19:43:00.000Z",
   "description": "Chat through a player",
   "iconUrl": "data/resource_icons/0/866.jpg?1427669358",
-  "downloadUrl": "plugins/player-chatcontrol.866/download?version=4219",
+  "downloadUrl": "plugins/player-chatcontrol.866/download?version=4633",
   "filename": "playertalk.lua"
 }

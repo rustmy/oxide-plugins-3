@@ -5,13 +5,13 @@
   "name": "Pets",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 443,
-  "updated": "2015-04-11T16:47:00.000Z",
+  "downloads": 548,
+  "updated": "2015-04-29T12:35:46.000Z",
   "description": "Do you want a pet? This plugin is for you!",
   "iconUrl": "data/resource_icons/0/851.jpg?1427925444",
-  "downloadUrl": "plugins/pets.851/download?version=4445",
+  "downloadUrl": "plugins/pets.851/download?version=4766",
   "filename": "Pets.cs"
 }

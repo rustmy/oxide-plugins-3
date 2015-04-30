@@ -5,13 +5,13 @@
   "name": "BetterStability",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "0.7.6",
+  "version": "1.0.1",
   "author": "dcode",
   "rating": 5,
-  "downloads": 342,
-  "updated": "2015-04-17T19:22:33.000Z",
+  "downloads": 431,
+  "updated": "2015-04-24T15:58:00.000Z",
   "description": "A complete re-implementation of the stability system.",
   "iconUrl": "data/resource_icons/0/862.jpg?1427505517",
-  "downloadUrl": "plugins/betterstability.862/download?version=4554",
+  "downloadUrl": "plugins/betterstability.862/download?version=4708",
   "filename": "BetterStability.cs"
 }

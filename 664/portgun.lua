@@ -1,7 +1,7 @@
 PLUGIN.Name = "portgun"
 PLUGIN.Title       = "Portgun"
 PLUGIN.Description = "Teleport to where you are looking at"
-PLUGIN.Version     = V(1, 3, 2)
+PLUGIN.Version     = V(1, 3, 4)
 PLUGIN.HasConfig   = true
 PLUGIN.Author      = "Reneb"
 
@@ -20,9 +20,7 @@ end
 
 function PLUGIN:Teleport( player, destination, rot )
 	player.transform.position = destination
-	newobj = util.TableToArray( { destination } )
-	util.ConvertAndSetOnArray( newobj, 0, destination, UnityEngine.Object._type )
-	player:ClientRPC(nil,player,"ForcePositionTo",newobj)
+	player:ClientRPCPlayer(nil,player,"ForcePositionTo",destination)
 end
 local function ChatMessage(player,msg)
 	player:SendConsoleCommand( "chat.add \"SERVER\" \"" .. msg .. "\"" );

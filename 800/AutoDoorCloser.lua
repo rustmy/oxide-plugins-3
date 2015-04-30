@@ -1,7 +1,7 @@
 PLUGIN.Title        = "AutoDoorCloser"
 PLUGIN.Description  = "Automaticly close the doors"
 PLUGIN.Author       = "Bombardir"
-PLUGIN.Version      = V(1, 3, 1)
+PLUGIN.Version      = V(1, 3, 2)
 PLUGIN.HasConfig = true
 PLUGIN.ResourceId = 800
 
@@ -45,7 +45,7 @@ function PLUGIN:SendHelpText(player)
 	SendChatMessage(player, msgs.Help)
 end   
 
-function PLUGIN:CanOpenDoor( player, lock )
+function PLUGIN:CanUseDoor( player, lock )
 	local door = lock:GetParentEntity()
 	door = door and door:GetComponent("Door")
 	if door and not door:IsOpen() then 

@@ -5,13 +5,13 @@
   "name": "Telekinesis",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": "Bombardir",
   "rating": 5,
-  "downloads": 304,
-  "updated": "2015-02-17T20:41:00.000Z",
+  "downloads": 330,
+  "updated": "2015-04-29T12:39:49.000Z",
   "description": "Move objects by thought!",
   "iconUrl": "data/resource_icons/0/823.jpg?1424098830",
-  "downloadUrl": "plugins/telekinesis.823/download?version=3824",
+  "downloadUrl": "plugins/telekinesis.823/download?version=4768",
   "filename": "Telekinesis.cs"
 }

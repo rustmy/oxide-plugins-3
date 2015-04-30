@@ -1,7 +1,7 @@
 PLUGIN.Name = "RealFall"
 PLUGIN.Title = "Realistic Falling Damage"
 PLUGIN.Description = "Allows you to set the maximum fall height for deaths."
-PLUGIN.Version = V(1, 0, 1)
+PLUGIN.Version = V(1, 0, 2)
 PLUGIN.Author = "M@CH!N3"
 PLUGIN.HasConfig = true
 
@@ -20,7 +20,7 @@ function PLUGIN:LoadDefaultConfig()
 	self:SaveConfig()
 end
 
-function PLUGIN:OnEntityAttacked(player, hitinfo)
+function PLUGIN:OnEntityTakeDamage(player, hitinfo)
 
 	if (player:GetComponent("BasePlayer")) then
 

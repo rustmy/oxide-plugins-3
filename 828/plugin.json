@@ -5,13 +5,13 @@
   "name": "BetterLoot",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "author": "dcode",
   "rating": 5,
-  "downloads": 1017,
-  "updated": "2015-04-09T20:42:00.000Z",
+  "downloads": 1210,
+  "updated": "2015-04-23T16:20:00.000Z",
   "description": "A complete re-implementation of the drop system.",
   "iconUrl": "data/resource_icons/0/828.jpg?1427123062",
-  "downloadUrl": "plugins/betterloot.828/download?version=4403",
+  "downloadUrl": "plugins/betterloot.828/download?version=4673",
   "filename": "BetterLoot.cs"
 }

@@ -5,13 +5,13 @@
   "name": "Chat Handler",
   "category": "Rust-Experimental",
   "type": "zip",
-  "version": "2.5.3",
+  "version": "2.5.5",
   "author": "Domestos",
   "rating": 5,
-  "downloads": 1125,
-  "updated": "2015-04-06T14:24:00.000Z",
+  "downloads": 1192,
+  "updated": "2015-04-23T04:50:00.000Z",
   "description": "Many features to help moderate the chat",
   "iconUrl": "data/resource_icons/0/707.jpg?1427202218",
-  "downloadUrl": "plugins/chat-handler.707/download?version=4351",
-  "filename": "chathandler253.zip"
+  "downloadUrl": "plugins/chat-handler.707/download?version=4666",
+  "filename": "chathandler255.zip"
 }

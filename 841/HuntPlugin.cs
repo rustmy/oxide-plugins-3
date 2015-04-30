@@ -23,7 +23,7 @@ using System.Collections;
 namespace Oxide.Plugins
 {
 
-    [Info("Hunt RPG", "PedraozauM / SW", "1.2.9", ResourceId = 841)]
+    [Info("Hunt RPG", "PedraozauM / SW", "1.2.10", ResourceId = 841)]
     public class HuntPlugin : RustPlugin
     {
         [PluginReference] private Plugin Pets;
@@ -77,12 +77,16 @@ namespace Oxide.Plugins
                 Config[HK.TameTable] = HuntTablesGenerator.GenerateTameTable();
                 SaveConfig();
             }
-            else if (UpdatePlayerData)
+            else
             {
-                //this will be called only on serverinit if the config needs updating
-                LogToConsole("Generating item table.");
-                Config[HK.ItemTable] = HuntTablesGenerator.GenerateItemTable();
-                SaveConfig();
+                var itemTable = ReadFromConfig<Dictionary<string, ItemInfo>>(HK.ItemTable);
+                if (itemTable == null || UpdatePlayerData)
+                {
+                    //this will be called only on serverinit if the config needs updating
+                    LogToConsole("Generating item table.");
+                    Config[HK.ItemTable] = HuntTablesGenerator.GenerateItemTable();
+                    SaveConfig();
+                }
             }
         }
 

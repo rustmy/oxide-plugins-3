@@ -10,7 +10,7 @@ using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("TwigsDecay", "playrust.io / dcode", "1.3.0", ResourceId = 857)]
+    [Info("TwigsDecay", "playrust.io / dcode", "1.4.1", ResourceId = 857)]
     public class TwigsDecay : RustPlugin
     {
         private Dictionary<string, int> damage = new Dictionary<string, int>();
@@ -26,6 +26,7 @@ namespace Oxide.Plugins
             "Stone",
             "Metal",
             "TopTier",
+            "Barricade",
             "%GRADE% buildings decay by %DAMAGE% HP per %TIMESPAN% minutes.",
             "%GRADE% buildings do not decay."
         };
@@ -33,17 +34,20 @@ namespace Oxide.Plugins
 
         protected override void LoadDefaultConfig() {
             var damage = new Dictionary<string, object>() {
-                {"Twigs", 1},
-                {"Wood", 0},
-                {"Stone", 0},
-                {"Metal", 0},
-                {"TopTier", 0}
+                {"Twigs"    , 1}, // health: 5
+                {"Wood"     , 0}, // health: 250
+                {"Stone"    , 0}, // health: 500
+                {"Metal"    , 0}, // health: 200
+                {"TopTier"  , 0}, // health: 1000
+                {"Barricade", 0}  // health: 350, 400, 500
             };
             Config["damage"] = damage;
             Config["timespan"] = 288;
             var blocks = new List<object>() {
                 "block.halfheight",
-                /* stairs */ "block.halfheight.slanted",
+                "block.halfheight.slanted",
+                "block.stair.lshape",
+                "block.stair.ushape",
                 "floor",
                 "floor.triangle",
                 "foundation",
@@ -67,6 +71,14 @@ namespace Oxide.Plugins
                     messages.Add(text, text);
             }
             Config["messages"] = messages;
+        }
+
+        [HookMethod("Init")]
+        private void Init() {
+            if (decay.scale > 0f) {
+                decay.scale = 0f;
+                Puts("{0}: {1}", Title, "Default decay has been disabled");
+            }
         }
 
         [HookMethod("OnServerInitialized")]
@@ -102,10 +114,13 @@ namespace Oxide.Plugins
             if (lastUpdate > now.AddMinutes(-timespan))
                 return;
             lastUpdate = now;
-            int n = 0;
-            int m = 0;
+            int blocksDecayed = 0;
+            int blocksDestroyed = 0;
             var allBlocks = UnityEngine.Object.FindObjectsOfType<BuildingBlock>();
+            int amount;
             foreach (var block in allBlocks) {
+                if (block.isDestroyed)
+                    continue;
                 string grade;
                 string name;
                 try {
@@ -116,29 +131,28 @@ namespace Oxide.Plugins
                 }
                 if (!blocks.Contains(name))
                     continue;
-                int amount;
                 if (damage.TryGetValue(grade, out amount) && amount > 0) {
-                    if (block.health <= amount) {
-                        block.Kill(BaseNetworkable.DestroyMode.Gib);
-                        ++n;
-                    } else {
-                        block.health -= amount;
-                        ++m;
-                    }
+                    block.Hurt(amount, DamageType.Decay, null);
+                    ++blocksDecayed;
+                    if (block.isDestroyed)
+                        ++blocksDestroyed;
                 }
             }
-            Puts("{0}: {1}", Title, "Decayed " + m + " blocks, destroyed " + n + " blocks");
-        }
-
-        // Disable default decay
-        [HookMethod("OnBaseCombatEntityHurt")]
-        private object OnBaseCombatEntityHurt(BaseCombatEntity entity, HitInfo info) {
-            if (!(entity is BuildingBlock))
-                return null;
-            if (!info.damageTypes.Has(DamageType.Decay))
-                return null;
-            info.damageTypes.types = new float[0];
-            return false;
+            int barricadesDecayed = 0;
+            int barricadesDestroyed = 0;
+            if (damage.TryGetValue("Barricade", out amount) && amount > 0) {
+                var allBarricades = UnityEngine.Object.FindObjectsOfType<Barricade>();
+                foreach (var barricade in allBarricades) {
+                    if (barricade.isDestroyed)
+                        continue;
+                    Puts("{0}: {1}", Title, "Start health: "+barricade.startHealth);
+                    barricade.Hurt(amount);
+                    ++barricadesDecayed;
+                    if (barricade.isDestroyed)
+                        ++barricadesDestroyed;
+                }
+            }
+            Puts("{0}: {1}", Title, "Decayed " + blocksDecayed + " blocks (" + blocksDestroyed + " destroyed) and "+barricadesDecayed+" barricades ("+barricadesDestroyed+" destroyed)");
         }
 
         [HookMethod("SendHelpText")]
@@ -169,6 +183,5 @@ namespace Oxide.Plugins
                     text = text.Replace("%" + replacement.Key + "%", replacement.Value);
             return text;
         }
-
     }
 }

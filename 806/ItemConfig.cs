@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 using Rust;
 
@@ -22,11 +21,9 @@ using JSONValueType = JSON.ValueType;
 
 namespace Oxide.Plugins
 {
-    [Info("ItemConfig", "Nogrod", "1.0.9", ResourceId = 806)]
+    [Info("ItemConfig", "Nogrod", "1.0.11", ResourceId = 806)]
     class ItemConfig : RustPlugin
     {
-        //private static readonly FieldInfo ComponentList = typeof(Construction.Library).GetField("componentList", BindingFlags.NonPublic | BindingFlags.Static);
-
         private string _configpath = "";
 
         void Loaded()
@@ -119,17 +116,54 @@ namespace Oxide.Plugins
                     mod["type"] = itemMod.GetType().FullName;
                     modArray.Add(mod);
                 }
+                var modEntity = definition.GetComponent<ItemModEntity>();
+                if (modEntity != null)
+                {
+                    var thrownWeapon = modEntity.entityPrefab.targetObject.GetComponent<ThrownWeapon>();
+                    if (thrownWeapon != null)
+                    {
+                        var timedExplosive = thrownWeapon.prefabToThrow.GetComponent<TimedExplosive>();
+                        if (timedExplosive != null)
+                        {
+                            var mod = ToJsonObject(timedExplosive);
+                            mod["type"] = modEntity.GetType().FullName + timedExplosive.GetType().FullName;
+                            modArray.Add(mod);
+                        }
+                    }
+                }
                 var modProjectile = definition.GetComponent<ItemModProjectile>();
                 if (modProjectile != null)
                 {
                     var projectile = modProjectile.projectileObject.targetObject.GetComponent<Projectile>();
-                    var mod = ToJsonObject(projectile);
-                    mod.Remove("sourceWeapon");
-                    mod.Remove("projectileID");
-                    mod.Remove("seed");
-                    mod.Remove("velocityScalar");
-                    mod["type"] = modProjectile.GetType().FullName;
-                    modArray.Add(mod);
+                    if (projectile != null)
+                    {
+                        var mod = ToJsonObject(projectile);
+                        mod.Remove("sourceWeapon");
+                        mod.Remove("projectileID");
+                        mod.Remove("seed");
+                        mod.Remove("velocityScalar");
+                        mod["type"] = modProjectile.GetType().FullName;
+                        modArray.Add(mod);
+                    }
+                    /*var components = modProjectile.projectileObject.targetObject.GetComponents(typeof (Component));
+                    foreach (var component in components)
+                    {
+                        LocalPuts("Name: " + component.name + " Type: " + component.GetType().Name);                            
+                    }*/
+                    var timedExplosive = modProjectile.projectileObject.targetObject.GetComponent<TimedExplosive>();
+                    if (timedExplosive != null)
+                    {
+                        var mod = ToJsonObject(timedExplosive);
+                        mod["type"] = modProjectile.GetType().FullName + timedExplosive.GetType().FullName;
+                        modArray.Add(mod);
+                    }
+                    var serverProjectile = modProjectile.projectileObject.targetObject.GetComponent<ServerProjectile>();
+                    if (serverProjectile != null)
+                    {
+                        var mod = ToJsonObject(serverProjectile);
+                        mod["type"] = modProjectile.GetType().FullName + serverProjectile.GetType().FullName;
+                        modArray.Add(mod);
+                    }
                 }
                 obj["modules"] = modArray;
 
@@ -146,48 +180,7 @@ namespace Oxide.Plugins
                 }
             }
             Config["Blueprints"] = JsonObjectToObject(bps);
-            /*var constructions = new Dictionary<string, object>();
-            Config["Constructions"] = constructions;
-            var protectionProperties = new HashSet<ProtectionProperties>();
-            var constructionSkinArray = Resources.LoadAll<ConstructionSkin>("Prefabs/build/skins");
-            var constructionArray = Resources.LoadAll<Construction>("Prefabs/build/");
-            foreach (var construct in constructionArray)
-            {
-                var common = new Construction.Common(construct, constructionSkinArray);
-                var construction = new Dictionary<string, object>();
-                var grades = new Dictionary<string, object>();
-                for (var g = 0; g < common.grades.Length; g++)
-                {
-                    var grade = common.grades[g];
-                    if (grade == null) continue;
-                    var dict = new Dictionary<string, object>();
-                    dict["maxHealth"] = grade.maxHealth;
-                    var costToBuild = ToJsonArray(grade.costToBuild);
-                    foreach (var cost in costToBuild)
-                    {
-                        cost.Obj["itemDef"] = cost.Obj.GetObject("itemDef").GetString("shortname", "unnamed");
-                    }
-                    dict["costToBuild"] = JsonObjectToObject(costToBuild);
-                    if (grade.damageProtecton != null)
-                    {
-                        protectionProperties.Add(grade.damageProtecton);
-                    }
-                    grades[((BuildingGrade.Enum)g).ToString()] = dict;
-                }
-                construction["grades"] = grades;
-                constructions[common.name] = construction;
-            }
-            var protections = new Dictionary<string, object>();
-            Config["DamageProtections"] = protections;
-            foreach (var protectionProperty in protectionProperties)
-            {
-                var damageProtection = new Dictionary<string, object>();
-                for (var i = 0; i < protectionProperty.amounts.Length; i++)
-                {
-                    damageProtection[Enum.GetName(typeof(DamageType), i)] = protectionProperty.amounts[i];
-                }
-                protections[protectionProperty.name] = damageProtection;
-            }*/
+            
             try
             {
                 Config.Save(_configpath);
@@ -234,7 +227,6 @@ namespace Oxide.Plugins
             CheckConfig();
             UpdateItems();
             UpdateBlueprints();
-            //UpdateConstructions();
         }
 
         private void UpdateItems()
@@ -314,73 +306,6 @@ namespace Oxide.Plugins
             }
         }
 
-        /*private void UpdateConstructions()
-        {
-            var constructions = Config["Constructions"] as Dictionary<string, object>;
-            if (constructions == null)
-            {
-                LocalPuts("No constructions in config");
-                return;
-            }
-            var componentList = (List<Construction.Common>) ComponentList.GetValue(null);
-            var protectionProperties = new HashSet<ProtectionProperties>();
-            var manager = SingletonComponent<ItemManager>.Instance;
-            foreach (var common in componentList)
-            {
-                var construction = ObjectToJsonObject(constructions[common.name]);
-                var grades = construction.Obj.GetObject("grades");
-                for (var g = 0; g < common.grades.Length; g++)
-                {
-                    var gradeType = (BuildingGrade.Enum) g;
-                    if (!grades.ContainsKey(gradeType.ToString()))
-                    {
-                        common.grades[g] = null;
-                        continue;
-                    }
-                    if (common.grades[g] == null) common.grades[g] = new Construction.Grade();
-                    var grade = common.grades[g];
-                    var newGrade = grades.GetObject(gradeType.ToString());
-                    UpdateConstructionHealth(grade, newGrade.GetFloat("maxHealth", 0));
-                    grade.costToBuild.Clear();
-                    var costToBuild = newGrade.GetArray("costToBuild");
-                    foreach (var cost in costToBuild)
-                    {
-                        var itemid = cost.Obj.GetInt("itemid", 0);
-                        var definition = manager.itemList.Find(x => x.itemid == itemid);
-                        grade.costToBuild.Add(new ItemAmount(definition, cost.Obj.GetFloat("amount", 0)));
-                    }
-                    if (grade.damageProtecton != null)
-                    {
-                        protectionProperties.Add(grade.damageProtecton);
-                    }
-                }
-            }
-            var protections = Config["DamageProtections"] as Dictionary<string, object>;
-            if (protections == null)
-                return;
-            foreach (var protectionProperty in protectionProperties)
-            {
-                protectionProperty.Clear();
-                var damageProtection = protections[protectionProperty.name] as Dictionary<string, object>;
-                if (damageProtection == null) continue;
-                foreach (var o in damageProtection)
-                {
-                    protectionProperty.Add((DamageType) Enum.Parse(typeof (DamageType), o.Key), (float)Convert.ToDouble(o.Value));
-                }
-            }
-        }
-
-        private void UpdateConstructionHealth(Construction.Grade grade, float newHealth)
-        {
-            if (grade.maxHealth == newHealth) return;
-            grade.maxHealth = newHealth;
-            var bb = UnityEngine.Object.FindObjectsOfType<BuildingBlock>().Where(b => b.currentGrade == grade);
-            foreach (var buildingBlock in bb)
-            {
-                buildingBlock.SetHealthToMax();
-            }
-        }*/
-
         private static void UpdateItem(ItemDefinition definition, JSONObject item)
         {
             definition.shortname = item.GetString("shortname", "unnamed");
@@ -431,7 +356,6 @@ namespace Oxide.Plugins
                 }
                 else if (typeName.Equals("ItemModBurnable"))
                 {
-                    //definition.gameObject.AddComponent<ItemModBurnable>();
                     var itemMod = definition.GetComponent<ItemModBurnable>();
                     itemMod.fuelAmount = mod.GetFloat("fuelAmount", 10f);
                     itemMod.byproductAmount = mod.GetInt("byproductAmount", 1);
@@ -496,6 +420,45 @@ namespace Oxide.Plugins
                             type = (DamageType) Enum.Parse(typeof (DamageType), damageType.Obj.GetString("type", ""))
                         });
                     }
+                }
+                else if (typeName.EndsWith("TimedExplosive"))
+                {
+                    TimedExplosive timedExplosive;
+                    if (typeName.StartsWith("ItemModProjectile"))
+                    {
+                        var itemMod = definition.GetComponent<ItemModProjectile>();
+                        timedExplosive = itemMod.projectileObject.targetObject.GetComponent<TimedExplosive>();
+                    }
+                    else if (typeName.StartsWith("ItemModEntity"))
+                    {
+                        var itemMod = definition.GetComponent<ItemModEntity>();
+                        timedExplosive = itemMod.entityPrefab.targetObject.GetComponent<ThrownWeapon>().prefabToThrow.GetComponent<TimedExplosive>();
+                        
+                    }
+                    else
+                        continue;
+                    timedExplosive.canStick = mod.GetBoolean("canStick", false);
+                    timedExplosive.explosionRadius = mod.GetFloat("explosionRadius", 10);
+                    timedExplosive.timerAmountMax = mod.GetFloat("timerAmountMax", 20);
+                    timedExplosive.timerAmountMin = mod.GetFloat("timerAmountMin", 10);
+                    timedExplosive.damageTypes.Clear();
+                    var damageTypes = mod.GetArray("damageTypes");
+                    foreach (var damageType in damageTypes)
+                    {
+                        timedExplosive.damageTypes.Add(new DamageTypeEntry
+                        {
+                            amount = damageType.Obj.GetFloat("amount", 0),
+                            type = (DamageType)Enum.Parse(typeof(DamageType), damageType.Obj.GetString("type", ""))
+                        });
+                    }
+                }
+                else if (typeName.Equals("ItemModProjectileServerProjectile"))
+                {
+                    var itemMod = definition.GetComponent<ItemModProjectile>();
+                    var projectile = itemMod.projectileObject.targetObject.GetComponent<ServerProjectile>();
+                    projectile.drag = mod.GetFloat("drag", 0);
+                    projectile.gravityModifier = mod.GetFloat("gravityModifier", 0);
+                    projectile.speed = mod.GetFloat("speed", 0);
                 }
             }
         }
@@ -587,7 +550,6 @@ namespace Oxide.Plugins
             CheckConfig();
             UpdateItems();
             UpdateBlueprints();
-            //UpdateConstructions();
             LocalPuts("Item config reloaded.");
         }
 
@@ -598,7 +560,6 @@ namespace Oxide.Plugins
                 return;
             UpdateItems();
             UpdateBlueprints();
-            //UpdateConstructions();
         }
 
         class DynamicContractResolver : DefaultContractResolver

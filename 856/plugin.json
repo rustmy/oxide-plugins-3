@@ -5,13 +5,13 @@
   "name": "Human NPC - Core",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 518,
-  "updated": "2015-04-12T12:48:00.000Z",
+  "downloads": 618,
+  "updated": "2015-04-23T22:36:00.000Z",
   "description": "Add Interactive Human NPC Ingame, can be modded by other plugins",
   "iconUrl": "data/resource_icons/0/856.jpg?1427388695",
-  "downloadUrl": "plugins/human-npc-core.856/download?version=4461",
+  "downloadUrl": "plugins/human-npc-core.856/download?version=4690",
   "filename": "HumanNPC.cs"
 }

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("Inventory Viewer", "Mughisi", "1.0.0")]
+    [Info("Inventory Viewer", "Mughisi", "1.0.1")]
     class InventoryViewer : RustPlugin
     {
 
@@ -102,7 +102,7 @@ namespace Oxide.Plugins
                     }
 
                     player.inventory.loot.SendImmediate();
-                    onlinePlayers[player].View.ClientRPC(null, player, "RPC_ClientLootCorpse", new object[0]);
+                    onlinePlayers[player].View.ClientRPCPlayer(null, player, "RPC_ClientLootCorpse", new object[0]);
                     player.SendNetworkUpdate(BasePlayer.NetworkQueue.Update);
                 }
             }
@@ -256,7 +256,7 @@ namespace Oxide.Plugins
             foreach (var container in view.containers)
                 player.inventory.loot.containers.Add(container);
             player.inventory.loot.SendImmediate();
-            view.ClientRPC(null, player, "RPC_ClientLootCorpse", new object[0]);
+            view.ClientRPCPlayer(null, player, "RPC_ClientLootCorpse", new object[0]);
             player.SendNetworkUpdate(BasePlayer.NetworkQueue.Update);
 
             onlinePlayers[player].View = view;

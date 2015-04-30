@@ -5,13 +5,13 @@
   "name": "TwigsDecay",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.3.0",
+  "version": "1.4.1",
   "author": "dcode",
   "rating": 5,
-  "downloads": 217,
-  "updated": "2015-04-17T13:16:35.000Z",
+  "downloads": 284,
+  "updated": "2015-04-24T19:20:00.000Z",
   "description": "Steadily decays buildings made of twigs. Works for other tiers, too, if configured to do so.",
   "iconUrl": "data/resource_icons/0/857.jpg?1427307873",
-  "downloadUrl": "plugins/twigsdecay.857/download?version=4537",
+  "downloadUrl": "plugins/twigsdecay.857/download?version=4710",
   "filename": "TwigsDecay.cs"
 }

@@ -11,7 +11,7 @@ using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("Jail", "Reneb", "2.0.1")]
+    [Info("Jail", "Reneb", "2.0.3")]
     class Jail : RustPlugin
     {
         [PluginReference] Plugin ZoneManager;
@@ -230,8 +230,10 @@ namespace Oxide.Plugins
             if (spawns == null) { Puts(NoSpawnDatabase); return null; }
             if (spawnfile == null) { Puts(NoSpawnFile); return null; }
             var count = spawns.Call("GetSpawnsCount", spawnfile);
+            
             if (count is bool) return null;
-            if ((int)count == 0) { Puts(EmptySpawnFile); return null; }
+            if (Convert.ToInt32(count) == 0) { Puts(EmptySpawnFile); return null; }
+            
             return spawns.Call("GetRandomSpawnVector3", spawnfile, count);
         }
 
@@ -256,7 +258,7 @@ namespace Oxide.Plugins
         void ForcePlayerPosition(BasePlayer player, Vector3 destination)
         {
             player.transform.position = destination;
-            player.ClientRPC(null, player, "ForcePositionTo", new object[] { destination });
+            player.ClientRPCPlayer(null, player, "ForcePositionTo", new object[] { destination });
             player.TransformChanged();
         }
 
@@ -375,6 +377,7 @@ namespace Oxide.Plugins
             if (player.IsDead()) return;
             if (jailinmates[player.userID.ToString()] == null) return;
             cachedJail = jailinmates[player.userID.ToString()];
+            if (cachedJail.GetExpireTime() < 0) return;
             cachedInterval = cachedJail.GetExpireTime() - CurrentTime();
             if (cachedInterval < 1)
             {

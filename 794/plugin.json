@@ -5,13 +5,13 @@
   "name": "Jail",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 399,
-  "updated": "2015-04-07T23:30:00.000Z",
+  "downloads": 425,
+  "updated": "2015-04-25T10:57:56.000Z",
   "description": "Send players to jail",
   "iconUrl": "data/resource_icons/0/794.jpg?1422573437",
-  "downloadUrl": "plugins/jail.794/download?version=4378",
+  "downloadUrl": "plugins/jail.794/download?version=4716",
   "filename": "Jail.cs"
 }

@@ -5,13 +5,13 @@
   "name": "Portgun",
   "category": "Rust-Experimental",
   "type": "lua",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 766,
-  "updated": "2015-02-13T18:13:00.000Z",
+  "downloads": 799,
+  "updated": "2015-04-24T09:03:00.000Z",
   "description": "Teleport to where you are looking at",
   "iconUrl": "data/resource_icons/0/664.jpg?1415900671",
-  "downloadUrl": "plugins/portgun.664/download?version=3767",
+  "downloadUrl": "plugins/portgun.664/download?version=4702",
   "filename": "portgun.lua"
 }

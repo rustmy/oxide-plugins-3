@@ -5,12 +5,12 @@
   "name": "ItemConfig",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.0.9",
+  "version": "1.0.11",
   "author": "Ðie wilde Betty",
   "rating": 5,
-  "downloads": 681,
-  "updated": "2015-03-27T02:32:00.000Z",
+  "downloads": 728,
+  "updated": "2015-04-24T22:53:46.000Z",
   "description": "Settings for items, blueprints, constructions...",
-  "downloadUrl": "plugins/itemconfig.806/download?version=4167",
+  "downloadUrl": "plugins/itemconfig.806/download?version=4712",
   "filename": "ItemConfig.cs"
 }

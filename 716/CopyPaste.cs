@@ -7,7 +7,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Copy Paste", "Reneb", "2.2.3")]
+    [Info("Copy Paste", "Reneb", "2.2.4")]
     class CopyPaste : RustPlugin
     {
         private MethodInfo inventoryClear = typeof(ItemContainer).GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -70,7 +70,7 @@ namespace Oxide.Plugins
             if (closestEnt is bool)
                 return false;
             return true;
-        }
+        } 
 
         bool hasAccess(BasePlayer player)
         {
@@ -245,14 +245,6 @@ namespace Oxide.Plugins
                                     if (box.HasSlot(BaseEntity.Slot.Lock))
                                         TryCopyLock(box, housedata);
                                 }
-                                else if (fdeployable.GetComponent<Signage>())
-                                {
-                                    var signage = fdeployable.GetComponent<Signage>();
-                                    var sign = new Dictionary<string, object>();
-                                    sign.Add("text", signage.text);
-                                    sign.Add("locked", signage.IsLocked());
-                                    housedata.Add("sign", sign);
-                                }
                                 rawDeployables.Add(housedata);
                             }
                         }
@@ -274,7 +266,7 @@ namespace Oxide.Plugins
             }
             return true;
         }
-        
+
         [ChatCommand("copy")]
         void cmdChatCopy(BasePlayer player, string command, string[] args)
         {
@@ -358,7 +350,7 @@ namespace Oxide.Plugins
         [ChatCommand("paste")]
         void cmdChatPaste(BasePlayer player, string command, string[] args)
         {
-            if (!hasAccess(player)) return;
+           // if (!hasAccess(player)) return;
             if (args == null || args.Length == 0)
             {
                 SendReply(player, "You need to set the name of the copy file: /paste NAME optional:HeightAdjustment");
@@ -368,7 +360,7 @@ namespace Oxide.Plugins
             // Adjust height so you don't automatically paste in the ground
             heightAdjustment = 0.5f;
             if (args.Length > 1)
-            {
+            { 
                 float.TryParse(args[1].ToString(), out heightAdjustment);
             }
 
@@ -602,15 +594,6 @@ namespace Oxide.Plugins
 
                         if (box.HasSlot(BaseEntity.Slot.Lock))
                             TryPasteLock(box, deployable);
-                    }
-                    else if (entity.GetComponent<Signage>())
-                    {
-                        var sign = entity.GetComponent<Signage>();
-                        var signData = deployable["sign"] as Dictionary<string, object>;
-                        sign.text = (string)signData["text"];
-                        if (Convert.ToBoolean(signData["locked"]))
-                            sign.SetFlag(BaseEntity.Flags.Locked, true);
-                        sign.SendNetworkUpdate();
                     }
                 }
                 else

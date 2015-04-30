@@ -8,7 +8,7 @@
   "version": "0.2.4",
   "author": "Wulfspider",
   "rating": 5,
-  "downloads": 56,
+  "downloads": 59,
   "updated": "2015-02-07T17:08:00.000Z",
   "description": "Sends messages and alerts to configured IRC channels via Notifico - http://n.tkte.ch/",
   "iconUrl": "data/resource_icons/0/704.jpg?1414881824",

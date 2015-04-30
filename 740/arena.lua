@@ -1,5 +1,5 @@
 PLUGIN.Title = "Arena"
-PLUGIN.Version = V(1, 1, 3)
+PLUGIN.Version = V(1, 1, 4)
 PLUGIN.Description = "Arena converted from Oxide 1"
 PLUGIN.Author = "Reneb - Oxide 1 version by eDeloa"
 PLUGIN.HasConfig = true
@@ -761,13 +761,22 @@ function PLUGIN:TeleportPlayerHome(player)
 end
 
 function PLUGIN:TeleportPlayer( player, destination )
-	player:StartSleeping()
-	player.transform.position = destination
-	newobj = util.TableToArray( { destination } )
-	util.ConvertAndSetOnArray( newobj, 0, destination, UnityEngine.Object._type )
-	player:ClientRPC(nil,player,"ForcePositionTo",newobj)
-	player:TransformChanged()
-	self:loadScreen(player)
+	    -- Let the player sleep to prevent the player from falling through objects.
+    player:StartSleeping()
+
+    -- Move the player
+    player.transform.position = destination
+    player:ClientRPCPlayer(nil, player, "ForcePositionTo", destination)
+
+    -- Replicate the loading process
+    player:SetPlayerFlag(global.BasePlayer.PlayerFlags.ReceivingSnapshot, true);
+    player:UpdateNetworkGroup();
+    player:UpdatePlayerCollider(true, false);
+    player:SendNetworkUpdateImmediate(false);
+    player:ClientRPCPlayer(null, player, "StartLoading");
+    player:SendFullSnapshot();
+    player:SetPlayerFlag(global.BasePlayer.PlayerFlags.ReceivingSnapshot, false);
+    player:ClientRPCPlayer(null, player, "FinishLoading" );
 end
 
 

@@ -5,13 +5,13 @@
   "name": "PathFinding",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "Reneb",
   "rating": 5,
-  "downloads": 195,
-  "updated": "2015-04-06T18:32:00.000Z",
+  "downloads": 249,
+  "updated": "2015-04-23T21:27:00.000Z",
   "description": "PathFinding plugin, used by other plugins only.",
   "iconUrl": "data/resource_icons/0/868.jpg?1427893078",
-  "downloadUrl": "plugins/pathfinding.868/download?version=4360",
+  "downloadUrl": "plugins/pathfinding.868/download?version=4681",
   "filename": "PathFinding.cs"
 }

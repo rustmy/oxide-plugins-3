@@ -5,13 +5,13 @@
   "name": "Rust:IO Clans",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "author": "dcode",
   "rating": 5,
-  "downloads": 669,
-  "updated": "2015-04-06T20:27:00.000Z",
+  "downloads": 876,
+  "updated": "2015-04-27T14:57:45.000Z",
   "description": "Allows your players to form and manage clans.",
   "iconUrl": "data/resource_icons/0/842.jpg?1427125357",
-  "downloadUrl": "plugins/rust-io-clans.842/download?version=4365",
+  "downloadUrl": "plugins/rust-io-clans.842/download?version=4742",
   "filename": "Clans.cs"
 }

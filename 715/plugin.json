@@ -5,13 +5,13 @@
   "name": "Build",
   "category": "Rust-Experimental",
   "type": "cs",
-  "version": "1.0.7",
+  "version": "1.0.10",
   "author": "Reneb",
   "rating": 4.88889,
-  "downloads": 981,
-  "updated": "2015-04-08T14:03:00.000Z",
+  "downloads": 1080,
+  "updated": "2015-04-23T22:33:00.000Z",
   "description": "Build, spawn, plant, upgrade, deploy anything the way that you want it.",
   "iconUrl": "data/resource_icons/0/715.jpg?1425682952",
-  "downloadUrl": "plugins/build.715/download?version=4384",
+  "downloadUrl": "plugins/build.715/download?version=4689",
   "filename": "Build.cs"
 }

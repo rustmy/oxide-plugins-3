@@ -16,7 +16,7 @@ using System.Text;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterStability", "playrust.io/ dcode", "0.7.6", ResourceId = 862)]
+    [Info("BetterStability", "playrust.io/ dcode", "1.0.1", ResourceId = 862)]
     public class BetterStability : RustPlugin
     {
         // Singleton instance
@@ -135,15 +135,19 @@ namespace Oxide.Plugins
             if (obj == null)
                 return;
             var block = obj.GetComponent<BuildingBlock>();
-            if (block == null || block.isDestroyed || block.blockDefinition == null /* ? */)
+            if (!BuildingBlockHelpers.IsValidBlock(block))
                 return;
+#if DEBUG
+            Log("Placing block " + block.blockDefinition.hierachyName);
+#endif
             ++currentStats.blocksBuilt;
             try {
+                var defaultGrade = block.blockDefinition.defaultGrade;
                 if (!UpdateStability(block, false)) {
                     ++currentStats.blocksFailedBuilding;
                     // If this isn't stable, refund.
                     var player = planner.ownerPlayer;
-                    foreach (var cost in block.blockDefinition.defaultGrade.costToBuild) {
+                    foreach (var cost in defaultGrade.costToBuild) {
                         var item = ItemManager.CreateByItemID(cost.itemid, (int)cost.amount, false);
                         player.GiveItem(item);
                     }
@@ -155,13 +159,12 @@ namespace Oxide.Plugins
             }
         }
 
-        /* [HookMethod("OnBuildingBlockDoRotation")]
-        private void OnBuildingBlockRotate(BuildingBlock block, object whatev) {
-        } */
+        // [HookMethod("OnBuildingBlockDoRotation")]
+        // private void OnBuildingBlockRotate(BuildingBlock block, object whatev)
 
         [HookMethod("OnBuildingBlockDemolish")]
         private void OnBuildingBlockDemolish(BuildingBlock block, BasePlayer player) {
-            if (block == null)
+            if (!BuildingBlockHelpers.IsValidBlock(block))
                 return;
             OnDemolish(block);
         }
@@ -169,7 +172,7 @@ namespace Oxide.Plugins
         [HookMethod("OnEntityDeath")]
         private void OnEntityDeath(BaseCombatEntity entity, HitInfo info) {
             var block = entity as BuildingBlock;
-            if (block == null)
+            if (!BuildingBlockHelpers.IsValidBlock(block))
                 return;
             OnDemolish(block);
         }
@@ -189,6 +192,8 @@ namespace Oxide.Plugins
             while (stabilityQueue.Count > 0 && (n == 0 || (DateTime.Now - now).TotalMilliseconds < maxTime)) {
                 var block = stabilityQueue[0];
                 stabilityQueue.RemoveAt(0);
+                if (!BuildingBlockHelpers.IsValidBlock(block))
+                    continue;
                 UpdateStability(block);
                 ++n;
             }
@@ -333,6 +338,8 @@ namespace Oxide.Plugins
             }
             var allBlocks = UnityEngine.Object.FindObjectsOfType<BuildingBlock>();
             foreach (var block in allBlocks) {
+                if (!BuildingBlockHelpers.IsValidBlock(block))
+                    continue;
                 UpdateStability(block, true);
             }
             SendReply(arg, "Updating stability on ALL " + allBlocks.Length + " blocks in the background now, this will take a while.");
@@ -344,51 +351,47 @@ namespace Oxide.Plugins
         {
             #region Methods
 
+            // Tests if the block is valid
+            public static bool IsValidBlock(BuildingBlock block) {
+                return block != null && block.blockDefinition != null;
+            }
+
             // Tests if the block is a foundation
             public static bool IsFoundation(BuildingBlock self) {
-                return foundationList.Contains(self.blockDefinition.fullName);
+                return IsValidBlock(self) && foundationList.Contains(self.blockDefinition.hierachyName);
             }
 
             // Tests if the block is a wall
             public static bool IsWall(BuildingBlock self) {
-                return wallsList.Contains(self.blockDefinition.fullName);
+                return IsValidBlock(self) && wallsList.Contains(self.blockDefinition.hierachyName);
             }
 
             // Tests if the block is a pillar
             public static bool IsPillar(BuildingBlock self) {
-                return self.blockDefinition.fullName == "build/pillar";
+                return IsValidBlock(self) && self.blockDefinition.hierachyName == "pillar";
             }
 
             // Tests if the block is a support for anything
             public static bool IsSupportForAnything(BuildingBlock self) {
-                return supportNames.Contains(self.blockDefinition.fullName);
+                return IsValidBlock(self) && supportNames.Contains(self.blockDefinition.hierachyName);
             }
 
             // Tests if the block is a generally supported by the specified
             public static bool IsSupportedBy(BuildingBlock self, BuildingBlock by) {
-                string[] supportFor;
-                if (!supportMap.TryGetValue(self.blockDefinition.fullName, out supportFor))
+                if (!IsValidBlock(self) || !IsValidBlock(by) || self.isDestroyed || by.isDestroyed)
                     return false;
-                try {
-                    return supportFor.Contains(by.blockDefinition.fullName);
-                } catch (Exception) {
-                    if (supportFor == null)
-                        throw new Exception("supportFor is null");
-                    if (by == null)
-                        throw new Exception("by is null");
-                    if (by.blockDefinition == null)
-                        throw new Exception("by.blockDefinition is null");
-                    if (by.blockDefinition.fullName == null)
-                        throw new Exception("by.blockDefinition.fullName is null");
-                    throw;
-                }
+                string[] supportFor;
+                if (!supportMap.TryGetValue(self.blockDefinition.hierachyName, out supportFor))
+                    return false;
+                return supportFor.Contains(by.blockDefinition.hierachyName);
             }
-
 
             // Gets adjacent supports and supported blocks
             public static void GetAdjacentBlocks(BuildingBlock self, out List<BuildingBlock> supports, out List<BuildingBlock> supported) {
                 supports = new List<BuildingBlock>();
                 supported = new List<BuildingBlock>();
+                if (!IsValidBlock(self))
+                    return;
                 List<StabilityPinPoint> pinPoints = GetPrefabPinPoints(self);
                 // Find all blocks supporting this block
                 foreach (var pinPoint in pinPoints) {
@@ -396,7 +399,7 @@ namespace Oxide.Plugins
                     Collider[] colliders = Physics.OverlapSphere(worldPosition, 0.1f, constructionLayerMask);
                     foreach (var collider in colliders) {
                         BuildingBlock other = collider.gameObject.ToBaseEntity() as BuildingBlock;
-                        if (other == null || other.isDestroyed || other == self) // Bogus or self
+                        if (!IsValidBlock(other) || other.isDestroyed || other == self) // Bogus, already destroyed or self
                             continue;
                         if (IsSupportedBy(self, other))
                             supports.Add(other);
@@ -411,7 +414,7 @@ namespace Oxide.Plugins
                     Collider[] colliders = Physics.OverlapSphere(worldPosition, 0.2f, constructionLayerMask);
                     foreach (var collider in colliders) {
                         BuildingBlock other = collider.gameObject.ToBaseEntity() as BuildingBlock;
-                        if (other == null || other.isDestroyed || other == self) // Bogus or self
+                        if (!IsValidBlock(other) || other.isDestroyed || other == self) // Bogus, already destroyed or self
                             continue;
                         if (IsSupportedBy(other, self))
                             supported.Add(other);
@@ -421,6 +424,8 @@ namespace Oxide.Plugins
 
             public static List<BaseEntity> GetOrphanedDeployables(BuildingBlock self) {
                 List<BaseEntity> deployables = new List<BaseEntity>();
+                if (!IsValidBlock(self))
+                    return deployables;
                 Collider[] colliders = Physics.OverlapSphere(self.transform.position, 4f, deployedLayerMask);
                 foreach (var collider in colliders) {
                     var entity = collider.gameObject.ToBaseEntity();
@@ -446,7 +451,9 @@ namespace Oxide.Plugins
             }
 
             public static string Name(BuildingBlock self) {
-                return self.blockDefinition.fullName + "#" + self.GetInstanceID() + "[" + GetPrefabPinPoints(self).Count + "/" + GetPrefabSockets(self).Count + "]";
+                if (!IsValidBlock(self))
+                    return "invalid#" + self.GetInstanceID();
+                return self.blockDefinition.hierachyName + "#" + self.GetInstanceID() + "[" + GetPrefabPinPoints(self).Count + "/" + GetPrefabSockets(self).Count + "]";
             }
 
             #endregion
@@ -455,70 +462,80 @@ namespace Oxide.Plugins
 
             // Blocks considered a foundation, by name
             private static string[] foundationList = new string[] {
-                "build/foundation",
-                "build/foundation.steps",
-                "build/foundation.triangle"
+                "foundation",
+                "foundation.steps",
+                "foundation.triangle"
             };
 
             // Blocks considered a wall, by name
             private static string[] wallsList = new string[] {
-                "build/wall",
-                "build/wall.doorway",
-                "build/wall.window"
+                "wall",
+                "wall.doorway",
+                "wall.window"
             };
 
             // A map specifying which blocks are considered a support
             private static Dictionary<string, string[]> supportMap = new Dictionary<string, string[]>() {
-                { "build/block.halfheight", new string[] {
-                    "build/block.halfheight",
-                    "build/floor",
-                    "build/floor.triangle",
-                    "build/foundation",
-                    "build/foundation.triangle"
+                { "block.halfheight", new string[] {
+                    "block.halfheight",
+                    "floor",
+                    "floor.triangle",
+                    "foundation",
+                    "foundation.triangle"
                 }},
-                { "build/block.halfheight.slanted", new string[] {
-                    "build/block.halfheight",
-                    "build/floor",
-                    "build/foundation"
+                { "block.halfheight.slanted", new string[] {
+                    "block.halfheight",
+                    "floor",
+                    "foundation"
                 }},
-                { "build/floor", new string[] {
-                    "build/foundation",
-                    "build/foundation.triangle",
-                    "build/pillar"
+                { "block.stair.ushape", new string[] {
+                    "block.halfheight",
+                    "floor",
+                    "foundation"
                 }},
-                { "build/floor.triangle", new string[] {
-                    "build/foundation",
-                    "build/foundation.triangle",
-                    "build/pillar"
+                { "block.stair.lshape", new string[] {
+                    "block.halfheight",
+                    "floor",
+                    "foundation"
                 }},
-                { "build/pillar", new string[] {
-                    "build/foundation",
-                    "build/foundation.triangle",
-                    "build/pillar"
+                { "floor", new string[] {
+                    "foundation",
+                    "foundation.triangle",
+                    "pillar"
                 }},
-                { "build/roof", new string[] {
-                    "build/pillar"
+                { "floor.triangle", new string[] {
+                    "foundation",
+                    "foundation.triangle",
+                    "pillar"
                 }},
-                { "build/wall", new string[] {
-                    "build/pillar"
+                { "pillar", new string[] {
+                    "foundation",
+                    "foundation.triangle",
+                    "pillar"
                 }},
-                { "build/wall.doorway", new string[] {
-                    "build/pillar"
+                { "roof", new string[] {
+                    "pillar"
                 }},
-                { "build/door.hinged", new string[] {
-                    "build/wall.doorway"
+                { "wall", new string[] {
+                    "pillar"
                 }},
-                { "build/wall.low", new string[] {
-                    "build/floor",
-                    "build/floor.triangle",
-                    "build/foundation",
-                    "build/foundation.triangle"
+                { "wall.doorway", new string[] {
+                    "pillar"
                 }},
-                { "build/wall.window", new string[] {
-                    "build/pillar"
+                { "door.hinged", new string[] {
+                    "wall.doorway"
                 }},
-                { "build/wall.window.bars", new string[] {
-                    "build/wall.window"
+                { "wall.low", new string[] {
+                    "floor",
+                    "floor.triangle",
+                    "foundation",
+                    "foundation.triangle"
+                }},
+                { "wall.window", new string[] {
+                    "pillar"
+                }},
+                { "wall.window.bars", new string[] {
+                    "wall.window"
                 }}
             };
 

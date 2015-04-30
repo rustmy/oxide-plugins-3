@@ -5,13 +5,13 @@
   "name": "Enhanced Ban System",
   "category": "Rust-Experimental",
   "type": "lua",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "author": "Domestos",
   "rating": 5,
-  "downloads": 951,
-  "updated": "2015-01-31T18:03:00.000Z",
+  "downloads": 1028,
+  "updated": "2015-04-27T06:58:11.000Z",
   "description": "Ban system with advanced features",
   "iconUrl": "data/resource_icons/0/693.jpg?1427202397",
-  "downloadUrl": "plugins/enhanced-ban-system.693/download?version=3493",
+  "downloadUrl": "plugins/enhanced-ban-system.693/download?version=4740",
   "filename": "EnhancedBanSystem.lua"
 }

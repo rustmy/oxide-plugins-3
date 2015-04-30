@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Oxide.Plugins
 {
 
-    [Info("Crafting Controller", "Mughisi", "2.2.1", ResourceId = 695)]
+    [Info("Crafting Controller", "Mughisi", "2.2.2", ResourceId = 695)]
     class CraftingController : RustPlugin
     {
 
@@ -298,6 +298,8 @@ namespace Oxide.Plugins
                 SendChatMessage(crafter, craftBlockedItem, itemname);
                 foreach (ItemAmount amount in item.blueprint.ingredients)
                     crafter.inventory.GiveItem(amount.itemid, (int)amount.amount, false);
+
+                return;
             }
 
             if (craftingRate == 0f) item.endTime = 1f;

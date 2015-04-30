@@ -1,6 +1,4 @@
-// Reference: Oxide.Ext.Rust
-// Reference: Newtonsoft.Json
-// Reference: UnityEngine
+// #define DEBUG
 
 using Oxide.Core.Plugins;
 using Rust;
@@ -12,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace Oxide.Plugins
 {
-    [Info("BetterLoot", "playrust.io / dcode", "1.8.4", ResourceId = 828)]
+    [Info("BetterLoot", "playrust.io / dcode", "1.8.5", ResourceId = 828)]
     public class BetterLoot : RustPlugin
     {
 
@@ -169,9 +167,9 @@ namespace Oxide.Plugins
         private Dictionary<string, string> messages = new Dictionary<string, string>();
 
         // Regular expressions defining what to override
-        private Regex barrelEx = new Regex("loot_barrel|loot_trash");
+        private Regex barrelEx = new Regex("barrel|trash");
         private Regex crateEx = new Regex("crate");
-        private Regex overrideLootOf = new Regex("(loot_barrel|loot_trash|crate)");
+        private Regex overrideLootOf = new Regex("(barrel|trash|crate)");
 
         // Items and blueprints data
         private List<string>[] items = new List<string>[4];
@@ -493,8 +491,12 @@ namespace Oxide.Plugins
                 min = minItemsPerCrate;
                 max = maxItemsPerCrate;
                 refresh = true; // In case someone puts trash in it
-            } else
+            } else {
+#if DEBUG
+                Log("Container " + ContainerName(container) + " does not match any expression");
+#endif
                 return;
+            }
 
             var n = min + rng.Next(0, max - min + 1);
             var sb = new StringBuilder();
@@ -532,7 +534,9 @@ namespace Oxide.Plugins
                     }
                 }
             }
-            // Log("Populating " + ContainerName(container) + " with " + sb.ToString());
+#if DEBUG
+            Log("Populating " + ContainerName(container) + " with " + sb.ToString());
+#endif
             foreach (var item in items)
                 item.MoveToContainer(container.inventory, -1, false);
             container.inventory.MarkDirty();
@@ -546,8 +550,14 @@ namespace Oxide.Plugins
                 return;
             try {
                 var container = entity as LootContainer;
-                if (container == null || container.inventory == null || container.inventory.itemList == null)
+                if (container == null)
                     return;
+                if (container.inventory == null || container.inventory.itemList == null) {
+#if DEBUG
+                    Log("Container " + ContainerName(container) + " spawned without inventory/itemList");
+#endif
+                    return;
+                }
                 PopulateContainer(container);
             } catch (Exception ex) {
                 Error("OnEntitySpawned failed: " + ex.Message);
